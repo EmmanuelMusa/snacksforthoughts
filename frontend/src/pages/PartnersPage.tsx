@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { PartnerCardSkeleton } from '../components/SkeletonLoader'
-import ScrollAnimation from '../components/ScrollAnimation'
 import BackToTop from '../components/BackToTop'
 
 type Partner = {

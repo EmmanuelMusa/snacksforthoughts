@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useDonation } from '../context/DonationContext'
 import { VendorCardSkeleton } from '../components/SkeletonLoader'
-import ScrollAnimation from '../components/ScrollAnimation'
 import BackToTop from '../components/BackToTop'
 
 type Vendor = {

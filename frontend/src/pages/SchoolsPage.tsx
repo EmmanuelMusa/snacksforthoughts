@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import data from '../data/ng-schools.json'
 import { SchoolCardSkeleton } from '../components/SkeletonLoader'
-import ScrollAnimation from '../components/ScrollAnimation'
 import BackToTop from '../components/BackToTop'
 
 type WardSchool = {

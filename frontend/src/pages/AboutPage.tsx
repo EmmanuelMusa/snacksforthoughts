@@ -1,6 +1,5 @@
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
-import ScrollAnimation from '../components/ScrollAnimation'
 import BackToTop from '../components/BackToTop'
 
 type TeamMember = {
