@@ -1,0 +1,120 @@
+[
+    {
+        "state": "Lagos",
+        "lgas": [
+            {
+                "name": "Ikeja",
+                "wards": [
+                    {
+                        "name": "Alausa",
+                        "schools": [
+                            {
+                                "id": "s1",
+                                "name": "Sunrise Primary",
+                                "image": "",
+                                "needs": "Paint classrooms, repair desks",
+                                "targetAmount": 200000,
+                                "raisedAmount": 45000
+                            }
+                        ]
+                    },
+                    {
+                        "name": "Opebi",
+                        "schools": [
+                            {
+                                "id": "s2",
+                                "name": "Unity Primary",
+                                "image": "",
+                                "needs": "Library shelves and books",
+                                "targetAmount": 150000,
+                                "raisedAmount": 60000
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "name": "Yaba",
+                "wards": [
+                    {
+                        "name": "Sabo",
+                        "schools": [
+                            {
+                                "id": "s3",
+                                "name": "Greenfield School",
+                                "image": "",
+                                "needs": "Breakfast program funding",
+                                "targetAmount": 100000,
+                                "raisedAmount": 25000
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "state": "Ogun",
+        "lgas": [
+            {
+                "name": "Abeokuta South",
+                "wards": [
+                    {
+                        "name": "Ijeun",
+                        "schools": [
+                            {
+                                "id": "s4",
+                                "name": "Harmony Primary",
+                                "image": "",
+                                "needs": "Classroom desks",
+                                "targetAmount": 120000,
+                                "raisedAmount": 10000
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "name": "Abeokuta North",
+                "wards": [
+                    {
+                        "name": "Oke-Ona",
+                        "schools": [
+                            {
+                                "id": "s5",
+                                "name": "Bright Future Academy",
+                                "image": "",
+                                "needs": "Computer lab equipment",
+                                "targetAmount": 300000,
+                                "raisedAmount": 75000
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "state": "Rivers",
+        "lgas": [
+            {
+                "name": "Port Harcourt",
+                "wards": [
+                    {
+                        "name": "D-Line",
+                        "schools": [
+                            {
+                                "id": "s6",
+                                "name": "Riverside Elementary",
+                                "image": "",
+                                "needs": "Playground equipment and sports facilities",
+                                "targetAmount": 250000,
+                                "raisedAmount": 50000
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+]
