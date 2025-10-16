@@ -214,15 +214,15 @@ export default function DonatePage() {
                                         required
                                     >
                                         <option value="">Choose a school to support</option>
-                            {schools.map(s => (
-                                <option key={s.id} value={s.id}>{s.name}</option>
-                            ))}
-                        </select>
+                                        {schools.map(s => (
+                                            <option key={s.id} value={s.id}>{s.name}</option>
+                                        ))}
+                                    </select>
                                 </div>
 
                                 {/* Donation Type Specific Fields */}
                                 <AnimatePresence mode="wait">
-                        {donationType === 'CASH' ? (
+                                    {donationType === 'CASH' ? (
                                         <motion.div
                                             key="cash"
                                             initial={{ opacity: 0, y: 20 }}
@@ -299,16 +299,16 @@ export default function DonatePage() {
                                                     onChange={(e) => setKindType(e.target.value)}
                                                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-200"
                                                 >
-                                    <option>Materials</option>
-                                    <option>Services</option>
-                                    <option>Cooking Utensils</option>
-                                    <option>Instructional Materials</option>
-                                    <option>Furniture</option>
-                                    <option>Building Materials</option>
-                                    <option>Books</option>
-                                    <option>School Uniforms</option>
-                                    <option>Food Items</option>
-                                </select>
+                                                    <option>Materials</option>
+                                                    <option>Services</option>
+                                                    <option>Cooking Utensils</option>
+                                                    <option>Instructional Materials</option>
+                                                    <option>Furniture</option>
+                                                    <option>Building Materials</option>
+                                                    <option>Books</option>
+                                                    <option>School Uniforms</option>
+                                                    <option>Food Items</option>
+                                                </select>
                                             </div>
 
                                             <div>
@@ -365,7 +365,7 @@ export default function DonatePage() {
                                                 <div>School: {selected.name}</div>
                                             )}
                                         </div>
-                                </div>
+                                    </div>
                                 )}
 
                                 {/* Submit Button */}

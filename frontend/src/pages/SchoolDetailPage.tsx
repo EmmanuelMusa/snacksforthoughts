@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useDonation } from '../context/DonationContext'
-import ScrollAnimation from '../components/ScrollAnimation'
 import BackToTop from '../components/BackToTop'
 import StickyDonateButton from '../components/StickyDonateButton'
 

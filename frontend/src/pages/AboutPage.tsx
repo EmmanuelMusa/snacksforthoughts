@@ -363,7 +363,7 @@ export default function AboutPage() {
                 </div>
             </div>
             <BackToTop />
-            </div>
+        </div>
     )
 }
 
