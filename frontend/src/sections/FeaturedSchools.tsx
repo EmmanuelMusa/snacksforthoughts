@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion'
+import { Link } from 'react-router-dom'
 import schoolsData from '../data/ng-schools.json'
 
 export default function FeaturedSchools() {
@@ -137,13 +138,15 @@ export default function FeaturedSchools() {
                                     </div>
 
                                     {/* Support Button */}
-                                    <motion.button
-                                        className="w-full btn-primary"
-                                        whileHover={{ scale: 1.02 }}
-                                        whileTap={{ scale: 0.98 }}
-                                    >
-                                        Support This School
-                                    </motion.button>
+                                    <Link to={`/donate?schoolId=${school.id}`}>
+                                        <motion.button
+                                            className="w-full btn-primary"
+                                            whileHover={{ scale: 1.02 }}
+                                            whileTap={{ scale: 0.98 }}
+                                        >
+                                            Support This School
+                                        </motion.button>
+                                    </Link>
                                 </div>
                             </motion.div>
                         )
