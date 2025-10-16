@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion'
+import { Link } from 'react-router-dom'
 
 export default function FeaturedPartners() {
     const partners = [
@@ -93,14 +94,15 @@ export default function FeaturedPartners() {
                     transition={{ duration: 0.6, delay: 0.8 }}
                     className="text-center mt-16"
                 >
-                    <motion.a
-                        href="/partners"
-                        className="inline-flex items-center px-8 py-4 bg-transparent border-2 border-gray-300 text-gray-700 hover:bg-gray-100 hover:border-gray-400 font-semibold text-lg rounded-full transition-all duration-300 transform hover:-translate-y-1"
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                    >
-                        Become a Partner
-                    </motion.a>
+                    <Link to="/partners">
+                        <motion.button
+                            className="inline-flex items-center px-8 py-4 bg-transparent border-2 border-gray-300 text-gray-700 hover:bg-gray-100 hover:border-gray-400 font-semibold text-lg rounded-full transition-all duration-300 transform hover:-translate-y-1"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                        >
+                            Become a Partner
+                        </motion.button>
+                    </Link>
                 </motion.div>
             </div>
         </section>

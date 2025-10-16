@@ -161,14 +161,15 @@ export default function FeaturedSchools() {
                     transition={{ duration: 0.6, delay: 0.8 }}
                     className="text-center mt-12"
                 >
-                    <motion.a
-                        href="/schools"
-                        className="inline-flex items-center px-8 py-4 bg-transparent border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white font-semibold text-lg rounded-full transition-all duration-300 transform hover:-translate-y-1"
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                    >
-                        View All Schools
-                    </motion.a>
+                    <Link to="/schools">
+                        <motion.button
+                            className="inline-flex items-center px-8 py-4 bg-transparent border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white font-semibold text-lg rounded-full transition-all duration-300 transform hover:-translate-y-1"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                        >
+                            View All Schools
+                        </motion.button>
+                    </Link>
                 </motion.div>
             </div>
         </section>

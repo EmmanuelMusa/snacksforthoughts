@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion'
+import { Link } from 'react-router-dom'
 
 export default function HowItWorks() {
     const steps = [
@@ -122,14 +123,15 @@ export default function HowItWorks() {
                     transition={{ duration: 0.6, delay: 0.8 }}
                     className="text-center mt-16"
                 >
-                    <motion.a
-                        href="/schools"
-                        className="btn-primary text-lg"
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                    >
-                        Start Making a Difference
-                    </motion.a>
+                    <Link to="/schools">
+                        <motion.button
+                            className="btn-primary text-lg"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                        >
+                            Start Making a Difference
+                        </motion.button>
+                    </Link>
                 </motion.div>
             </div>
         </section>

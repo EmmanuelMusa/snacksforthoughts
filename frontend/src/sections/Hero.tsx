@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion'
+import { Link } from 'react-router-dom'
 
 export default function Hero() {
     return (
@@ -34,23 +35,25 @@ export default function Hero() {
                     </p>
 
                     <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                        <motion.a
-                            href="/donate"
-                            className="inline-flex items-center px-8 py-4 bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold text-lg rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                        >
-                            Donate Now
-                        </motion.a>
+                        <Link to="/donate">
+                            <motion.button
+                                className="inline-flex items-center px-8 py-4 bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold text-lg rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                            >
+                                Donate Now
+                            </motion.button>
+                        </Link>
 
-                        <motion.a
-                            href="/register"
-                            className="inline-flex items-center px-8 py-4 bg-transparent border-2 border-white text-white font-semibold text-lg rounded-2xl hover:bg-white hover:text-gray-900 transition-all duration-300 transform hover:-translate-y-1"
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                        >
-                            List Your School
-                        </motion.a>
+                        <Link to="/register">
+                            <motion.button
+                                className="inline-flex items-center px-8 py-4 bg-transparent border-2 border-white text-white font-semibold text-lg rounded-2xl hover:bg-white hover:text-gray-900 transition-all duration-300 transform hover:-translate-y-1"
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                            >
+                                List Your School
+                            </motion.button>
+                        </Link>
                     </div>
                 </motion.div>
             </div>
