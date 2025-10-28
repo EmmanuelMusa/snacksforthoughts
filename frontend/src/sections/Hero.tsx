@@ -34,16 +34,15 @@ export default function Hero() {
                         Join us in transforming education by providing nutritious meals and essential resources to primary schools across Nigeria.
                     </p>
 
-                        <Link to="/register">
-                            <motion.button
-                                className="inline-flex items-center px-8 py-4 bg-transparent border-2 border-white text-white font-semibold text-lg rounded-2xl hover:bg-white hover:text-gray-900 transition-all duration-300 transform hover:-translate-y-1"
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                            >
-                                List Your School
-                            </motion.button>
-                        </Link>
-                    </div>
+                    <Link to="/register">
+                        <motion.button
+                            className="inline-flex items-center px-8 py-4 bg-transparent border-2 border-white text-white font-semibold text-lg rounded-2xl hover:bg-white hover:text-gray-900 transition-all duration-300 transform hover:-translate-y-1"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                        >
+                            List Your School
+                        </motion.button>
+                    </Link>
                 </motion.div>
             </div>
 
@@ -60,5 +59,3 @@ export default function Hero() {
         </section>
     )
 }
-
-
