@@ -20,7 +20,6 @@ function Navbar() {
     { to: "/schools", label: "Schools" },
     { to: "/vendors", label: "Vendors" },
     { to: "/partners", label: "Partners" },
-    { to: "/donate", label: "Donate" },
     { to: "/about", label: "About" }
   ]
 
