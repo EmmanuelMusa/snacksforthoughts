@@ -4,6 +4,20 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useDonation } from '../context/DonationContext'
 import BackToTop from '../components/BackToTop'
 import StickyDonateButton from '../components/StickyDonateButton'
+import {
+    LayoutDashboard,
+    Target,
+    HeartHandshake,
+    Image as ImageIcon,
+    Phone,
+    MapPin,
+    Mail,
+    GraduationCap,
+    Users,
+    UserCheck,
+    X,
+    Heart
+} from 'lucide-react'
 
 type School = {
     id: string;
@@ -41,10 +55,15 @@ export default function SchoolDetailPage() {
 
     useEffect(() => {
         if (!id) return
-        fetch(`${apiBaseUrl}/api/schools/${id}`).then(r => r.json()).then(setSchool).catch(() => { })
-        fetch(`${apiBaseUrl}/api/donations`).then(r => r.json()).then((all: Donation[]) => {
-            setDonations(all.filter(d => (d as any).schoolId === id))
-        }).catch(() => { })
+        fetch(`${apiBaseUrl}/api/schools/${id}`)
+            .then(r => r.json())
+            .then((json) => setSchool((json as any).data ?? json))
+            .catch(() => { })
+
+        fetch(`${apiBaseUrl}/api/donations?schoolId=${encodeURIComponent(id)}&limit=12`)
+            .then(r => r.json())
+            .then((list: Donation[]) => setDonations(list || []))
+            .catch(() => { })
     }, [apiBaseUrl, id])
 
     const progress = school ? school.raisedAmount / school.targetAmount : 0
@@ -195,25 +214,25 @@ export default function SchoolDetailPage() {
                     )}
 
                     {/* Tabs */}
-                    <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
-                        <div className="border-b border-gray-200">
-                            <nav className="flex overflow-x-auto">
+                    <div className="bg-white rounded-3xl shadow-xl overflow-hidden mb-12 border border-gray-100">
+                        <div className="border-b border-gray-100 bg-gray-50/50">
+                            <nav className="flex overflow-x-auto scroolbar-hide">
                                 {[
-                                    { key: 'overview', label: 'Overview', icon: '📋' },
-                                    { key: 'needs', label: 'Needs', icon: '🎯' },
-                                    { key: 'donations', label: 'Donations', icon: '💝' },
-                                    { key: 'gallery', label: 'Gallery', icon: '📸' },
-                                    { key: 'contact', label: 'Contact', icon: '📞' }
+                                    { key: 'overview', label: 'Overview', icon: LayoutDashboard },
+                                    { key: 'needs', label: 'Needs', icon: Target },
+                                    { key: 'donations', label: 'Donations', icon: HeartHandshake },
+                                    { key: 'gallery', label: 'Gallery', icon: ImageIcon },
+                                    { key: 'contact', label: 'Contact', icon: Phone }
                                 ].map((tabItem) => (
                                     <button
                                         key={tabItem.key}
                                         onClick={() => setTab(tabItem.key as any)}
-                                        className={`flex items-center gap-2 px-6 py-4 text-sm font-medium whitespace-nowrap border-b-2 transition-colors duration-200 ${tab === tabItem.key
-                                            ? 'border-mint-500 text-mint-600 bg-mint-50'
-                                            : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                                        className={`flex items-center gap-2 px-8 py-5 text-sm font-semibold whitespace-nowrap border-b-2 transition-all duration-300 ${tab === tabItem.key
+                                            ? 'border-mint-500 text-mint-600 bg-white shadow-[0_-4px_0_0_inset_#3b82f6]' // subtle visual indicator
+                                            : 'border-transparent text-gray-500 hover:text-gray-900 hover:bg-gray-100/50'
                                             }`}
                                     >
-                                        <span>{tabItem.icon}</span>
+                                        <tabItem.icon className={`w-5 h-5 ${tab === tabItem.key ? 'text-mint-500' : 'text-gray-400'}`} />
                                         {tabItem.label}
                                     </button>
                                 ))}
@@ -239,20 +258,26 @@ export default function SchoolDetailPage() {
                                         </div>
 
                                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                            <div className="bg-mint-50 rounded-xl p-6 text-center">
-                                                <div className="w-8 h-1 bg-gradient-to-r from-mint-500 to-mint-600 rounded-full mx-auto mb-4"></div>
-                                                <div className="font-semibold text-gray-900">Primary School</div>
-                                                <div className="text-sm text-gray-600">Education Level</div>
+                                            <div className="bg-gradient-to-br from-mint-50 to-white border border-mint-100 rounded-2xl p-6 text-center shadow-sm">
+                                                <div className="w-12 h-12 bg-mint-100 rounded-xl flex items-center justify-center mx-auto mb-4">
+                                                    <GraduationCap className="w-6 h-6 text-mint-600" />
+                                                </div>
+                                                <div className="font-bold text-gray-900 text-lg">Primary School</div>
+                                                <div className="text-sm text-gray-500">Education Level</div>
                                             </div>
-                                            <div className="bg-sky-50 rounded-xl p-6 text-center">
-                                                <div className="w-8 h-1 bg-gradient-to-r from-sky-500 to-sky-600 rounded-full mx-auto mb-4"></div>
-                                                <div className="font-semibold text-gray-900">200+</div>
-                                                <div className="text-sm text-gray-600">Students</div>
+                                            <div className="bg-gradient-to-br from-sky-50 to-white border border-sky-100 rounded-2xl p-6 text-center shadow-sm">
+                                                <div className="w-12 h-12 bg-sky-100 rounded-xl flex items-center justify-center mx-auto mb-4">
+                                                    <Users className="w-6 h-6 text-sky-600" />
+                                                </div>
+                                                <div className="font-bold text-gray-900 text-lg">200+</div>
+                                                <div className="text-sm text-gray-500">Students</div>
                                             </div>
-                                            <div className="bg-green-50 rounded-xl p-6 text-center">
-                                                <div className="w-8 h-1 bg-gradient-to-r from-green-500 to-green-600 rounded-full mx-auto mb-4"></div>
-                                                <div className="font-semibold text-gray-900">15+</div>
-                                                <div className="text-sm text-gray-600">Teachers</div>
+                                            <div className="bg-gradient-to-br from-indigo-50 to-white border border-indigo-100 rounded-2xl p-6 text-center shadow-sm">
+                                                <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center mx-auto mb-4">
+                                                    <UserCheck className="w-6 h-6 text-indigo-600" />
+                                                </div>
+                                                <div className="font-bold text-gray-900 text-lg">15+</div>
+                                                <div className="text-sm text-gray-500">Teachers</div>
                                             </div>
                                         </div>
                                     </motion.div>
@@ -333,17 +358,18 @@ export default function SchoolDetailPage() {
                                                 </motion.div>
                                             ))}
                                             {donations.length === 0 && (
-                                                <div className="col-span-full text-center py-12">
-                                                    <div className="w-16 h-16 bg-mint-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                                        <div className="w-8 h-8 bg-mint-500 rounded-full"></div>
+                                                <div className="col-span-full text-center py-16 px-4 bg-gray-50 rounded-2xl border border-gray-100 border-dashed">
+                                                    <div className="w-20 h-20 bg-mint-100 rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm">
+                                                        <Heart className="w-10 h-10 text-mint-500" />
                                                     </div>
-                                                    <h4 className="text-lg font-semibold text-gray-900 mb-2">No donations yet</h4>
-                                                    <p className="text-gray-600 mb-6">Be the first to support this school!</p>
+                                                    <h4 className="text-xl font-bold text-gray-900 mb-3">No donations yet</h4>
+                                                    <p className="text-gray-600 mb-8 max-w-sm mx-auto">Your generosity can be the very first to change lives at this school.</p>
                                                     <Link
                                                         to={`/donate?schoolId=${school?.id || ''}`}
-                                                        className="inline-flex items-center px-6 py-3 bg-mint-500 hover:bg-mint-600 text-white font-semibold rounded-lg transition-colors duration-200"
+                                                        className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-mint-500 to-mint-600 hover:from-mint-600 hover:to-mint-700 text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
                                                     >
-                                                        Make First Donation
+                                                        <HeartHandshake className="w-5 h-5" />
+                                                        Make the First Donation
                                                     </Link>
                                                 </div>
                                             )}
@@ -387,45 +413,45 @@ export default function SchoolDetailPage() {
                                         animate={{ opacity: 1, y: 0 }}
                                         exit={{ opacity: 0, y: -20 }}
                                     >
-                                        <h3 className="text-2xl font-bold text-gray-900 mb-6">Contact Information</h3>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                            <div className="space-y-6">
-                                                <div className="flex items-start gap-4">
-                                                    <div className="w-8 h-8 bg-gradient-to-br from-mint-100 to-mint-200 rounded-full flex items-center justify-center">
-                                                        <div className="w-4 h-4 bg-gradient-to-br from-mint-500 to-mint-600 rounded-full"></div>
+                                        <h3 className="text-2xl font-bold text-gray-900 mb-8">Contact Information</h3>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                                            <div className="space-y-8">
+                                                <div className="flex items-start gap-4 p-4 rounded-xl hover:bg-gray-50 transition-colors">
+                                                    <div className="w-12 h-12 bg-mint-100 rounded-xl flex items-center justify-center shrink-0">
+                                                        <Mail className="w-6 h-6 text-mint-600" />
                                                     </div>
                                                     <div>
-                                                        <h4 className="font-semibold text-gray-900">Email</h4>
-                                                        <p className="text-gray-600">{school?.email || 'contact@school.edu.ng'}</p>
+                                                        <h4 className="font-semibold text-gray-900 text-lg mb-1">Email</h4>
+                                                        <p className="text-gray-600 text-base">{school?.email || 'contact@school.edu.ng'}</p>
                                                     </div>
                                                 </div>
-                                                <div className="flex items-start gap-4">
-                                                    <div className="w-8 h-8 bg-gradient-to-br from-mint-100 to-mint-200 rounded-full flex items-center justify-center">
-                                                        <div className="w-4 h-4 bg-gradient-to-br from-mint-500 to-mint-600 rounded-full"></div>
+                                                <div className="flex items-start gap-4 p-4 rounded-xl hover:bg-gray-50 transition-colors">
+                                                    <div className="w-12 h-12 bg-sky-100 rounded-xl flex items-center justify-center shrink-0">
+                                                        <Phone className="w-6 h-6 text-sky-600" />
                                                     </div>
                                                     <div>
-                                                        <h4 className="font-semibold text-gray-900">Phone</h4>
-                                                        <p className="text-gray-600">{school?.phone || '+234 800 000 0000'}</p>
+                                                        <h4 className="font-semibold text-gray-900 text-lg mb-1">Phone</h4>
+                                                        <p className="text-gray-600 text-base">{school?.phone || '+234 800 000 0000'}</p>
                                                     </div>
                                                 </div>
-                                                <div className="flex items-start gap-4">
-                                                    <div className="w-8 h-8 bg-gradient-to-br from-mint-100 to-mint-200 rounded-full flex items-center justify-center">
-                                                        <div className="w-4 h-4 bg-gradient-to-br from-mint-500 to-mint-600 rounded-full"></div>
+                                                <div className="flex items-start gap-4 p-4 rounded-xl hover:bg-gray-50 transition-colors">
+                                                    <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center shrink-0">
+                                                        <MapPin className="w-6 h-6 text-indigo-600" />
                                                     </div>
                                                     <div>
-                                                        <h4 className="font-semibold text-gray-900">Address</h4>
-                                                        <p className="text-gray-600">{school?.address || 'School Address, City, State'}</p>
+                                                        <h4 className="font-semibold text-gray-900 text-lg mb-1">Address</h4>
+                                                        <p className="text-gray-600 text-base leading-relaxed">{school?.address || 'School Address, City, State'}</p>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div className="bg-mint-50 rounded-xl p-6">
-                                                <h4 className="font-semibold text-gray-900 mb-4">Get Involved</h4>
-                                                <p className="text-gray-600 mb-4">
-                                                    Want to learn more about how you can help? Contact us directly or make a donation today.
+                                            <div className="bg-gradient-to-br from-mint-50 to-emerald-50 border border-mint-100/50 rounded-3xl p-8 shadow-sm">
+                                                <h4 className="text-xl font-bold text-gray-900 mb-4">Get Involved</h4>
+                                                <p className="text-gray-600 mb-8 leading-relaxed">
+                                                    Want to learn more about how you can help? Contact us directly or make a donation today. Your support can profoundly change the lives of these students.
                                                 </p>
                                                 <Link
                                                     to={`/donate?schoolId=${school?.id || ''}`}
-                                                    className="inline-flex items-center px-6 py-3 bg-mint-500 hover:bg-mint-600 text-white font-semibold rounded-lg transition-colors duration-200"
+                                                    className="inline-flex w-full items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-mint-500 to-mint-600 hover:from-mint-600 hover:to-mint-700 text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition-all duration-300"
                                                 >
                                                     Support This School
                                                 </Link>
@@ -463,9 +489,9 @@ export default function SchoolDetailPage() {
                             />
                             <button
                                 onClick={() => setSelectedImage(null)}
-                                className="absolute top-4 right-4 w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-colors duration-200"
+                                className="absolute -top-4 -right-4 md:top-4 md:right-4 w-12 h-12 bg-white/10 backdrop-blur-md border border-white/20 rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-all duration-200"
                             >
-                                ✕
+                                <X className="w-6 h-6" />
                             </button>
                         </motion.div>
                     </motion.div>

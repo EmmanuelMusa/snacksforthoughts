@@ -23,16 +23,45 @@ export default function DonatePage() {
     const [paymentMethod, setPaymentMethod] = useState('')
 
     useEffect(() => {
-        fetch(`${apiBaseUrl}/api/schools`).then(r => r.json()).then((data: School[]) => {
-            setSchools(data)
-            const pre = searchParams.get('schoolId')
-            if (pre && data.find(s => s.id === pre)) {
-                setSchoolId(pre)
-            } else if (data.length && !schoolId) {
-                setSchoolId(data[0].id)
+        let cancelled = false
+
+        ;(async () => {
+            try {
+                const pre = searchParams.get('schoolId')
+
+                const res = await fetch(`${apiBaseUrl}/api/schools/search?limit=200&page=1`)
+                const json = await res.json()
+                const payload = (json as any).data ?? json
+                const list: School[] = payload.schools || []
+
+                if (pre && !list.find(s => s.id === pre)) {
+                    try {
+                        const sRes = await fetch(`${apiBaseUrl}/api/schools/${encodeURIComponent(pre)}`)
+                        const sJson = await sRes.json()
+                        const school = (sJson as any).data ?? sJson
+                        if (school?.id) list.unshift(school)
+                    } catch {
+                        // ignore
+                    }
+                }
+
+                if (cancelled) return
+                setSchools(list)
+
+                if (pre && list.find(s => s.id === pre)) {
+                    setSchoolId(pre)
+                } else if (list.length && !schoolId) {
+                    setSchoolId(list[0].id)
+                }
+            } catch {
+                if (!cancelled) setSchools([])
             }
-        }).catch(() => { })
-    }, [apiBaseUrl])
+        })()
+
+        return () => {
+            cancelled = true
+        }
+    }, [apiBaseUrl, searchParams, schoolId])
 
     const selected = useMemo(() => schools.find(s => s.id === schoolId), [schools, schoolId])
 
@@ -61,7 +90,11 @@ export default function DonatePage() {
             const donation = await res.json()
             addDonation(donation)
             setSession({ donorName: donation.donorName })
-            setSuccessMsg(`Thank you, ${donation.donorName}! Your donation of ₦${donation.amount.toLocaleString()} was received.`)
+            const msg =
+                donation.type === 'IN_KIND'
+                    ? `Thank you, ${donation.donorName}! Your in-kind donation was received.`
+                    : `Thank you, ${donation.donorName}! Your donation of ₦${Number(donation.amount || 0).toLocaleString()} was received.`
+            setSuccessMsg(msg)
             setOpenModal(true)
             // optimistic update
             if (donationType === 'CASH') {

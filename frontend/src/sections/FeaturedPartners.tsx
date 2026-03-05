@@ -3,14 +3,14 @@ import { Link } from 'react-router-dom'
 
 export default function FeaturedPartners() {
     const partners = [
-        { name: "Microsoft", logo: "🔷" },
-        { name: "Google", logo: "🔴" },
-        { name: "Amazon", logo: "📦" },
-        { name: "Meta", logo: "📘" },
-        { name: "Netflix", logo: "🎬" },
-        { name: "Spotify", logo: "🎵" },
-        { name: "Uber", logo: "🚗" },
-        { name: "Airbnb", logo: "🏠" }
+        { name: "Nasco Foods", logo: "🥨" },
+        { name: "Chivita", logo: "🧃" },
+        { name: "Cadbury", logo: "🍫" },
+        { name: "FrieslandCampina", logo: "🥛" },
+        { name: "Nestlé", logo: "🍪" },
+        { name: "Dangote Sugar", logo: "🍯" },
+        { name: "Access Bank", logo: "🏦" },
+        { name: "MTN Nigeria", logo: "📱" }
     ]
 
     const containerVariants = {

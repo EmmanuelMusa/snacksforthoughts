@@ -21,69 +21,69 @@ export default function PartnersPage() {
     const partners: Partner[] = [
         {
             id: '1',
-            name: 'Access Bank',
-            logo: '/images/partners/access-bank.png',
-            supportedCauses: ['School Renovation', 'Feeding Programs', 'Digital Learning'],
-            testimonial: 'We believe in empowering the next generation through quality education. Our partnership with Snacks for Thoughts allows us to make a meaningful impact in communities across Nigeria.',
-            website: 'https://accessbankplc.com',
-            industry: 'Banking'
+            name: 'Nasco Foods',
+            logo: '/images/partners/nasco-logo.png',
+            supportedCauses: ['Breakfast Programs', 'Nutrition Education', 'Healthy Snacks'],
+            testimonial: 'We believe in nourishing young minds with quality, nutritious snacks. Our partnership with Snacks for Thoughts helps us reach children across Nigeria with healthy breakfast options.',
+            website: 'https://nasco.com.ng',
+            industry: 'Food & Beverage'
         },
         {
             id: '2',
-            name: 'MTN Nigeria',
-            logo: '/images/partners/mtn.png',
-            supportedCauses: ['Digital Infrastructure', 'Teacher Training', 'Student Scholarships'],
-            testimonial: 'Connecting communities through technology and education. Our collaboration helps bridge the digital divide in Nigerian schools.',
-            website: 'https://mtn.ng',
-            industry: 'Telecommunications'
+            name: 'Chivita',
+            logo: '/images/partners/chivita-logo.png',
+            supportedCauses: ['Juice Programs', 'Vitamin Enrichment', 'Student Nutrition'],
+            testimonial: 'Providing essential vitamins and nutrients through our quality juice products. We\'re committed to supporting children\'s health and education through proper nutrition.',
+            website: 'https://chivita.com',
+            industry: 'Food & Beverage'
         },
         {
             id: '3',
-            name: 'Dangote Group',
-            logo: '/images/partners/dangote.png',
-            supportedCauses: ['Infrastructure Development', 'Feeding Programs', 'Educational Materials'],
-            testimonial: 'Building a better Nigeria starts with investing in our children\'s education. We\'re proud to support schools through this initiative.',
-            website: 'https://dangote.com',
-            industry: 'Manufacturing'
+            name: 'Cadbury Nigeria',
+            logo: '/images/partners/cadbury-logo.png',
+            supportedCauses: ['Breakfast Programs', 'Nutritional Support', 'Educational Materials'],
+            testimonial: 'Building a better Nigeria starts with investing in our children\'s nutrition and education. We\'re proud to support schools through this initiative.',
+            website: 'https://cadbury.com.ng',
+            industry: 'Food & Beverage'
         },
         {
             id: '4',
-            name: 'Flutterwave',
-            logo: '/images/partners/flutterwave.png',
-            supportedCauses: ['Digital Payments', 'Financial Literacy', 'School Management Systems'],
-            testimonial: 'Making education accessible through innovative payment solutions. We\'re committed to supporting educational initiatives across Africa.',
-            website: 'https://flutterwave.com',
-            industry: 'Fintech'
+            name: 'FrieslandCampina WAMCO',
+            logo: '/images/partners/friesland-logo.png',
+            supportedCauses: ['Dairy Nutrition', 'School Feeding', 'Health Education'],
+            testimonial: 'Making quality dairy nutrition accessible to school children. We\'re committed to supporting educational initiatives that promote healthy growth and development.',
+            website: 'https://frieslandcampina.com',
+            industry: 'Dairy & Nutrition'
         },
         {
             id: '5',
-            name: 'Interswitch',
-            logo: '/images/partners/interswitch.png',
-            supportedCauses: ['Digital Learning', 'Payment Solutions', 'School Administration'],
+            name: 'Nestlé Nigeria',
+            logo: '/images/partners/nestle-logo.png',
+            supportedCauses: ['Nutrition Education', 'Healthy Snacks', 'Student Wellness'],
             testimonial: 'Technology has the power to transform education. Our partnership helps schools embrace digital solutions for better learning outcomes.',
-            website: 'https://interswitchgroup.com',
-            industry: 'Technology'
+            website: 'https://nestle.com.ng',
+            industry: 'Food & Nutrition'
         },
         {
             id: '6',
-            name: 'Lagos State Government',
-            logo: '/images/partners/lagos-state.png',
-            supportedCauses: ['Policy Support', 'Infrastructure', 'Teacher Development'],
-            testimonial: 'Education is the foundation of our state\'s development. We\'re committed to supporting initiatives that improve learning outcomes.',
-            website: 'https://lagosstate.gov.ng',
-            industry: 'Government'
+            name: 'Dangote Sugar',
+            logo: '/images/partners/dangote-sugar-logo.png',
+            supportedCauses: ['Breakfast Programs', 'Nutritional Support', 'Community Development'],
+            testimonial: 'Education is the foundation of our nation\'s development. We\'re committed to supporting initiatives that improve children\'s nutrition and learning outcomes.',
+            website: 'https://dangote.com',
+            industry: 'Food & Agriculture'
         }
     ]
 
     const showcaseLogos = [
+        '/images/partners/nasco-logo.png',
+        '/images/partners/chivita-logo.png',
+        '/images/partners/cadbury-logo.png',
+        '/images/partners/friesland-logo.png',
+        '/images/partners/nestle-logo.png',
+        '/images/partners/dangote-sugar-logo.png',
         '/images/partners/access-bank.png',
-        '/images/partners/mtn.png',
-        '/images/partners/dangote.png',
-        '/images/partners/flutterwave.png',
-        '/images/partners/interswitch.png',
-        '/images/partners/lagos-state.png',
-        '/images/partners/gtbank.png',
-        '/images/partners/zenith-bank.png'
+        '/images/partners/mtn.png'
     ]
 
     useEffect(() => {

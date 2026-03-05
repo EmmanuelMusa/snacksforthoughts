@@ -6,7 +6,6 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
 }
 
 datasource db {
@@ -18,14 +17,32 @@ model School {
   id            String   @id @default(cuid())
   name          String
   location      String
-  needType      String
-  description   String
+  needType      String   @default("General Education")
+  description   String   @default("A school in need of support")
   image         String?
-  targetAmount  Int
+  targetAmount  Int      @default(100000)
   raisedAmount  Int      @default(0)
+  studentCount  Int?     @default(0)
+  state         String?
+  lga           String?
+  ward          String?
+  town          String?
+  specificLocation String?
+  category      String?
+  aggregator    String?
+  originalNo    String?
+  email         String?
+  phone         String?
+  address       String?
+  principalName String?
+  schoolType    String?  // Primary, Secondary, etc.
+  needs         String[] @default(["Breakfast Programs", "Educational Materials"])
+  isActive      Boolean  @default(true)
+  importBatch   String?  // Track which import batch this school came from
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   donations     Donation[]
+  breakfastDonations BreakfastDonation[]
 }
 
 model Vendor {
@@ -69,4 +86,48 @@ model Company {
   contact          String?
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
+}
+
+model Supplier {
+  id              String   @id @default(cuid())
+  name            String
+  logo            String?
+  description     String?
+  specialties     String[] // array of specialties like ["Biscuits", "Juices", "Cereals"]
+  rating          Float    @default(0)
+  deliveryAreas   String[] // array of delivery areas
+  accountDetails  Json     // bank account details
+  contactInfo     Json     // phone, email
+  verified        Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  breakfastDonations BreakfastDonation[]
+}
+
+model BreakfastDonation {
+  id              String   @id @default(cuid())
+  donorName       String
+  schoolId        String
+  supplierId      String
+  selectedWeeks   String[] // array of week IDs
+  totalAmount     Int
+  costPerStudent  Int      @default(50)
+  studentCount    Int
+  paymentConfirmed Boolean @default(false)
+  paymentReference String?
+  status          DonationStatus @default(PENDING)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  school          School   @relation(fields: [schoolId], references: [id])
+  supplier        Supplier @relation(fields: [supplierId], references: [id])
+}
+
+enum DonationStatus {
+  PENDING
+  PAYMENT_CONFIRMED
+  SUPPLIER_NOTIFIED
+  IN_PROGRESS
+  DELIVERED
+  COMPLETED
+  CANCELLED
 }

@@ -24,6 +24,18 @@ export default function Hero() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8 }}
                 >
+                    {/* Main Tagline Section */}
+                    <div className="mb-8">
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.6, delay: 0.2 }}
+                            className="inline-block bg-gradient-to-r from-yellow-400 to-yellow-500 text-gray-900 px-6 py-3 rounded-full text-lg sm:text-xl font-bold shadow-lg mb-6"
+                        >
+                            Snacks For Thoughts: A CSR-Driven Breakfast Initiative for School Children
+                        </motion.div>
+                    </div>
+
                     <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-white mb-6 font-display">
                         Nourishing Minds,
                         <br />

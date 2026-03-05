@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { z } from 'zod'
-import { PrismaClient } from '../generated/prisma'
+import { PrismaClient } from '@prisma/client'
 import multer from 'multer'
 
 const prisma = new PrismaClient()
@@ -17,8 +17,16 @@ const donationSchema = z.object({
     kindDesc: z.string().optional(),
 })
 
-router.get('/', async (_req, res) => {
-    const donations = await prisma.donation.findMany({ include: { school: true }, orderBy: { date: 'desc' } })
+router.get('/', async (req, res) => {
+    const schoolId = typeof req.query.schoolId === 'string' ? req.query.schoolId : undefined
+    const limit = typeof req.query.limit === 'string' ? Number(req.query.limit) : undefined
+
+    const donations = await prisma.donation.findMany({
+        where: schoolId ? { schoolId } : undefined,
+        include: { school: true },
+        orderBy: { date: 'desc' },
+        take: limit && Number.isFinite(limit) ? Math.max(1, Math.min(100, Math.floor(limit))) : undefined,
+    })
     res.json(donations)
 })
 

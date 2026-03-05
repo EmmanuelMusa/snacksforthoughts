@@ -16,6 +16,15 @@ import LoginPage from './pages/LoginPage'
 import AdminVendorsPage from './pages/AdminVendorsPage'
 import PartnersPage from './pages/PartnersPage'
 
+// Admin imports
+import AdminLayout from './pages/admin/AdminLayout'
+import AdminDashboard from './pages/admin/AdminDashboard'
+import WeeksManagement from './pages/admin/WeeksManagement'
+import SuppliersManagement from './pages/admin/SuppliersManagement'
+import DonationsOverview from './pages/admin/DonationsOverview'
+import SchoolsManagement from './pages/admin/SchoolsManagement'
+import SchoolImportManagement from './pages/admin/SchoolImportManagement'
+
 const router = createBrowserRouter([
   {
     path: '/',
@@ -31,6 +40,21 @@ const router = createBrowserRouter([
       { path: 'register', element: <RegisterPage /> },
       { path: 'login', element: <LoginPage /> },
       { path: 'admin/vendors', element: <AdminVendorsPage /> },
+    ],
+  },
+  // Admin routes with separate layout
+  {
+    path: '/admin',
+    element: <AdminLayout />,
+    children: [
+      { index: true, element: <AdminDashboard /> },
+      { path: 'weeks', element: <WeeksManagement /> },
+      { path: 'suppliers', element: <SuppliersManagement /> },
+      { path: 'donations', element: <DonationsOverview /> },
+      { path: 'schools', element: <SchoolsManagement /> },
+      { path: 'school-import', element: <SchoolImportManagement /> },
+      { path: 'users', element: <div className="p-6"><h1 className="text-2xl font-bold">Users Management</h1><p className="text-gray-600">Coming soon...</p></div> },
+      { path: 'settings', element: <div className="p-6"><h1 className="text-2xl font-bold">Settings</h1><p className="text-gray-600">Coming soon...</p></div> },
     ],
   },
 ])
