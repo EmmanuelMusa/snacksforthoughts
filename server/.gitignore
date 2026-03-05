@@ -5,3 +5,8 @@ node_modules
 /src/generated/prisma
 
 Public primary schools .xlsx
+
+all-schools.json
+processed-schools.json
+school-statistics.json
+filter-data.json
