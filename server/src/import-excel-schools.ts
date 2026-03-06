@@ -60,8 +60,8 @@ async function importSchoolsFromExcel() {
         console.log(`Total rows: ${rows.length}`)
 
         // Clear existing schools
-        await prisma.school.deleteMany({})
-        console.log('✅ Cleared existing schools')
+        //await prisma.school.deleteMany({})
+        //console.log('✅ Cleared existing schools')
 
         // Process and import schools
         const importBatch = `excel_import_${Date.now()}`
