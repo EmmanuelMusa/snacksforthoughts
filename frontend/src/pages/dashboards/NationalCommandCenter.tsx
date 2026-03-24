@@ -39,13 +39,14 @@ const COLORS = ['#22c55e', '#3b82f6', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4'
 export default function NationalCommandCenter() {
     const { apiBaseUrl } = useDonation();
     const { token } = useAuth();
-    const [stats, setStats] = useState({ 
+    const defaultStats = { 
         pupilsFedToday: 1420000, 
         schoolsParticipating: 8500, 
         totalSchoolsCount: 8500,
         vendorsActive: 12000, 
         farmersLinked: 25000 
-    });
+    };
+    const [stats, setStats] = useState(defaultStats);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedState, setSelectedState] = useState('All States');
     const [isLoading, setIsLoading] = useState(true);
@@ -69,7 +70,14 @@ export default function NationalCommandCenter() {
             return res.json();
         })
         .then(data => {
-            if (data) setStats(data);
+            if (data) setStats(prev => ({
+                ...prev,
+                pupilsFedToday: Number(data.pupilsFedToday ?? prev.pupilsFedToday),
+                schoolsParticipating: Number(data.schoolsParticipating ?? prev.schoolsParticipating),
+                totalSchoolsCount: Number(data.totalSchoolsCount ?? prev.totalSchoolsCount),
+                vendorsActive: Number(data.vendorsActive ?? prev.vendorsActive),
+                farmersLinked: Number(data.farmersLinked ?? prev.farmersLinked),
+            }));
             setIsLoading(false);
         })
         .catch(err => {

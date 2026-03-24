@@ -61,7 +61,13 @@ export default function StateDashboard() {
             return res.json();
         })
         .then(data => {
-            if (data) setStats(data);
+            if (data) setStats(prev => ({
+                ...prev,
+                pupilsFedToday: Number(data.pupilsFedToday ?? prev.pupilsFedToday),
+                schoolsParticipating: Number(data.schoolsParticipating ?? prev.schoolsParticipating),
+                vendorsActive: Number(data.vendorsActive ?? prev.vendorsActive),
+                totalSchoolsInState: Number(data.totalSchoolsInState ?? prev.totalSchoolsInState),
+            }));
             setIsLoading(false);
         })
         .catch(err => {

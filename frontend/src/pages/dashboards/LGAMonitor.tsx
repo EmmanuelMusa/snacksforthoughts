@@ -58,7 +58,14 @@ export default function LGAMonitor() {
             return res.json();
         })
         .then(data => {
-            if (data) setStats(data);
+            if (data) setStats(prev => ({
+                ...prev,
+                schoolsFeeding: Number(data.schoolsFeeding ?? prev.schoolsFeeding),
+                pupilsServed: Number(data.pupilsServed ?? prev.pupilsServed),
+                inspectionVisits: Number(data.inspectionVisits ?? prev.inspectionVisits),
+                schools: Array.isArray(data.schools) ? data.schools : prev.schools,
+                totalSchoolsInLga: Number(data.totalSchoolsInLga ?? prev.totalSchoolsInLga),
+            }));
             setIsLoading(false);
         })
         .catch(err => {
