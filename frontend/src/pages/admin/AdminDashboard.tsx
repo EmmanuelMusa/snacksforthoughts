@@ -58,8 +58,9 @@ export default function AdminDashboard() {
                 const statsData = await statsRes.json()
                 const suppliesData = await suppliesRes.json()
                 
-                setStats(statsData)
-                setSupplies(suppliesData)
+                // Prevent crash if API returns an error object (e.g., 500 or 401)
+                setStats(statsData?.error ? null : statsData)
+                setSupplies(Array.isArray(suppliesData) ? suppliesData : [])
             } catch (err) {
                 console.error('Error fetching admin data:', err)
             } finally {

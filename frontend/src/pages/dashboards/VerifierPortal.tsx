@@ -38,7 +38,7 @@ export default function VerifierPortal() {
                 headers: { 'Authorization': `Bearer ${token}` }
             })
             const data = await res.json()
-            setRequests(data)
+            setRequests(Array.isArray(data) ? data : [])
         } catch (err) {
             console.error('Error fetching verifier requests:', err)
         } finally {

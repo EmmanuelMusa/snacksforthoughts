@@ -35,7 +35,7 @@ export default function SupplierWorkbench() {
                 headers: { 'Authorization': `Bearer ${token}` }
             })
             const data = await res.json()
-            setRequests(data)
+            setRequests(Array.isArray(data) ? data : [])
         } catch (err) {
             console.error('Error fetching supplier requests:', err)
         } finally {

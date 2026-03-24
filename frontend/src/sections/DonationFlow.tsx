@@ -83,9 +83,6 @@ export default function DonationFlow() {
             .then(res => res.json())
             .then(json => setStates(json.data || []))
             .catch(err => console.error('Error fetching states:', err))
-        
-        // Initial search
-        handleSearch()
     }, [])
 
     // Fetch LGAs when state changes
@@ -100,6 +97,15 @@ export default function DonationFlow() {
         }
         setSelectedLga('')
     }, [selectedState])
+
+    // Real-time Debounced Search
+    useEffect(() => {
+        const delaySearch = setTimeout(() => {
+            handleSearch()
+        }, 500) // 500ms debounce for better typing experience
+
+        return () => clearTimeout(delaySearch)
+    }, [searchQuery, selectedState, selectedLga])
 
     const handleSearch = async () => {
         setLoading(true)
