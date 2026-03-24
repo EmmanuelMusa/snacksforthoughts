@@ -31,7 +31,7 @@ async function main() {
                 // If it fails (foreign key constraint), deactivate and change role
                 await prisma.user.update({
                     where: { id },
-                    data: { isActive: false, role: 'DONOR' }
+                    data: { isActive: false, role: 'DONOR' as any }
                 });
                 deactivated++;
             }
