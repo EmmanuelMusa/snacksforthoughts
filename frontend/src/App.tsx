@@ -44,12 +44,39 @@ function Navbar() {
             className="flex items-center gap-3 font-bold text-gray-900 hover:opacity-80 transition-opacity"
             onClick={closeMobileMenu}
           >
-            <img 
-              src="/images/Snacks for Thoughts Logo.png" 
-              alt="Snacks For Thoughts - PBAT Feeds Logo" 
-              className="w-10 h-10 object-contain" 
-            />
-            <span className="text-base sm:text-lg md:text-xl font-display font-bold truncate">Snacks For Thoughts - PBAT Feeds</span>
+            <div className="flex items-center gap-2 group">
+              <img 
+                src="/images/Nigeria Logo.jpeg" 
+                alt="Nigeria Coat of Arms" 
+                className="h-10 w-auto object-contain" 
+              />
+              <img 
+                src="/images/Ministry Logo.png" 
+                alt="Federal Ministry Logo" 
+                className="h-10 w-auto object-contain" 
+              />
+              <img 
+                src="/images/NSIPA Logo.jpeg" 
+                alt="NSIPA Logo" 
+                className="h-10 w-auto object-contain" 
+              />
+              <img 
+                src="/images/rh_nhgsfp logo.png" 
+                alt="NHGSFP Logo" 
+                className="h-10 w-auto object-contain" 
+              />
+            </div>
+            <div className="flex flex-col ml-1">
+              <span className="text-xs sm:text-sm font-black text-[#006D3E] leading-none tracking-tight uppercase font-display">
+                PBAT FEEDS
+              </span>
+              <span className="text-[10px] sm:text-xs font-black italic text-[#00A859] leading-tight tracking-tighter uppercase font-display">
+                "SNACKS FOR THOUGHT"
+              </span>
+              <span className="text-[8px] font-bold text-gray-500 leading-none tracking-[0.1em] uppercase">
+                (A PILOT BREAKFAST INITIATIVE)
+              </span>
+            </div>
           </NavLink>
 
           {/* Desktop Navigation */}

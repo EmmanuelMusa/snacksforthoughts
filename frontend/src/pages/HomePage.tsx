@@ -1,5 +1,6 @@
 import Hero from '../sections/Hero'
 import ImpactMetrics from '../sections/ImpactMetrics'
+import PresidentialSection from '../sections/PresidentialSection'
 import HowItWorks from '../sections/HowItWorks'
 import FeaturedSchools from '../sections/FeaturedSchools'
 import FeaturedPartners from '../sections/FeaturedPartners'
@@ -10,6 +11,7 @@ export default function HomePage() {
         <>
             <Hero />
             <ImpactMetrics />
+            <PresidentialSection />
             <HowItWorks />
             <FeaturedSchools />
             <FeaturedPartners />
