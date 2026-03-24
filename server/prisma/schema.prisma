@@ -13,6 +13,35 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  nin          String   @unique
+  email        String?  @unique
+  passwordHash String?
+  role         Role
+  qrCode       String?   @unique @default(cuid())
+  state        String?
+  lga          String?
+  schoolId     String?
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  school       School?  @relation(fields: [schoolId], references: [id])
+  reports      SchoolReport[]
+}
+
+enum Role {
+  NATIONAL_CMD
+  STATE_CONTROL
+  LGA_MONITOR
+  SCHOOL_REPORTER
+  VENDOR
+  FARMER
+  AGGREGATOR
+}
+
 model School {
   id            String   @id @default(cuid())
   name          String
@@ -38,11 +67,14 @@ model School {
   schoolType    String?  // Primary, Secondary, etc.
   needs         String[] @default(["Breakfast Programs", "Educational Materials"])
   isActive      Boolean  @default(true)
+  qrCode        String?   @unique @default(cuid())
   importBatch   String?  // Track which import batch this school came from
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   donations     Donation[]
   breakfastDonations BreakfastDonation[]
+  users         User[]
+  reports       SchoolReport[]
 }
 
 model Vendor {
@@ -50,6 +82,9 @@ model Vendor {
   name      String
   category  String
   verified  Boolean  @default(false)
+  nin       String?  @unique
+  qrCode    String?   @unique @default(cuid())
+  hygieneCertified Boolean @default(false)
   contact   String?
   portfolio String?
   createdAt DateTime @default(now())
@@ -130,4 +165,67 @@ enum DonationStatus {
   DELIVERED
   COMPLETED
   CANCELLED
+}
+
+// Operational Blueprint Additional Models
+
+model SchoolReport {
+  id                String   @id @default(cuid())
+  schoolId          String
+  date              DateTime @default(now())
+  pupilsFedToday    Int      @default(0)
+  menuServed        String?
+  vendorName        String?
+  qualityScore      Int?      @default(5)
+  reportedByUserId  String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  school            School   @relation(fields: [schoolId], references: [id])
+  reporter          User?    @relation(fields: [reportedByUserId], references: [id])
+}
+
+model FoodSupply {
+  id             String   @id @default(cuid())
+  product        String
+  quantity       Float
+  unit           String   @default("units")
+  state          String
+  sourceId       String?
+  destinationId  String?
+  status         String   @default("In Transit")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model FinancialRecord {
+  id          String   @id @default(cuid())
+  category    String   // Food procurement, Vendor payments, Logistics, Monitoring
+  amount      Float
+  description String?
+  date        DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model SafetyReport {
+  id          String   @id @default(cuid())
+  type        String   // inspection, spoiled_food, complaint
+  description String
+  status      String   @default("Pending")
+  targetId    String?  // Could refer to vendorId or schoolId dynamically
+  reportedAt  DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ImpactMetric {
+  id            String   @id @default(cuid())
+  indicatorName String
+  valueType     String   // percentage, count, etc.
+  currentValue  Float
+  trend         String?  // increase, reduction
+  measuredAt    DateTime @default(now())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
