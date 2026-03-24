@@ -10,9 +10,9 @@ async function main() {
   if (farmersCount === 0) {
     await prisma.user.createMany({
       data: [
-        { name: 'Ibrahim Adamu', email: 'ibrahim@farm.ng', nin: '12345678901', role: 'FARMER', password: 'hashed_password' },
-        { name: 'Olapade John', email: 'olapade@farm.ng', nin: '12345678902', role: 'FARMER', password: 'hashed_password' },
-        { name: 'Chima Obi', email: 'chima@farm.ng', nin: '12345678903', role: 'FARMER', password: 'hashed_password' },
+        { name: 'Ibrahim Adamu', email: 'ibrahim@farm.ng', nin: '12345678901', role: 'FARMER', passwordHash: 'hashed_password' },
+        { name: 'Olapade John', email: 'olapade@farm.ng', nin: '12345678902', role: 'FARMER', passwordHash: 'hashed_password' },
+        { name: 'Chima Obi', email: 'chima@farm.ng', nin: '12345678903', role: 'FARMER', passwordHash: 'hashed_password' },
       ]
     });
     console.log('Created mock farmers.');

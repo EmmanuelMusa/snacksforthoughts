@@ -33,6 +33,9 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
+const dotenv = __importStar(require("dotenv"));
+dotenv.config();
+console.log('DATABASE_URL:', process.env.DATABASE_URL);
 const XLSX = __importStar(require("xlsx"));
 const client_1 = require("@prisma/client");
 const prisma = new client_1.PrismaClient();
@@ -80,8 +83,8 @@ async function importSchoolsFromExcel() {
         console.log(`Headers: ${headers.join(', ')}`);
         console.log(`Total rows: ${rows.length}`);
         // Clear existing schools
-        await prisma.school.deleteMany({});
-        console.log('✅ Cleared existing schools');
+        //await prisma.school.deleteMany({})
+        //console.log('✅ Cleared existing schools')
         // Process and import schools
         const importBatch = `excel_import_${Date.now()}`;
         const processedSchools = [];
