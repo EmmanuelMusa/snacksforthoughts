@@ -10,10 +10,11 @@ router.get('/suppliers/:state', async (req, res) => {
     try {
         const { state } = req.params
         
-        // Use raw string 'SUPPLIER' with 'as any' to bypass Prisma client enum mismatch
-        const suppliers = await (prisma.user as any).findMany({
+        // Fetch users in the state, then filter by role in memory.
+        // This prevents Prisma Enum mismatch errors if the live database hasn't updated its ENUM definition,
+        // and also safely retrieves users who might still have the old 'VENDOR' role.
+        const users = await (prisma.user as any).findMany({
             where: {
-                role: 'SUPPLIER',
                 state: {
                     equals: state,
                     mode: 'insensitive'
@@ -27,9 +28,13 @@ router.get('/suppliers/:state', async (req, res) => {
                 accountDetails: true,
                 contactInfo: true,
                 state: true,
-                lga: true
+                lga: true,
+                role: true
             }
         })
+        
+        const suppliers = users.filter((u: any) => u.role === 'SUPPLIER' || u.role === 'VENDOR')
+        
         res.json(suppliers)
     } catch (error) {
         console.error('Error fetching suppliers:', error)
