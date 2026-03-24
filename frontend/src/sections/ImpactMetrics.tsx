@@ -9,7 +9,7 @@ export default function ImpactMetrics() {
             color: "from-blue-500 to-blue-600"
         },
         {
-            number: "10M+",
+            number: "4M+",
             label: "Pupils Nourished",
             description: "Daily nutritious meals for every child",
             color: "from-green-500 to-green-600"
@@ -68,7 +68,7 @@ export default function ImpactMetrics() {
                         variants={itemVariants}
                         className="text-5xl font-black text-gray-900 mb-6 font-display lg:max-w-3xl leading-tight"
                     >
-                        Transforming Lives <br/>
+                        Transforming Lives <br />
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-blue-600">Through Every Meal.</span>
                     </motion.h2>
                     <motion.p
