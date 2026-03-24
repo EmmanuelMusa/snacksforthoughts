@@ -36,13 +36,11 @@ app.use(cors({
         if (!origin) return callback(null, true);
         
         const isLocalhost = origin.includes('localhost') || origin.includes('127.0.0.1') || origin.startsWith('http://192.168.');
-        const isOfficialDomain = allowedOrigins.indexOf(origin) !== -1 || origin.endsWith('.onrender.com');
+        const isOfficialDomain = allowedOrigins.indexOf(origin) !== -1 || origin.endsWith('.onrender.com') || origin.endsWith('.vercel.app');
 
         if (isLocalhost || isOfficialDomain) {
             callback(null, true)
         } else {
-            // Instead of throwing an error that returns HTML, we just don't allow the origin.
-            // This will cause a standard CORS failure in the browser rather than a server-side crash/HTML response.
             console.warn(`CORS attempt from unrecognized origin: ${origin}`);
             callback(null, false); 
         }
