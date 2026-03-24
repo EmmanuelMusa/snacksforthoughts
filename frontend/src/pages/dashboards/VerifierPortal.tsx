@@ -1,16 +1,18 @@
 import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { 
     ShieldCheck, 
     Truck, 
     CheckCircle, 
     Camera, 
     MapPin,
-    Search,
     AlertCircle,
-    Building2,
     Calendar,
-    BarChart3
+    BarChart3,
+    ArrowRight,
+    Layers,
+    Clock,
+    FileText
 } from 'lucide-react'
 import { useDonation } from '../../context/DonationContext'
 
@@ -54,7 +56,6 @@ export default function VerifierPortal() {
         setVerifyingId(id)
         try {
             const token = localStorage.getItem('token')
-            // Simulation of photo upload and verification
             const res = await fetch(`${apiBaseUrl}/api/verifier/request/${id}/verify`, {
                 method: 'PATCH',
                 headers: { 
@@ -76,116 +77,204 @@ export default function VerifierPortal() {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-[400px]">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">
+                <div className="w-16 h-16 border-4 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin" />
+                <p className="text-emerald-600/60 font-medium animate-pulse">Initializing Verification Hub...</p>
             </div>
         )
     }
 
     return (
-        <div className="space-y-8 pb-12">
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-                <div>
-                    <h1 className="text-3xl font-black text-gray-900 font-display text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-600">Verifier Portal</h1>
-                    <p className="text-gray-500 font-medium">Regional Verification Hub — Confirming transparency on the ground.</p>
-                </div>
-                <div className="px-4 py-2 bg-emerald-50 text-emerald-700 text-[10px] font-black rounded-full border border-emerald-100 flex items-center gap-2">
-                    <ShieldCheck className="w-4 h-4" /> AUTHORIZED VERIFIER
-                </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {requests.length === 0 ? (
-                    <div className="col-span-full p-20 text-center bg-white rounded-[3rem] border border-dashed border-gray-200">
-                        <div className="w-16 h-16 bg-gray-50 text-gray-300 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <Truck className="w-8 h-8" />
+        <div className="min-h-screen pb-20 px-4 sm:px-6 lg:px-8">
+            {/* Glass Header */}
+            <div className="relative mb-12 pt-8">
+                <div className="absolute -top-10 -left-10 w-64 h-64 bg-emerald-500/10 blur-[100px] rounded-full" />
+                <div className="absolute top-20 right-0 w-80 h-80 bg-blue-500/10 blur-[120px] rounded-full" />
+                
+                <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6 p-8 bg-white/40 backdrop-blur-xl border border-white/20 rounded-[2.5rem] shadow-2xl shadow-emerald-900/5">
+                    <div className="space-y-2">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-emerald-500 rounded-xl shadow-lg shadow-emerald-500/20">
+                                <ShieldCheck className="w-6 h-6 text-white" />
+                            </div>
+                            <h1 className="text-4xl font-black tracking-tight text-gray-900 leading-none">
+                                Verifier <span className="text-emerald-600">Portal</span>
+                            </h1>
                         </div>
-                        <h3 className="text-xl font-bold text-gray-400">No pending deliveries to verify</h3>
-                        <p className="text-gray-400 text-sm">New deliveries from suppliers will appear here for inspection.</p>
+                        <p className="text-gray-500 font-medium max-w-md">
+                            Ensuring every snack reaches every child. Last mile transparency for the National School Feeding Program.
+                        </p>
                     </div>
-                ) : (
-                    requests.map((req, idx) => (
-                        <motion.div 
-                            key={req.id}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: idx * 0.1 }}
-                            className="bg-white rounded-[2.5rem] border border-gray-100 shadow-xl shadow-gray-200/50 overflow-hidden flex flex-col group hover:shadow-emerald-900/10 transition-all border-b-4 border-b-gray-100 hover:border-b-emerald-500"
-                        >
-                            <div className="p-8 flex-1 space-y-6">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest">
-                                        <Calendar className="w-3 h-3" /> {req.academicPeriod}
-                                    </div>
-                                    <div className="w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse" />
-                                </div>
-
-                                <div>
-                                    <h3 className="text-xl font-black text-gray-900 leading-tight mb-2 group-hover:text-emerald-600 transition-colors">
-                                        {req.school?.name}
-                                    </h3>
-                                    <div className="flex items-center gap-2 text-xs font-bold text-gray-400">
-                                        <MapPin className="w-3 h-3" /> {req.school?.lga}, {req.school?.state}
-                                    </div>
-                                </div>
-
-                                <div className="p-4 bg-gray-50 rounded-2xl space-y-2">
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-[10px] font-black text-gray-400 uppercase">Supplier</span>
-                                        <span className="text-xs font-bold text-gray-900">{req.supplier?.companyName}</span>
-                                    </div>
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-[10px] font-black text-gray-400 uppercase">Items</span>
-                                        <span className="text-xs font-bold text-blue-600">{req.items.length} Categories</span>
-                                    </div>
-                                </div>
-
-                                <div className="space-y-3">
-                                    <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Mandatory Verification Task</div>
-                                    <ul className="space-y-2">
-                                        <li className="flex items-center gap-3 text-xs font-medium text-gray-600">
-                                            <div className="w-5 h-5 rounded-md bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
-                                                <Camera className="w-3 h-3" />
-                                            </div>
-                                            Upload photo of delivered items at school.
-                                        </li>
-                                        <li className="flex items-center gap-3 text-xs font-medium text-gray-600">
-                                            <div className="w-5 h-5 rounded-md bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-                                                <AlertCircle className="w-3 h-3" />
-                                            </div>
-                                            Confirm quantities match request.
-                                        </li>
-                                    </ul>
-                                </div>
+                    
+                    <div className="flex items-center gap-4">
+                        <div className="bg-white/60 backdrop-blur-md px-6 py-3 rounded-2xl border border-white/40 shadow-sm flex items-center gap-3">
+                            <div className="text-right">
+                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Active Tasks</p>
+                                <p className="text-xl font-black text-emerald-600">{requests.length}</p>
                             </div>
-
-                            <div className="p-8 pt-0 mt-auto">
-                                <button 
-                                    onClick={() => handleVerify(req.id)}
-                                    disabled={verifyingId === req.id}
-                                    className="w-full py-4 bg-gray-900 text-white font-black rounded-2xl hover:bg-emerald-600 transition-all shadow-xl shadow-gray-200 active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50"
-                                >
-                                    {verifyingId === req.id ? 'Processing...' : (
-                                        <>
-                                            Begin Verification <ShieldCheck className="w-5 h-5" />
-                                        </>
-                                    )}
-                                </button>
+                            <div className="w-px h-8 bg-gray-200" />
+                            <div className="text-right">
+                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Region</p>
+                                <p className="text-sm font-bold text-gray-800">National</p>
                             </div>
-                        </motion.div>
-                    ))
-                )}
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            {/* Verification Stats Overlay */}
-            <div className="fixed bottom-12 right-12 z-50 hidden xl:block">
-                <div className="bg-white/80 backdrop-blur-xl border border-white/40 p-6 rounded-[2rem] shadow-2xl flex items-center gap-6">
-                    <div className="text-right">
-                        <div className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Monthly Quota</div>
-                        <div className="text-xl font-black text-gray-900">84% Accurate</div>
+            {/* Main Content Area */}
+            <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
+                {/* Request List */}
+                <div className="xl:col-span-3 space-y-6">
+                    <AnimatePresence mode="popLayout">
+                        {requests.length === 0 ? (
+                            <motion.div 
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                className="flex flex-col items-center justify-center py-20 bg-white/30 backdrop-blur-md rounded-[3rem] border border-dashed border-gray-300"
+                            >
+                                <div className="w-20 h-20 bg-emerald-50 text-emerald-300 rounded-[2rem] flex items-center justify-center mb-6">
+                                    <CheckCircle className="w-10 h-10" />
+                                </div>
+                                <h3 className="text-2xl font-black text-gray-400">All clear!</h3>
+                                <p className="text-gray-500 font-medium">No pending deliveries require verification at this time.</p>
+                            </motion.div>
+                        ) : (
+                            requests.map((req, idx) => (
+                                <motion.div 
+                                    key={req.id}
+                                    layout
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: idx * 0.05 }}
+                                    className="group relative bg-white/60 backdrop-blur-lg border border-white/40 rounded-[2rem] p-1 shadow-xl hover:shadow-2xl hover:shadow-emerald-900/5 transition-all"
+                                >
+                                    <div className="flex flex-col lg:flex-row items-stretch gap-6 p-6">
+                                        {/* Status & Meta */}
+                                        <div className="lg:w-48 shrink-0 flex flex-col justify-between">
+                                            <div className="space-y-4">
+                                                <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-[10px] font-black uppercase tracking-wider">
+                                                    <Clock className="w-3 h-3" /> PENDING INSPECTION
+                                                </div>
+                                                <div className="space-y-1">
+                                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Request ID</p>
+                                                    <p className="text-xs font-mono font-bold text-gray-600">#{req.id.slice(-8).toUpperCase()}</p>
+                                                </div>
+                                            </div>
+                                            <div className="hidden lg:block pt-4 text-emerald-600/30">
+                                                <Layers className="w-8 h-8" />
+                                            </div>
+                                        </div>
+
+                                        {/* Main Details */}
+                                        <div className="flex-1 space-y-6">
+                                            <div className="flex flex-wrap items-start justify-between gap-4">
+                                                <div>
+                                                    <h3 className="text-2xl font-black text-gray-900 group-hover:text-emerald-600 transition-colors">
+                                                        {req.school?.name}
+                                                    </h3>
+                                                    <div className="flex items-center gap-2 text-sm font-bold text-gray-400 mt-1">
+                                                        <MapPin className="w-4 h-4 text-rose-500" />
+                                                        {req.school?.lga}, {req.school?.state}
+                                                    </div>
+                                                </div>
+                                                <div className="bg-white/80 px-4 py-2 rounded-xl border border-gray-100 shadow-sm">
+                                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">Supplier</p>
+                                                    <p className="text-sm font-bold text-gray-900 flex items-center gap-2">
+                                                        <Building2 className="w-4 h-4 text-emerald-500" />
+                                                        {req.supplier?.companyName}
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                                                <div className="p-3 bg-gray-50/50 rounded-2xl border border-gray-100">
+                                                    <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Inventory</p>
+                                                    <p className="text-sm font-bold text-gray-900 mt-1">{req.items.length} Categories</p>
+                                                </div>
+                                                <div className="p-3 bg-gray-50/50 rounded-2xl border border-gray-100">
+                                                    <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Academic Period</p>
+                                                    <p className="text-sm font-bold text-gray-900 mt-1">{req.academicPeriod}</p>
+                                                </div>
+                                                <div className="p-3 bg-emerald-50/50 rounded-2xl border border-emerald-100">
+                                                    <p className="text-[9px] font-black text-emerald-600 uppercase tracking-widest">Verification Status</p>
+                                                    <p className="text-sm font-bold text-emerald-700 mt-1">Ready for Site Visit</p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Actions */}
+                                        <div className="lg:w-64 shrink-0 flex flex-col justify-center">
+                                            <button 
+                                                onClick={() => handleVerify(req.id)}
+                                                disabled={verifyingId === req.id}
+                                                className="relative group/btn w-full py-4 bg-gray-900 text-white font-black rounded-2xl overflow-hidden transition-all hover:bg-emerald-600 hover:shadow-xl hover:shadow-emerald-500/20 disabled:opacity-50"
+                                            >
+                                                <div className="relative z-10 flex items-center justify-center gap-2">
+                                                    {verifyingId === req.id ? (
+                                                        <>Submitting...</>
+                                                    ) : (
+                                                        <>Verify Delivery <ArrowRight className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" /></>
+                                                    )}
+                                                </div>
+                                                <div className="absolute inset-0 bg-gradient-to-r from-emerald-600 to-teal-600 opacity-0 group-hover/btn:opacity-100 transition-opacity" />
+                                            </button>
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            ))
+                        )}
+                    </AnimatePresence>
+                </div>
+
+                {/* Sidebar Stats */}
+                <div className="space-y-8">
+                    <div className="bg-gray-900 rounded-[2.5rem] p-8 text-white shadow-2xl relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/20 blur-3xl -mr-16 -mt-16" />
+                        <div className="relative z-10 space-y-6">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-white/10 rounded-lg">
+                                    <BarChart3 className="w-5 h-5" />
+                                </div>
+                                <h4 className="font-black text-lg">Region Insights</h4>
+                            </div>
+                            
+                            <div className="space-y-4">
+                                <div className="space-y-2">
+                                    <div className="flex justify-between text-xs font-bold text-gray-400 uppercase">
+                                        <span>Verification Rate</span>
+                                        <span>94%</span>
+                                    </div>
+                                    <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
+                                        <div className="h-full w-[94%] bg-emerald-500 rounded-full shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
+                                    </div>
+                                </div>
+                                
+                                <div className="grid grid-cols-2 gap-4 pt-4">
+                                    <div className="text-center p-4 bg-white/5 rounded-2xl border border-white/10">
+                                        <p className="text-[10px] font-black text-gray-500 uppercase">This Month</p>
+                                        <p className="text-2xl font-black mt-1">128</p>
+                                    </div>
+                                    <div className="text-center p-4 bg-white/5 rounded-2xl border border-white/10">
+                                        <p className="text-[10px] font-black text-gray-500 uppercase">Avg Time</p>
+                                        <p className="text-2xl font-black mt-1">4.2h</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div className="w-12 h-12 bg-emerald-500 rounded-2xl flex items-center justify-center text-white shadow-lg">
-                        <BarChart3 className="w-6 h-6" />
+
+                    <div className="bg-emerald-50/50 border border-emerald-100 rounded-[2.5rem] p-8 space-y-4">
+                        <div className="flex items-center gap-3 text-emerald-600">
+                            <ShieldCheck className="w-5 h-5" />
+                            <span className="font-black uppercase tracking-widest text-[10px]">Verification Protocol</span>
+                        </div>
+                        <p className="text-sm font-medium text-emerald-800/70">
+                            Remote verification requires one geolocated photo and digital confirmation from the school representative.
+                        </p>
+                        <button className="w-full py-3 bg-white text-emerald-600 font-bold text-sm rounded-xl border border-emerald-100 shadow-sm hover:bg-emerald-50 transition-colors">
+                            View Guidelines
+                        </button>
                     </div>
                 </div>
             </div>
