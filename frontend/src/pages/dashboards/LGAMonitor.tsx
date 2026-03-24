@@ -33,7 +33,8 @@ export default function LGAMonitor() {
         schoolsFeeding: 34, 
         pupilsServed: 8450, 
         inspectionVisits: 12,
-        schools: [] as any[]
+        schools: [] as any[],
+        totalSchoolsInLga: 34
     });
     const lgaName = (user?.lga || 'IKEJA').toUpperCase();
     const [isLoading, setIsLoading] = useState(true);
@@ -88,6 +89,7 @@ export default function LGAMonitor() {
                     value={stats.schoolsFeeding} 
                     icon={<Building2 />} 
                     color="blue" 
+                    secondary={`of ${stats.totalSchoolsInLga} total`}
                 />
                 <MetricCard 
                     label="Pupils Served" 
@@ -232,7 +234,7 @@ export default function LGAMonitor() {
     );
 }
 
-function MetricCard({ label, value, icon, color }: any) {
+function MetricCard({ label, value, icon, color, secondary }: any) {
     const colorStyles: any = {
         blue: 'bg-blue-600 shadow-blue-200 text-white',
         green: 'bg-green-600 shadow-green-200 text-white',
@@ -251,6 +253,7 @@ function MetricCard({ label, value, icon, color }: any) {
                 <p className="text-xs font-bold text-gray-400 uppercase tracking-widest leading-none mb-2">{label}</p>
                 <div className="flex items-baseline gap-1">
                     <p className="text-3xl font-black text-gray-900 leading-none">{value}</p>
+                    {secondary && <span className="text-[10px] font-bold text-gray-400 mb-0.5">{secondary}</span>}
                 </div>
             </div>
         </motion.div>

@@ -42,6 +42,7 @@ export default function NationalCommandCenter() {
     const [stats, setStats] = useState({ 
         pupilsFedToday: 1420000, 
         schoolsParticipating: 8500, 
+        totalSchoolsCount: 8500,
         vendorsActive: 12000, 
         farmersLinked: 25000 
     });
@@ -115,10 +116,10 @@ export default function NationalCommandCenter() {
                     delay={0}
                 />
                 <MetricCard 
-                    title="Participating Schools" 
+                    title="Active Schools Today" 
                     value={stats.schoolsParticipating.toLocaleString()} 
                     icon={<Building2 className="w-6 h-6" />} 
-                    trend="+45 schools added"
+                    trend={`of ${stats.totalSchoolsCount.toLocaleString()} total schools`}
                     color="blue" 
                     delay={0.1}
                 />
@@ -343,61 +344,61 @@ export default function NationalCommandCenter() {
             </div>
 
             {/* Print-Only Report Header */}
-            <div className="hidden print:block fixed inset-0 bg-white z-[200] p-10 font-sans">
-                <div className="flex items-center justify-between border-b-4 border-green-700 pb-6 mb-8">
-                    <div className="flex items-center gap-4">
-                        <img src="/images/Nigeria Logo.jpeg" className="h-20 w-auto" alt="Coat of Arms" />
+            <div className="hidden print:block fixed inset-0 bg-white z-[200] p-6 font-sans overflow-hidden">
+                <div className="flex items-center justify-between border-b-2 border-green-700 pb-4 mb-4">
+                    <div className="flex items-center gap-3">
+                        <img src="/images/Nigeria Logo.jpeg" className="h-16 w-auto" alt="Coat of Arms" />
                         <div>
-                            <h1 className="text-2xl font-black text-gray-900 uppercase">National Digital School Feeding</h1>
-                            <p className="text-sm font-bold text-green-700 uppercase tracking-widest leading-none">Programme Performance Report</p>
+                            <h1 className="text-xl font-black text-gray-900 uppercase">National Digital School Feeding</h1>
+                            <p className="text-[10px] font-bold text-green-700 uppercase tracking-widest leading-none">Programme Performance Report</p>
                         </div>
                     </div>
                     <div className="text-right">
-                        <p className="text-sm font-bold text-gray-400 uppercase">Generated On</p>
-                        <p className="text-lg font-black text-gray-900">{currentDate}</p>
+                        <p className="text-[10px] font-bold text-gray-400 uppercase">Generated On</p>
+                        <p className="text-sm font-black text-gray-900">{currentDate}</p>
                     </div>
                 </div>
 
-                <div className="grid grid-cols-4 gap-6 mb-10">
+                <div className="grid grid-cols-4 gap-4 mb-6">
                     <PrintStatCard label="Total Pupils Fed" value={stats.pupilsFedToday.toLocaleString()} />
                     <PrintStatCard label="Active Schools" value={stats.schoolsParticipating.toLocaleString()} />
                     <PrintStatCard label="Verified Vendors" value={stats.vendorsActive.toLocaleString()} />
                     <PrintStatCard label="Farmers Linked" value={stats.farmersLinked.toLocaleString()} />
                 </div>
 
-                <div className="border-2 border-gray-100 rounded-3xl p-8 mb-10">
-                    <h3 className="text-xl font-black text-gray-900 mb-6 uppercase tracking-tight">Geopolitical Zone Distribution</h3>
+                <div className="border border-gray-100 rounded-2xl p-6 mb-6">
+                    <h3 className="text-lg font-black text-gray-900 mb-4 uppercase tracking-tight">Geopolitical Zone Distribution</h3>
                     <table className="w-full text-left">
                         <thead>
-                            <tr className="border-b-2 border-gray-100">
-                                <th className="py-3 text-sm font-bold text-gray-500 uppercase">State</th>
-                                <th className="py-3 text-sm font-bold text-gray-500 uppercase">Schools</th>
-                                <th className="py-3 text-sm font-bold text-gray-500 uppercase">Pupils</th>
-                                <th className="py-3 text-sm font-bold text-gray-500 uppercase text-right">Performance</th>
+                            <tr className="border-b border-gray-100">
+                                <th className="py-2 text-[10px] font-bold text-gray-500 uppercase">State</th>
+                                <th className="py-2 text-[10px] font-bold text-gray-500 uppercase">Schools</th>
+                                <th className="py-2 text-[10px] font-bold text-gray-500 uppercase">Pupils</th>
+                                <th className="py-2 text-[10px] font-bold text-gray-500 uppercase text-right">Performance</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-50">
-                            {stateDistributionData.map(state => (
+                            {stateDistributionData.slice(0, 8).map(state => (
                                 <tr key={state.name}>
-                                    <td className="py-4 font-bold text-gray-900">{state.name}</td>
-                                    <td className="py-4 text-gray-600">{state.schools}</td>
-                                    <td className="py-4 text-gray-600">{state.pupils.toLocaleString()}</td>
-                                    <td className="py-4 text-right font-black text-green-600">92%</td>
+                                    <td className="py-2 text-xs font-bold text-gray-900">{state.name}</td>
+                                    <td className="py-2 text-xs text-gray-600">{state.schools}</td>
+                                    <td className="py-2 text-xs text-gray-600">{state.pupils.toLocaleString()}</td>
+                                    <td className="py-4 text-right text-xs font-black text-green-600">92%</td>
                                 </tr>
                             ))}
                         </tbody>
                     </table>
                 </div>
 
-                <div className="mt-20 pt-10 border-t border-gray-100 flex justify-between items-end">
+                <div className="mt-8 pt-6 border-t border-gray-100 flex justify-between items-end">
                     <div>
-                        <div className="w-32 h-[1px] bg-gray-400 mb-2"></div>
-                        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Authorized Signature</p>
-                        <p className="text-sm font-black text-gray-900">National Programme Director</p>
+                        <div className="w-24 h-[1px] bg-gray-400 mb-1"></div>
+                        <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest">Authorized Signature</p>
+                        <p className="text-xs font-black text-gray-900">National Programme Director</p>
                     </div>
-                    <div className="text-right flex items-center gap-4">
-                        <img src="/images/rh_nhgsfp logo.png" className="h-10 w-auto" alt="NHGSFP" />
-                        <img src="/images/NSIPA Logo.jpeg" className="h-10 w-auto" alt="NSIPA" />
+                    <div className="text-right flex items-center gap-4 scale-75 origin-right">
+                        <img src="/images/rh_nhgsfp logo.png" className="h-8 w-auto" alt="NHGSFP" />
+                        <img src="/images/NSIPA Logo.jpeg" className="h-8 w-auto" alt="NSIPA" />
                     </div>
                 </div>
             </div>

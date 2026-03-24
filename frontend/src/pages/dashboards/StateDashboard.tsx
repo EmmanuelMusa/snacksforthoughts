@@ -36,7 +36,8 @@ export default function StateDashboard() {
     const [stats, setStats] = useState({ 
         pupilsFedToday: 15100, 
         schoolsParticipating: 220, 
-        vendorsActive: 45 
+        vendorsActive: 45,
+        totalSchoolsInState: 220
     });
     const stateName = user?.state || 'Lagos';
     const [isLoading, setIsLoading] = useState(true);
@@ -87,7 +88,7 @@ export default function StateDashboard() {
                     value={stats.schoolsParticipating} 
                     icon={<Building2 className="w-6 h-6" />} 
                     color="blue" 
-                    trend="Target: 250"
+                    trend={`of ${stats.totalSchoolsInState} total`}
                 />
                 <MetricCard 
                     label="Pupils Fed Today" 
