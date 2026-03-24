@@ -35,46 +35,43 @@ function Navbar() {
   ]
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-[100] bg-white/95 backdrop-blur-sm shadow-lg border-b border-gray-100">
-      <div className="w-full px-4 sm:px-6 lg:px-8">
-        <div className="h-16 flex items-center justify-between">
+    <header className="fixed top-0 left-0 right-0 z-[100] bg-white/95 backdrop-blur-sm shadow-lg border-b border-gray-100 py-1 transition-all duration-300">
+      <div className="w-full px-2 sm:px-6 lg:px-8">
+        <div className="min-h-[64px] flex items-center justify-between gap-2 flex-wrap sm:flex-nowrap">
           {/* Logo */}
           <NavLink
             to="/"
-            className="flex items-center gap-3 font-bold text-gray-900 hover:opacity-80 transition-opacity"
+            className="flex items-center gap-2 sm:gap-3 font-bold text-gray-900 hover:opacity-80 transition-opacity min-w-0"
             onClick={closeMobileMenu}
           >
-            <div className="flex items-center gap-2 group">
+            <div className="flex items-center gap-1 sm:gap-2 shrink-0">
               <img 
                 src="/images/Nigeria Logo.jpeg" 
-                alt="Nigeria Coat of Arms" 
-                className="h-10 w-auto object-contain" 
+                alt="Nigeria Logo" 
+                className="h-7 w-auto sm:h-10 object-contain" 
               />
               <img 
                 src="/images/Ministry Logo.png" 
-                alt="Federal Ministry Logo" 
-                className="h-10 w-auto object-contain" 
+                alt="Ministry Logo" 
+                className="h-7 w-auto sm:h-10 object-contain hidden xs:block" 
               />
               <img 
                 src="/images/NSIPA Logo.jpeg" 
                 alt="NSIPA Logo" 
-                className="h-10 w-auto object-contain" 
+                className="h-7 w-auto sm:h-10 object-contain hidden md:block" 
               />
               <img 
                 src="/images/rh_nhgsfp logo.png" 
                 alt="NHGSFP Logo" 
-                className="h-10 w-auto object-contain" 
+                className="h-7 w-auto sm:h-10 object-contain hidden lg:block" 
               />
             </div>
-            <div className="flex flex-col ml-1">
-              <span className="text-xs sm:text-sm font-black text-[#006D3E] leading-none tracking-tight uppercase font-display">
+            <div className="flex flex-col ml-1 min-w-0 flex-1">
+              <span className="text-[10px] sm:text-sm font-black text-[#006D3E] leading-none tracking-tight uppercase font-display truncate">
                 PBAT FEEDS
               </span>
-              <span className="text-[10px] sm:text-xs font-black italic text-[#00A859] leading-tight tracking-tighter uppercase font-display">
+              <span className="text-[8px] sm:text-xs font-black italic text-[#00A859] leading-tight tracking-tighter uppercase font-display truncate">
                 "SNACKS FOR THOUGHT"
-              </span>
-              <span className="text-[8px] font-bold text-gray-500 leading-none tracking-[0.1em] uppercase">
-                (A PILOT BREAKFAST INITIATIVE)
               </span>
             </div>
           </NavLink>
