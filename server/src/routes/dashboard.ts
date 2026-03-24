@@ -197,6 +197,7 @@ router.post('/report', authenticateToken, requireRole(['SCHOOL_REPORTER']), uplo
             return res.status(400).json({ error: "Your account is not linked to a school. Please contact your administrator." });
         }
 
+        // Step 1: Create the core report using only stable fields (safe across Prisma generations)
         const report = await prisma.schoolReport.create({
             data: {
                 schoolId: schoolId,
@@ -204,10 +205,24 @@ router.post('/report', authenticateToken, requireRole(['SCHOOL_REPORTER']), uplo
                 menuServed,
                 vendorName: vendorName || "N/A",
                 qualityScore: Number(qualityScore) || 5,
-                reportedByUserId: user.id,
-                evidenceUrl: evidenceFile ? `/uploads/reports/${evidenceFile.filename}` : null
+                reportedByUserId: user.id
             }
         });
+
+        // Step 2: Save evidence URL separately via raw SQL to avoid Prisma client version mismatch
+        if (evidenceFile) {
+            const evidenceUrl = `/uploads/reports/${evidenceFile.filename}`;
+            try {
+                await prisma.$executeRawUnsafe(
+                    `UPDATE "SchoolReport" SET "evidenceUrl" = $1 WHERE id = $2`,
+                    evidenceUrl,
+                    report.id
+                );
+            } catch (evidenceErr) {
+                // Non-fatal: log it but don't fail the report submission
+                console.warn('[Evidence] Could not save evidenceUrl:', evidenceErr);
+            }
+        }
 
         console.log(`[Report Sync] Report saved for school ${schoolId} with evidence: ${evidenceFile?.filename || 'None'}`);
 
