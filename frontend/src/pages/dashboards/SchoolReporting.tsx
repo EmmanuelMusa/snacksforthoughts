@@ -16,8 +16,22 @@ export default function SchoolReporting() {
     const [menuServed, setMenuServed] = useState('');
     const [vendorName, setVendorName] = useState('');
     const [qualityScore, setQualityScore] = useState(5);
+    const [selectedImage, setSelectedImage] = useState<File | null>(null);
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [status, setStatus] = useState<{ type: 'success' | 'error', message: string } | null>(null);
+
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setSelectedImage(file);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setImagePreview(reader.result as string);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -25,18 +39,21 @@ export default function SchoolReporting() {
         setStatus(null);
         
         try {
+            const formData = new FormData();
+            formData.append('pupilsFedToday', pupilsFed);
+            formData.append('menuServed', menuServed);
+            formData.append('vendorName', vendorName);
+            formData.append('qualityScore', qualityScore.toString());
+            if (selectedImage) {
+                formData.append('evidence', selectedImage);
+            }
+
             const res = await fetch(`${apiBaseUrl}/api/dashboard/report`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ 
-                    pupilsFedToday: pupilsFed, 
-                    menuServed,
-                    vendorName,
-                    qualityScore
-                })
+                body: formData
             });
 
             const data = await res.json();
@@ -148,19 +165,29 @@ export default function SchoolReporting() {
 
                                 <div className="space-y-4">
                                     <label className="block text-xs font-black text-gray-500 uppercase tracking-widest ml-1 text-center">Meal Quality Audit</label>
-                                    <div className="flex justify-center gap-3">
-                                        {[1, 2, 3, 4, 5].map((num) => (
+                                    <div className="flex justify-center gap-2">
+                                        {[1, 2, 3, 4, 5].map((star) => (
                                             <button
-                                                key={num}
+                                                key={star}
                                                 type="button"
-                                                onClick={() => setQualityScore(num)}
-                                                className={`w-12 h-12 rounded-2xl font-black text-lg transition-all duration-300 ${
-                                                    qualityScore >= num 
-                                                    ? 'bg-gradient-to-br from-green-500 to-green-600 text-white shadow-lg shadow-green-100 scale-105' 
-                                                    : 'bg-gray-50 text-gray-300 hover:bg-gray-100'
-                                                }`}
+                                                onClick={() => setQualityScore(star)}
+                                                className="group relative focus:outline-none transition-transform active:scale-90"
                                             >
-                                                {num}
+                                                <Star 
+                                                    className={`w-10 h-10 transition-all duration-300 ${
+                                                        qualityScore >= star 
+                                                        ? 'fill-yellow-400 text-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.5)]' 
+                                                        : 'text-gray-200 fill-gray-50 group-hover:text-yellow-200'
+                                                    }`} 
+                                                />
+                                                {qualityScore === star && (
+                                                    <motion.div 
+                                                        layoutId="star-label"
+                                                        className="absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap text-[8px] font-black uppercase text-gray-400 tracking-tighter"
+                                                    >
+                                                        {star === 1 ? 'Poor' : star === 2 ? 'Fair' : star === 3 ? 'Good' : star === 4 ? 'Great' : 'Excellent'}
+                                                    </motion.div>
+                                                )}
                                             </button>
                                         ))}
                                     </div>
@@ -168,13 +195,36 @@ export default function SchoolReporting() {
 
                                 <div className="space-y-3">
                                     <label className="block text-xs font-black text-gray-500 uppercase tracking-widest ml-1">Evidence Portfolio</label>
-                                    <div className="group relative border-2 border-dashed border-gray-100 rounded-3xl p-12 flex flex-col items-center justify-center text-center hover:border-green-400 hover:bg-green-50/50 transition-all cursor-pointer overflow-hidden bg-gray-50/30">
-                                        <div className="bg-white p-5 rounded-2xl shadow-sm mb-4 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500">
-                                            <Camera className="w-10 h-10 text-green-600" />
-                                        </div>
-                                        <span className="text-sm font-bold text-gray-600">Capture Proof of Delivery</span>
-                                        <p className="text-[10px] text-gray-400 mt-2 uppercase font-black tracking-widest">Geo-tagged live photo required</p>
-                                    </div>
+                                    <input 
+                                        type="file" 
+                                        id="evidence-upload"
+                                        accept="image/*"
+                                        capture="environment"
+                                        onChange={handleImageChange}
+                                        className="hidden"
+                                    />
+                                    <label 
+                                        htmlFor="evidence-upload"
+                                        className="group relative border-2 border-dashed border-gray-100 rounded-3xl p-8 flex flex-col items-center justify-center text-center hover:border-green-400 hover:bg-green-50/50 transition-all cursor-pointer overflow-hidden bg-gray-50/30"
+                                    >
+                                        {imagePreview ? (
+                                            <div className="relative w-full aspect-video rounded-2xl overflow-hidden border border-white shadow-xl">
+                                                <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                                                <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <Camera className="w-8 h-8 text-white" />
+                                                    <span className="ml-2 text-white font-bold text-xs">Retake Photo</span>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <>
+                                                <div className="bg-white p-5 rounded-2xl shadow-sm mb-4 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500">
+                                                    <Camera className="w-10 h-10 text-green-600" />
+                                                </div>
+                                                <span className="text-sm font-bold text-gray-600">Capture Proof of Delivery</span>
+                                                <p className="text-[10px] text-gray-400 mt-2 uppercase font-black tracking-widest">Geo-tagged live photo required</p>
+                                            </>
+                                        )}
+                                    </label>
                                 </div>
                             </div>
 

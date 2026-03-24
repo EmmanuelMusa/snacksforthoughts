@@ -5,7 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import { 
     Users, Building2, Package, Activity, 
     Search, Filter, Download, ArrowUpRight, 
-    TrendingUp, Map as MapIcon, Calendar
+    TrendingUp, Map as MapIcon, Calendar, AlertCircle
 } from 'lucide-react';
 import { 
     LineChart, Line, BarChart, Bar, XAxis, YAxis, 
@@ -53,18 +53,28 @@ export default function NationalCommandCenter() {
         weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
     });
 
+    const [error, setError] = useState<string | null>(null);
+
     useEffect(() => {
         setIsLoading(true);
+        setError(null);
         fetch(`${apiBaseUrl}/api/dashboard/national`, {
             headers: { 'Authorization': `Bearer ${token}` }
         })
-        .then(res => res.json())
+        .then(async res => {
+            if (!res.ok) {
+                const data = await res.json();
+                throw new Error(data.error || `Server responded with ${res.status}`);
+            }
+            return res.json();
+        })
         .then(data => {
-            if (data && !data.error) setStats(data);
+            if (data) setStats(data);
             setIsLoading(false);
         })
         .catch(err => {
-            console.error(err);
+            console.error("National Dashboard Fetch Error:", err);
+            setError(err.message);
             setIsLoading(false);
         });
     }, [apiBaseUrl, token]);
@@ -104,6 +114,13 @@ export default function NationalCommandCenter() {
                     </div>
                 </div>
             </div>
+
+            {error && (
+                <div className="mb-8 p-4 bg-red-50 border border-red-200 rounded-2xl text-red-700 flex items-center gap-3">
+                    <AlertCircle className="w-5 h-5" />
+                    <p className="font-medium">System Error: {error}</p>
+                </div>
+            )}
 
             {/* Quick Stats Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">

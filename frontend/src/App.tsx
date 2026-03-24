@@ -4,7 +4,7 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from './context/AuthContext'
-import { LogOut, User as UserIcon } from 'lucide-react'
+import { LogOut, User as UserIcon, Activity } from 'lucide-react'
 
 function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -110,6 +110,18 @@ function Navbar() {
           <div className="hidden lg:flex items-center gap-4">
             {isAuthenticated && user ? (
               <div className="flex items-center gap-4 border-l pl-4 border-gray-200">
+                <NavLink
+                  to={
+                    user.role === 'NATIONAL_CMD' ? '/dashboard/national' :
+                    user.role === 'STATE_CONTROL' ? '/dashboard/state' :
+                    user.role === 'LGA_MONITOR' ? '/dashboard/lga' :
+                    '/dashboard/school-report'
+                  }
+                  className="px-4 py-2 text-sm font-bold text-green-700 hover:text-green-800 bg-green-50 hover:bg-green-100 rounded-lg transition-all duration-200 flex items-center gap-2"
+                >
+                  <Activity className="w-4 h-4" />
+                  My Dashboard
+                </NavLink>
                 <span className="text-sm font-medium text-gray-700 flex items-center gap-2">
                   <div className="bg-green-100 p-1.5 rounded-full">
                     <UserIcon className="w-4 h-4 text-green-700" />
@@ -212,6 +224,19 @@ function Navbar() {
                   {isAuthenticated && user ? (
                     <>
                       <div className="px-4 py-3 bg-gray-50 rounded-lg mb-2">
+                        <NavLink
+                          to={
+                            user.role === 'NATIONAL_CMD' ? '/dashboard/national' :
+                            user.role === 'STATE_CONTROL' ? '/dashboard/state' :
+                            user.role === 'LGA_MONITOR' ? '/dashboard/lga' :
+                            '/dashboard/school-report'
+                          }
+                          onClick={closeMobileMenu}
+                          className="flex items-center gap-3 w-full px-4 py-3 text-base font-bold text-green-700 bg-green-50 rounded-lg mb-3"
+                        >
+                          <Activity className="w-5 h-5" />
+                          Go to My Dashboard
+                        </NavLink>
                         <div className="text-sm font-medium text-gray-900">{user.name}</div>
                         <div className="text-xs text-gray-500">{user.role.replace('_', ' ')}</div>
                       </div>
