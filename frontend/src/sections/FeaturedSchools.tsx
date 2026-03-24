@@ -78,47 +78,47 @@ export default function FeaturedSchools() {
         Math.min(((raised || 0) / Math.max(1, target || 0)) * 100, 100)
 
     return (
-        <section className="relative py-24 sm:py-32 overflow-hidden bg-white">
-            {/* Elegant Background Gradients */}
-            <div className="absolute top-0 inset-x-0 h-64 bg-gradient-to-b from-blue-50/50 to-transparent pointer-events-none" />
-            <div className="absolute top-1/4 -right-64 w-96 h-96 bg-blue-100 rounded-full blur-[120px] opacity-60 pointer-events-none" />
-            <div className="absolute bottom-1/4 -left-64 w-96 h-96 bg-green-100 rounded-full blur-[120px] opacity-60 pointer-events-none" />
-
+        <section className="relative py-32 overflow-hidden bg-white">
+            {/* Cinematic Background Elements */}
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[800px] bg-[radial-gradient(circle_at_50%_0%,rgba(59,130,246,0.05),transparent_70%)] pointer-events-none" />
+            
             <div className="relative z-10 w-full px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
                 <motion.div
                     initial="hidden"
                     whileInView="visible"
                     viewport={{ once: true }}
-                    className="text-center mb-20"
+                    className="text-left mb-24"
                 >
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        whileInView={{ opacity: 1, scale: 1 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.5 }}
-                        className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 border border-blue-100/50 text-blue-600 font-medium text-sm mb-6"
-                    >
-                        <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-                        Make a Lasting Impact
+                    <motion.div variants={itemVariants} className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-bold uppercase tracking-widest mb-6 border border-blue-100">
+                        Institutional Support
                     </motion.div>
-                    <motion.h2
-                        initial={{ opacity: 0, y: 30 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.6 }}
-                        className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-6 font-display tracking-tight"
-                    >
-                        Adopt a School
-                    </motion.h2>
-                    <motion.p
-                        initial={{ opacity: 0, y: 30 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.6, delay: 0.2 }}
-                        className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed"
-                    >
-                        Join hundreds of others contributing to children’s education by choosing a school to support consistently. Your commitment changes lives.
-                    </motion.p>
+                    <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
+                        <div className="max-w-3xl">
+                            <motion.h2
+                                variants={itemVariants}
+                                className="text-5xl md:text-6xl font-black text-gray-900 mb-8 font-display leading-[1.1] tracking-tight"
+                            >
+                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Adopt a School.</span> <br/>
+                                Transform a Community.
+                            </motion.h2>
+                            <motion.p
+                                variants={itemVariants}
+                                className="text-xl text-gray-500 font-medium leading-relaxed"
+                            >
+                                Our verified "Adopt-a-School" initiative allows organizations and individuals to provide consistent, long-term support to primary schools, ensuring no child goes hungry.
+                            </motion.p>
+                        </div>
+                        <motion.div variants={itemVariants} className="flex-shrink-0">
+                            <Link to="/schools" className="group flex items-center gap-3 text-lg font-bold text-gray-900 hover:text-blue-600 transition-colors">
+                                View Full Registry
+                                <div className="w-12 h-12 rounded-full border border-gray-200 flex items-center justify-center group-hover:border-blue-200 group-hover:bg-blue-50 transition-all">
+                                    <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                                    </svg>
+                                </div>
+                            </Link>
+                        </motion.div>
+                    </div>
                 </motion.div>
 
                 <motion.div
@@ -133,89 +133,82 @@ export default function FeaturedSchools() {
 
                         return (
                             <motion.div
-                                key={school.id}
-                                variants={itemVariants}
-                                whileHover={{ y: -8 }}
-                                className="group bg-white rounded-3xl border border-gray-100 overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all duration-300"
-                            >
-                                {/* School Image */}
-                                <div className="relative h-60 overflow-hidden">
-                                    <div
-                                        className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
-                                        style={{
-                                            backgroundImage: `url('${school.image || schoolImages[index % schoolImages.length]}')`
-                                        }}
-                                        role="img"
-                                        aria-label={`${school.name} school building`}
-                                    />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 via-gray-900/20 to-transparent" />
+                                 key={school.id}
+                                 variants={itemVariants}
+                                 className="group relative bg-white rounded-[2.5rem] border border-gray-100 overflow-hidden shadow-2xl shadow-gray-200/50 hover:shadow-blue-900/10 transition-all duration-500 hover:-translate-y-4"
+                             >
+                                 {/* School Image Section */}
+                                 <div className="relative h-72 overflow-hidden">
+                                     <div
+                                         className="absolute inset-0 bg-cover bg-center transition-transform duration-[1.5s] ease-out group-hover:scale-110"
+                                         style={{
+                                             backgroundImage: `url('${school.image || schoolImages[index % schoolImages.length]}')`
+                                         }}
+                                         role="img"
+                                         aria-label={`${school.name} school building`}
+                                     />
+                                     <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-900/10 to-transparent opacity-80" />
 
-                                    {/* Location Badge */}
-                                    <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-full shadow-sm">
-                                        <p className="text-xs font-semibold text-gray-800 flex items-center gap-1">
-                                            <svg className="w-3 h-3 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                            </svg>
-                                            {school.state || 'Nigeria'}
-                                        </p>
-                                    </div>
+                                     {/* State Overlay */}
+                                     <div className="absolute top-6 left-6 flex items-center gap-2 px-3 py-1.5 bg-black/30 backdrop-blur-xl rounded-full border border-white/20 text-white text-[10px] font-black uppercase tracking-widest">
+                                         <div className="w-1.5 h-1.5 rounded-full bg-green-400"></div>
+                                         {school.state || 'National Port'}
+                                     </div>
 
-                                    <div className="absolute bottom-4 left-4 right-4">
-                                        <h3 className="text-xl font-bold text-white mb-1 line-clamp-1 group-hover:text-blue-200 transition-colors">
-                                            {school.name}
-                                        </h3>
-                                        <p className="text-gray-200 text-sm line-clamp-1 opacity-90">
-                                            {school.needs || 'Breakfast Programs, Educational Materials'}
-                                        </p>
-                                    </div>
-                                </div>
+                                     <div className="absolute bottom-8 left-8 right-8 text-white">
+                                         <h3 className="text-2xl font-black mb-2 font-display leading-[1.1]">
+                                             {school.name}
+                                         </h3>
+                                         <div className="flex items-center gap-2 text-blue-300 font-bold text-xs">
+                                             <span className="w-1 h-1 rounded-full bg-blue-400"></span>
+                                             {school.lga || 'Verified District'}
+                                         </div>
+                                     </div>
+                                 </div>
 
-                                <div className="p-6 sm:p-8">
-                                    {/* Financials & Progress */}
-                                    <div className="mb-8">
-                                        <div className="flex justify-between items-end mb-3">
-                                            <div>
-                                                <p className="text-sm font-medium text-gray-500 mb-1">Raised</p>
-                                                <p className="text-lg font-bold text-gray-900">
-                                                    ₦{school.raisedAmount.toLocaleString()}
-                                                </p>
-                                            </div>
-                                            <div className="text-right">
-                                                <p className="text-sm font-medium text-gray-500 mb-1">Goal</p>
-                                                <p className="text-lg font-bold text-gray-400">
-                                                    ₦{school.targetAmount.toLocaleString()}
-                                                </p>
-                                            </div>
-                                        </div>
+                                 <div className="p-8 sm:p-10">
+                                     {/* Performance Metrics */}
+                                     <div className="mb-10">
+                                         <div className="flex justify-between items-end mb-4">
+                                             <div>
+                                                 <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Funded Progress</p>
+                                                 <p className="text-2xl font-black text-gray-900">
+                                                     ₦{school.raisedAmount.toLocaleString()}
+                                                 </p>
+                                             </div>
+                                             <div className="text-right">
+                                                 <p className="text-[10px] font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-lg border border-blue-100 uppercase tracking-widest">
+                                                     {Math.round(progress)}% Reach
+                                                 </p>
+                                             </div>
+                                         </div>
 
-                                        <div className="relative w-full h-2.5 bg-gray-100 rounded-full overflow-hidden">
-                                            <motion.div
-                                                initial={{ width: 0 }}
-                                                whileInView={{ width: `${progress}%` }}
-                                                viewport={{ once: true }}
-                                                transition={{ duration: 1.2, delay: 0.2, ease: "easeOut" }}
-                                                className="absolute inset-y-0 left-0 bg-gradient-to-r from-blue-500 to-green-400 rounded-full"
-                                            />
-                                        </div>
-                                    </div>
+                                         <div className="relative w-full h-3 bg-gray-100 rounded-full overflow-hidden">
+                                             <motion.div
+                                                 initial={{ width: 0 }}
+                                                 whileInView={{ width: `${progress}%` }}
+                                                 viewport={{ once: true }}
+                                                 transition={{ duration: 1.5, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                                                 className="absolute inset-y-0 left-0 bg-gradient-to-r from-blue-600 to-indigo-500 rounded-full"
+                                             >
+                                                 <div className="absolute inset-0 bg-[linear-gradient(90deg,transparent_0%,rgba(255,255,255,0.3)_50%,transparent_100%)] animate-[shimmer_2s_infinite] -translate-x-full"></div>
+                                             </motion.div>
+                                         </div>
+                                     </div>
 
-                                    {/* Support Button */}
-                                    <Link to={`/donate?schoolId=${school.id}`} className="block">
-                                        <motion.button
-                                            className="w-full relative overflow-hidden bg-blue-600 text-white font-semibold py-3.5 rounded-xl group-hover:shadow-lg group-hover:shadow-blue-600/20 transition-all duration-300"
-                                            whileTap={{ scale: 0.98 }}
-                                        >
-                                            <span className="relative z-10 flex items-center justify-center gap-2">
-                                                Adopt This School
-                                                <svg className="w-4 h-4 translate-x-0 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                                                </svg>
-                                            </span>
-                                        </motion.button>
-                                    </Link>
-                                </div>
-                            </motion.div>
+                                     {/* Action Row */}
+                                     <div className="flex items-center gap-4 pt-2 border-t border-gray-50 mt-2">
+                                         <Link to={`/donate?schoolId=${school.id}`} className="flex-1">
+                                             <motion.button
+                                                 className="w-full bg-gray-900 text-white font-bold py-4 rounded-2xl shadow-xl shadow-gray-200 transition-all duration-300 hover:bg-gray-800 hover:shadow-gray-300"
+                                                 whileTap={{ scale: 0.96 }}
+                                             >
+                                                 Support School
+                                             </motion.button>
+                                         </Link>
+                                     </div>
+                                 </div>
+                             </motion.div>
                         )
                     })}
                 </motion.div>

@@ -8,8 +8,9 @@ import { IndividualStep1, IndividualStep2, IndividualStep3, IndividualStep4 } fr
 import { CompanyStep1, CompanyStep2, CompanyStep3, CompanyStep4 } from '../components/formSteps/CompanySteps'
 import { VendorStep1, VendorStep2, VendorStep3, VendorStep4 } from '../components/formSteps/VendorSteps'
 import { SchoolStep1, SchoolStep2, SchoolStep3, SchoolStep4 } from '../components/formSteps/SchoolSteps'
+import { DashboardStep1, DashboardStep2, DashboardStep3 } from '../components/formSteps/DashboardSteps'
 
-type TabKey = 'individual' | 'company' | 'vendor' | 'school'
+type TabKey = 'individual' | 'company' | 'vendor' | 'school' | 'official'
 
 const tabs: { key: TabKey; label: string; icon: string; description: string }[] = [
     { key: 'individual', label: 'Individual Donor', icon: '👤', description: 'Support schools as an individual' },
@@ -36,14 +37,22 @@ export default function RegisterPage() {
             }
         })
 
-        const endpoint = active === 'individual' ? 'individuals' :
+        const isOfficial = active === 'official'
+        const endpoint = isOfficial ? 'auth/register' :
+            active === 'individual' ? 'individuals' :
             active === 'company' ? 'companies' :
-                active === 'vendor' ? 'vendors' : 'schools'
+            active === 'vendor' ? 'vendors' : 'schools'
 
-        const res = await fetch(`${apiBaseUrl}/api/${endpoint}`, {
+        const requestOptions = isOfficial ? {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+        } : {
             method: 'POST',
             body: fd
-        })
+        }
+
+        const res = await fetch(`${apiBaseUrl}/api/${endpoint}`, requestOptions)
 
         if (!res.ok) throw new Error('Failed to submit registration')
     }
@@ -156,6 +165,27 @@ export default function RegisterPage() {
                         description: 'Review and submit',
                         icon: '',
                         component: <SchoolStep4 formData={{}} updateFormData={() => { }} />
+                    }
+                ]
+            case 'official':
+                return [
+                    {
+                        title: 'NIN Verification',
+                        description: 'Verify your identity securely',
+                        icon: '',
+                        component: <DashboardStep1 formData={{}} updateFormData={() => { }} />
+                    },
+                    {
+                        title: 'Role & Assignment',
+                        description: 'Select your operational role',
+                        icon: '',
+                        component: <DashboardStep2 formData={{}} updateFormData={() => { }} />
+                    },
+                    {
+                        title: 'Confirmation',
+                        description: 'Review and confirm access',
+                        icon: '',
+                        component: <DashboardStep3 formData={{}} updateFormData={() => { }} />
                     }
                 ]
             default:

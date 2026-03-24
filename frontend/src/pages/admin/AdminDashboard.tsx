@@ -202,7 +202,7 @@ export default function AdminDashboard() {
             <div>
                 <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
                 <p className="mt-2 text-gray-600">
-                    Monitor and manage the Snacks for Thoughts initiative
+                    Monitor and manage the Snacks For Thoughts - PBAT Feeds initiative
                 </p>
             </div>
 

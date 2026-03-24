@@ -49,7 +49,7 @@ export default function SchoolsPage() {
   const [pages, setPages] = useState(1)
   const [total, setTotal] = useState(0)
 
-  const limit = 12
+  const limit = 21
 
   const fallbackImages = [
     '/images/a_school_in_nigeria.jpeg',

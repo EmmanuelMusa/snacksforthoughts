@@ -155,10 +155,12 @@ export default function Footer() {
                         {/* Brand Section */}
                         <motion.div variants={itemVariants} className="lg:col-span-2">
                             <div className="flex items-center gap-3 mb-6">
-                                <div className="w-10 h-10 bg-yellow-500 rounded-lg flex items-center justify-center text-white font-bold text-xl">
-                                    S
-                                </div>
-                                <span className="text-2xl font-bold">Snacks for Thoughts</span>
+                                <img 
+                                    src="/images/Snacks for Thoughts Logo.png" 
+                                    alt="Snacks For Thoughts - PBAT Feeds Logo" 
+                                    className="w-10 h-10 object-contain" 
+                                />
+                                <span className="text-xl md:text-2xl font-bold">Snacks For Thoughts - PBAT Feeds</span>
                             </div>
                             <p className="text-gray-300 mb-6 leading-relaxed">
                                 Connecting donors with schools in need across Nigeria. Together, we're nourishing minds and building brighter futures, one snack at a time.
@@ -214,7 +216,7 @@ export default function Footer() {
                         className="flex flex-col md:flex-row justify-between items-center text-gray-400 text-sm"
                     >
                         <div className="mb-4 md:mb-0">
-                            © {currentYear} Snacks for Thoughts. All rights reserved.
+                            © {currentYear} Snacks For Thoughts - PBAT Feeds. All rights reserved.
                         </div>
                         <div className="flex space-x-6">
                             <a href="/privacy" className="hover:text-white transition-colors duration-300">

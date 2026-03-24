@@ -50,7 +50,17 @@ export default function SkeletonLoader({ type = 'card', className = '', count = 
 }
 
 // Specific skeleton components for different use cases
-export function SchoolCardSkeleton() {
+export function SchoolCardSkeleton({ count = 1 }: { count?: number }) {
+    if (count > 1) {
+        return (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {Array.from({ length: count }).map((_, index) => (
+                    <SchoolCardSkeleton key={index} />
+                ))}
+            </div>
+        )
+    }
+
     return (
         <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
             <SkeletonLoader type="rect" className="h-48" />

@@ -1,11 +1,21 @@
 import './App.css'
 import Footer from './sections/Footer'
-import { NavLink, Outlet } from 'react-router-dom'
+import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useAuth } from './context/AuthContext'
+import { LogOut, User as UserIcon } from 'lucide-react'
 
 function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const { isAuthenticated, user, logout } = useAuth()
+  const navigate = useNavigate()
+
+  const handleLogout = () => {
+    logout()
+    navigate('/')
+    closeMobileMenu()
+  }
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen)
@@ -17,6 +27,7 @@ function Navbar() {
 
   const navLinks = [
     { to: "/", label: "Home" },
+    { to: "/transparency", label: "Public Data" },
     { to: "/schools", label: "Schools" },
     { to: "/vendors", label: "Vendors" },
     { to: "/partners", label: "Partners" },
@@ -33,10 +44,12 @@ function Navbar() {
             className="flex items-center gap-3 font-bold text-gray-900 hover:opacity-80 transition-opacity"
             onClick={closeMobileMenu}
           >
-            <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-xl shadow-md">
-              <div className="w-6 h-6 bg-white rounded"></div>
-            </div>
-            <span className="text-xl font-display">Snacks For Thoughts</span>
+            <img 
+              src="/images/Snacks for Thoughts Logo.png" 
+              alt="Snacks For Thoughts - PBAT Feeds Logo" 
+              className="w-10 h-10 object-contain" 
+            />
+            <span className="text-base sm:text-lg md:text-xl font-display font-bold truncate">Snacks For Thoughts - PBAT Feeds</span>
           </NavLink>
 
           {/* Desktop Navigation */}
@@ -71,18 +84,38 @@ function Navbar() {
 
           {/* Desktop Auth Buttons */}
           <div className="hidden lg:flex items-center gap-4">
-            <NavLink
-              to="/login"
-              className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-green-600 transition-colors duration-200"
-            >
-              Login
-            </NavLink>
-            <NavLink
-              to="/register"
-              className="btn-primary text-sm"
-            >
-              Register
-            </NavLink>
+            {isAuthenticated && user ? (
+              <div className="flex items-center gap-4 border-l pl-4 border-gray-200">
+                <span className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                  <div className="bg-green-100 p-1.5 rounded-full">
+                    <UserIcon className="w-4 h-4 text-green-700" />
+                  </div>
+                  {user.name} <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full ml-1">{user.role.replace('_', ' ')}</span>
+                </span>
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors duration-200"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <>
+                <NavLink
+                  to="/login"
+                  className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-green-600 transition-colors duration-200"
+                >
+                  Login
+                </NavLink>
+                <NavLink
+                  to="/register"
+                  className="btn-primary text-sm"
+                >
+                  Register
+                </NavLink>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -152,20 +185,38 @@ function Navbar() {
 
                 {/* Mobile Auth Buttons */}
                 <div className="px-4 pt-4 border-t border-gray-100 space-y-2">
-                  <NavLink
-                    to="/login"
-                    onClick={closeMobileMenu}
-                    className="block w-full px-4 py-3 text-center text-base font-medium text-gray-700 hover:text-green-600 hover:bg-gray-50 rounded-lg transition-colors duration-200"
-                  >
-                    Login
-                  </NavLink>
-                  <NavLink
-                    to="/register"
-                    onClick={closeMobileMenu}
-                    className="block w-full px-4 py-3 text-center text-base font-medium btn-primary"
-                  >
-                    Register
-                  </NavLink>
+                  {isAuthenticated && user ? (
+                    <>
+                      <div className="px-4 py-3 bg-gray-50 rounded-lg mb-2">
+                        <div className="text-sm font-medium text-gray-900">{user.name}</div>
+                        <div className="text-xs text-gray-500">{user.role.replace('_', ' ')}</div>
+                      </div>
+                      <button
+                        onClick={handleLogout}
+                        className="flex items-center justify-center gap-2 w-full px-4 py-3 text-center text-base font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors duration-200"
+                      >
+                        <LogOut className="w-5 h-5" />
+                        Logout
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <NavLink
+                        to="/login"
+                        onClick={closeMobileMenu}
+                        className="block w-full px-4 py-3 text-center text-base font-medium text-gray-700 hover:text-green-600 hover:bg-gray-50 rounded-lg transition-colors duration-200"
+                      >
+                        Login
+                      </NavLink>
+                      <NavLink
+                        to="/register"
+                        onClick={closeMobileMenu}
+                        className="block w-full px-4 py-3 text-center text-base font-medium btn-primary"
+                      >
+                        Register
+                      </NavLink>
+                    </>
+                  )}
                 </div>
               </div>
             </motion.div>

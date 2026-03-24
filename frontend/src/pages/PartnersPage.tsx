@@ -24,7 +24,7 @@ export default function PartnersPage() {
             name: 'Nasco Foods',
             logo: '/images/partners/nasco-logo.png',
             supportedCauses: ['Breakfast Programs', 'Nutrition Education', 'Healthy Snacks'],
-            testimonial: 'We believe in nourishing young minds with quality, nutritious snacks. Our partnership with Snacks for Thoughts helps us reach children across Nigeria with healthy breakfast options.',
+            testimonial: 'We believe in nourishing young minds with quality, nutritious snacks. Our partnership with Snacks For Thoughts - PBAT Feeds helps us reach children across Nigeria with healthy breakfast options.',
             website: 'https://nasco.com.ng',
             industry: 'Food & Beverage'
         },
@@ -135,32 +135,36 @@ export default function PartnersPage() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.3 }}
-                        className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 mb-12"
+                        className="bg-white rounded-[2rem] shadow-2xl shadow-blue-900/10 p-12 mb-16 border border-white"
                     >
-                        <div className="text-center mb-8">
-                            <h2 className="text-3xl font-bold text-gray-900 mb-4">Our Trusted Partners</h2>
-                            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-                                Leading organizations working together to create lasting impact in education
-                            </p>
+                        <div className="flex flex-col md:flex-row items-center justify-between mb-12 gap-8 text-center md:text-left">
+                            <div className="max-w-xl">
+                                <h2 className="text-3xl font-black text-gray-900 mb-4 font-display">Strategic Alliance Network</h2>
+                                <p className="text-lg text-gray-500 font-medium">
+                                    Collaborating with industry leaders to institutionalize nutrition and quality education across Nigerian schools.
+                                </p>
+                            </div>
+                            <div className="flex items-center gap-4 bg-blue-50 px-6 py-4 rounded-2xl border border-blue-100">
+                                <div className="text-right">
+                                    <p className="text-2xl font-black text-blue-700">12+</p>
+                                    <p className="text-xs font-bold text-blue-600 uppercase tracking-widest">Global Partners</p>
+                                </div>
+                            </div>
                         </div>
 
-                        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-6 items-center">
+                        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-8 items-center">
                             {showcaseLogos.map((logo, index) => (
                                 <motion.div
                                     key={index}
                                     initial={{ opacity: 0, scale: 0.8 }}
                                     animate={{ opacity: 1, scale: 1 }}
                                     transition={{ delay: 0.4 + index * 0.1 }}
-                                    className="flex items-center justify-center p-4 bg-white/60 backdrop-blur-sm rounded-xl hover:bg-white/80 transition-all duration-300"
+                                    className="group flex flex-col items-center gap-3"
                                 >
-                                    <div className="w-16 h-16 bg-gradient-to-br from-blue-50 to-indigo-100 rounded-lg flex items-center justify-center relative overflow-hidden">
-                                        <div className="absolute inset-0 bg-gradient-to-br from-blue-200/30 to-transparent"></div>
-                                        <div className="relative z-10 flex items-center justify-center">
-                                            <div className="w-8 h-8 border-2 border-blue-500 rounded-lg flex items-center justify-center">
-                                                <div className="w-3 h-3 bg-blue-500 rounded-sm"></div>
-                                            </div>
-                                        </div>
+                                    <div className="w-20 h-20 bg-gray-50 rounded-2xl flex items-center justify-center border border-gray-100 group-hover:border-blue-400 group-hover:bg-white transition-all duration-300 shadow-sm group-hover:shadow-xl group-hover:-translate-y-2 relative overflow-hidden">
+                                        <div className="text-2xl font-black text-gray-300 group-hover:text-blue-600">P</div>
                                     </div>
+                                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter opacity-0 group-hover:opacity-100 transition-opacity">Partner {index+1}</span>
                                 </motion.div>
                             ))}
                         </div>
@@ -181,30 +185,31 @@ export default function PartnersPage() {
                                 transition={{ delay: 0.6 + index * 0.1 }}
                                 className="group"
                             >
-                                <div className="relative bg-white/40 backdrop-blur-md rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border border-white/20">
-                                    {/* Gradient overlay for glassmorphism effect */}
-                                    <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-blue-100/20 rounded-2xl"></div>
+                                <div className="relative bg-white rounded-3xl p-8 shadow-xl shadow-gray-200/50 hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 border border-gray-100 overflow-hidden group">
+                                    <div className={`absolute top-0 right-0 w-32 h-32 bg-blue-600 opacity-[0.02] group-hover:opacity-[0.05] rounded-bl-[5rem] transition-opacity`}></div>
 
                                     <div className="relative z-10">
                                         {/* Partner Logo and Name */}
-                                        <div className="flex items-center gap-4 mb-6">
-                                            <div className="w-16 h-16 bg-white/60 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg">
-                                                <div className="text-blue-600 font-bold text-lg">{partner.name.charAt(0)}</div>
+                                        <div className="flex items-center gap-5 mb-8">
+                                            <div className="w-20 h-20 bg-gray-50 rounded-[1.5rem] flex items-center justify-center shadow-inner border border-gray-100 group-hover:bg-white transition-colors">
+                                                <div className="text-blue-600 font-black text-2xl">{partner.name.charAt(0)}</div>
                                             </div>
                                             <div>
-                                                <h3 className="text-xl font-bold text-gray-900 mb-1">{partner.name}</h3>
-                                                <p className="text-sm text-gray-600">{partner.industry}</p>
+                                                <h3 className="text-2xl font-black text-gray-900 mb-1 font-display leading-tight">{partner.name}</h3>
+                                                <div className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 uppercase tracking-widest border border-blue-100">
+                                                    {partner.industry}
+                                                </div>
                                             </div>
                                         </div>
 
                                         {/* Supported Causes */}
-                                        <div className="mb-6">
-                                            <h4 className="text-sm font-semibold text-gray-700 mb-3">Supported Causes</h4>
+                                        <div className="mb-8">
+                                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Corporate Mandate</p>
                                             <div className="flex flex-wrap gap-2">
                                                 {partner.supportedCauses.map((cause, causeIndex) => (
                                                     <span
                                                         key={causeIndex}
-                                                        className="px-3 py-1 bg-gradient-to-r from-blue-500/20 to-indigo-500/20 backdrop-blur-sm text-blue-700 text-xs font-medium rounded-full border border-blue-200/30"
+                                                        className="px-3 py-1.5 bg-gray-50 text-gray-600 text-[11px] font-bold rounded-xl border border-gray-100 group-hover:bg-blue-50 group-hover:text-blue-700 group-hover:border-blue-100 transition-colors"
                                                     >
                                                         {cause}
                                                     </span>
@@ -213,30 +218,25 @@ export default function PartnersPage() {
                                         </div>
 
                                         {/* Testimonial */}
-                                        <div className="mb-6">
-                                            <blockquote className="text-sm text-gray-700 italic leading-relaxed">
-                                                "{partner.testimonial}"
-                                            </blockquote>
+                                        <div className="mb-10 relative">
+                                            <div className="absolute top-0 left-0 text-4xl text-blue-100 font-serif leading-none -translate-x-2 -translate-y-2 opacity-50">"</div>
+                                            <p className="text-sm text-gray-500 font-medium italic leading-relaxed relative z-10 pl-4">
+                                                {partner.testimonial}
+                                            </p>
                                         </div>
 
                                         {/* Action Button */}
-                                        <div className="flex gap-3">
+                                        <div className="flex flex-col gap-3">
                                             {partner.website && (
                                                 <a
                                                     href={partner.website}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="flex-1 bg-white/60 hover:bg-white/80 backdrop-blur-sm text-gray-700 font-semibold py-2 px-4 rounded-lg text-center transition-all duration-300 border border-white/30"
+                                                    className="w-full bg-gray-900 text-white font-bold py-3.5 rounded-2xl text-center transition-all duration-300 hover:bg-gray-800 shadow-lg shadow-gray-300"
                                                 >
-                                                    Visit Website
+                                                    Corporate Profile
                                                 </a>
                                             )}
-                                            <Link
-                                                to="/donate"
-                                                className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-2 px-4 rounded-lg text-center transition-all duration-300 transform hover:-translate-y-0.5 hover:scale-105 shadow-md hover:shadow-lg"
-                                            >
-                                                Partner with Us
-                                            </Link>
                                         </div>
                                     </div>
                                 </div>

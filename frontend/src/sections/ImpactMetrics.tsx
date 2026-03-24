@@ -50,26 +50,32 @@ export default function ImpactMetrics() {
     }
 
     return (
-        <section className="py-20 bg-gradient-to-br from-blue-50 via-green-50 to-yellow-50">
-            <div className="w-full px-4 sm:px-6 lg:px-8">
+        <section className="py-24 bg-white relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-green-500 via-blue-500 to-purple-500 opacity-20"></div>
+            <div className="w-full px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
                 <motion.div
                     initial="hidden"
                     whileInView="visible"
                     viewport={{ once: true }}
                     variants={containerVariants}
-                    className="text-center mb-16"
+                    className="text-left mb-20"
                 >
+                    <motion.div variants={itemVariants} className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-50 text-green-700 text-xs font-bold uppercase tracking-widest mb-4 border border-green-100">
+                        <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                        Live Impact Tracking
+                    </motion.div>
                     <motion.h2
                         variants={itemVariants}
-                        className="text-4xl font-bold text-gray-900 mb-4 font-display"
+                        className="text-5xl font-black text-gray-900 mb-6 font-display lg:max-w-3xl leading-tight"
                     >
-                        Our Impact
+                        Transforming Lives <br/>
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-blue-600">Through Every Meal.</span>
                     </motion.h2>
                     <motion.p
                         variants={itemVariants}
-                        className="text-xl text-gray-600 max-w-2xl mx-auto"
+                        className="text-xl text-gray-500 max-w-2xl font-medium"
                     >
-                        Together, we're making a real difference in the lives of children across Nigeria
+                        Our data-driven approach ensures that every donation reaches the children who need it most, creating a measurable ripple effect across Nigeria.
                     </motion.p>
                 </motion.div>
 
@@ -78,22 +84,25 @@ export default function ImpactMetrics() {
                     whileInView="visible"
                     viewport={{ once: true }}
                     variants={containerVariants}
-                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
+                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10"
                 >
                     {metrics.map((metric, index) => (
                         <motion.div
                             key={index}
                             variants={itemVariants}
-                            className="card"
+                            className="relative group p-8 rounded-3xl bg-gray-50 border border-gray-100 transition-all duration-300 hover:bg-white hover:shadow-2xl hover:shadow-gray-200/50 hover:-translate-y-2 overflow-hidden"
                         >
-                            <div className={`w-16 h-1 mx-auto mb-6 rounded-full bg-gradient-to-r ${metric.color}`}></div>
-                            <div className="text-4xl font-bold text-gray-900 mb-2">
+                            <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${metric.color} opacity-[0.03] rounded-bl-full group-hover:opacity-[0.08] transition-opacity`}></div>
+                            <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${metric.color} flex items-center justify-center text-white shadow-lg mb-8 group-hover:scale-110 transition-transform`}>
+                                <span className="text-lg font-bold">{metric.number.substring(0, 1)}</span>
+                            </div>
+                            <div className="text-4xl font-black text-gray-900 mb-2">
                                 {metric.number}
                             </div>
-                            <div className="text-lg text-gray-600 font-medium mb-2">
+                            <div className="text-base font-bold text-gray-800 mb-2 uppercase tracking-wide">
                                 {metric.label}
                             </div>
-                            <div className="text-sm text-gray-500">
+                            <div className="text-sm text-gray-500 leading-relaxed">
                                 {metric.description}
                             </div>
                         </motion.div>

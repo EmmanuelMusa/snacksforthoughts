@@ -40,37 +40,37 @@ export default function HowItWorks() {
             y: 0,
             transition: {
                 duration: 0.8,
-                ease: "easeOut"
+                ease: [0.16, 1, 0.3, 1] as any
             }
         }
     }
 
     return (
-        <section className="py-20 bg-gradient-to-br from-green-50 via-blue-50 to-purple-50">
-            <div className="w-full px-4 sm:px-6 lg:px-8">
+        <section className="py-24 bg-gray-50/50 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-96 h-96 bg-blue-100/30 blur-3xl rounded-full -mr-48 -mt-48"></div>
+            <div className="absolute bottom-0 left-0 w-96 h-96 bg-green-100/30 blur-3xl rounded-full -ml-48 -mb-48"></div>
+            
+            <div className="w-full px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto relative z-10">
                 <motion.div
                     initial="hidden"
                     whileInView="visible"
                     viewport={{ once: true }}
-                    className="text-center mb-16"
+                    className="text-center mb-24"
                 >
+                    <motion.div variants={itemVariants} className="text-green-600 font-bold text-sm uppercase tracking-widest mb-4">
+                        Step-by-Step Guide
+                    </motion.div>
                     <motion.h2
-                        initial={{ opacity: 0, y: 30 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.6 }}
-                        className="text-4xl font-bold text-gray-900 mb-4 font-display"
+                        variants={itemVariants}
+                        className="text-5xl font-black text-gray-900 mb-6 font-display"
                     >
-                        How It Works
+                        Empowering Change in <span className="text-blue-600">3 Steps</span>
                     </motion.h2>
                     <motion.p
-                        initial={{ opacity: 0, y: 30 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.6, delay: 0.2 }}
-                        className="text-xl text-gray-600 max-w-2xl mx-auto"
+                        variants={itemVariants}
+                        className="text-xl text-gray-500 max-w-2xl mx-auto font-medium"
                     >
-                        Making a difference is simple. Follow these three easy steps to start supporting education in Nigeria.
+                        We've simplified the process of supporting schools to ensure maximum transparency and direct impact for every child.
                     </motion.p>
                 </motion.div>
 
@@ -79,38 +79,36 @@ export default function HowItWorks() {
                     whileInView="visible"
                     viewport={{ once: true }}
                     variants={containerVariants}
-                    className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12"
+                    className="grid grid-cols-1 md:grid-cols-3 gap-12"
                 >
                     {steps.map((step, index) => (
                         <motion.div
                             key={index}
                             variants={itemVariants}
-                            className="relative text-center"
+                            className="group relative"
                         >
-                            {/* Connection line for desktop */}
-                            {index < steps.length - 1 && (
-                                <div className="hidden lg:block absolute top-16 left-full w-full h-0.5 bg-gradient-to-r from-gray-300 to-transparent transform translate-x-6" />
-                            )}
-
-                            <div className="relative">
-                                {/* Step number background */}
-                                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 w-8 h-8 bg-white rounded-full flex items-center justify-center text-sm font-bold text-gray-500 border-2 border-gray-200">
+                            <div className="bg-white rounded-[2.5rem] p-10 shadow-xl shadow-gray-200/50 border border-gray-100 h-full transition-all duration-300 hover:shadow-2xl hover:-translate-y-3">
+                                <div className={`w-20 h-20 rounded-3xl bg-gradient-to-br ${step.color} flex items-center justify-center text-white text-3xl font-black shadow-lg mb-8 group-hover:rotate-6 transition-transform`}>
                                     {step.number}
                                 </div>
 
-                                {/* Main card */}
-                                <div className="card border border-gray-100">
-                                    <div className={`w-16 h-1 mx-auto mb-6 rounded-full bg-gradient-to-r ${step.color}`}></div>
+                                <h3 className="text-2xl font-bold text-gray-900 mb-4 font-display">
+                                    {step.title}
+                                </h3>
 
-                                    <h3 className="text-2xl font-bold text-gray-900 mb-4 font-display">
-                                        {step.title}
-                                    </h3>
-
-                                    <p className="text-gray-600 leading-relaxed">
-                                        {step.description}
-                                    </p>
+                                <p className="text-gray-500 font-medium leading-relaxed mb-6">
+                                    {step.description}
+                                </p>
+                                
+                                <div className="flex items-center gap-2 text-sm font-bold text-blue-600 group-hover:gap-3 transition-all">
+                                    Learn More <span className="text-lg">→</span>
                                 </div>
                             </div>
+                            
+                            {/* Decorative divider for desktop */}
+                            {index < steps.length - 1 && (
+                                <div className="hidden lg:block absolute top-1/2 -right-6 w-12 h-0.5 bg-gray-200"></div>
+                            )}
                         </motion.div>
                     ))}
                 </motion.div>
@@ -121,15 +119,16 @@ export default function HowItWorks() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.6, delay: 0.8 }}
-                    className="text-center mt-16"
+                    className="text-center mt-20"
                 >
-                    <Link to="/schools">
+                    <Link to="/register">
                         <motion.button
-                            className="btn-primary text-lg"
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
+                            className="px-10 py-5 bg-gray-900 text-white text-lg font-bold rounded-2xl shadow-xl shadow-gray-300 hover:bg-gray-800 transition-colors flex items-center gap-3 mx-auto"
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
                         >
-                            Start Making a Difference
+                            Join the Movement Today
+                            <span className="text-xl">✨</span>
                         </motion.button>
                     </Link>
                 </motion.div>

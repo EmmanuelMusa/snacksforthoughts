@@ -1,25 +1,68 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
+import { useDonation } from '../context/DonationContext'
 
 export default function LoginPage() {
+    const navigate = useNavigate()
+    const { login } = useAuth()
+    const { apiBaseUrl } = useDonation()
+
     const [formData, setFormData] = useState({
-        email: '',
+        identifier: '',
         password: '',
         rememberMe: false
     })
     const [isLoading, setIsLoading] = useState(false)
+    const [error, setError] = useState('')
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         setIsLoading(true)
+        setError('')
 
-        // Simulate login process
-        setTimeout(() => {
+        try {
+            const res = await fetch(`${apiBaseUrl}/api/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    identifier: formData.identifier,
+                    password: formData.password
+                })
+            })
+
+            const data = await res.json()
+
+            if (!res.ok) {
+                throw new Error(data.error || 'Failed to login')
+            }
+
+            // Save auth
+            login(data.user, data.token)
+
+            // Redirect based on role
+            switch (data.user.role) {
+                case 'NATIONAL_CMD':
+                    navigate('/dashboard/national')
+                    break;
+                case 'STATE_CONTROL':
+                    navigate('/dashboard/state')
+                    break;
+                case 'LGA_MONITOR':
+                    navigate('/dashboard/lga')
+                    break;
+                case 'SCHOOL_REPORTER':
+                    navigate('/dashboard/school-report')
+                    break;
+                default:
+                    navigate('/transparency')
+            }
+        } catch (err: any) {
+            setError(err.message)
+        } finally {
             setIsLoading(false)
-            // In real app, handle login logic here
-            console.log('Login attempt:', formData)
-        }, 1000)
+        }
     }
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -61,20 +104,26 @@ export default function LoginPage() {
                         className="bg-white rounded-2xl shadow-lg p-8"
                     >
                         <form onSubmit={handleSubmit} className="space-y-6">
-                            {/* Email */}
+                            {error && (
+                                <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm">
+                                    {error}
+                                </div>
+                            )}
+
+                            {/* Identifier */}
                             <div>
-                                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                                    Email Address
+                                <label htmlFor="identifier" className="block text-sm font-medium text-gray-700 mb-2">
+                                    Email Address or NIN
                                 </label>
                                 <input
-                                    type="email"
-                                    id="email"
-                                    name="email"
-                                    value={formData.email}
+                                    type="text"
+                                    id="identifier"
+                                    name="identifier"
+                                    value={formData.identifier}
                                     onChange={handleChange}
                                     required
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-200 bg-white text-gray-900 placeholder-gray-500"
-                                    placeholder="Enter your email"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-200 bg-white text-gray-900 placeholder-gray-500 font-medium tracking-wide"
+                                    placeholder="Enter your Email or 11-digit NIN"
                                 />
                             </div>
 

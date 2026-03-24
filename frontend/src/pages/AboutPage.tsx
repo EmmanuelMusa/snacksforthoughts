@@ -23,7 +23,7 @@ export default function AboutPage() {
         {
             year: "2024",
             title: "Founded",
-            description: "Snacks for Thoughts was established with a vision to transform education in Nigeria",
+            description: "Snacks For Thoughts - PBAT Feeds was established with a vision to transform education in Nigeria",
             icon: "🚀"
         },
         {
@@ -104,7 +104,7 @@ export default function AboutPage() {
                         transition={{ duration: 0.8 }}
                     >
                         <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 font-display">
-                            About Snacks For Thoughts
+                            About Snacks For Thoughts - PBAT Feeds
                         </h1>
                         <p className="text-xl md:text-2xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
                             We're on a mission to transform education in Nigeria by connecting communities,

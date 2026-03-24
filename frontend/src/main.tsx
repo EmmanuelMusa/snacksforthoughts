@@ -2,8 +2,19 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { DonationProvider } from './context/DonationContext'
+import { AuthProvider } from './context/AuthContext'
 import './index.css'
 import App from './App.tsx'
+
+import PublicPortal from './pages/transparency/PublicPortal'
+import NationalCommandCenter from './pages/dashboards/NationalCommandCenter'
+import StateDashboard from './pages/dashboards/StateDashboard'
+import LGAMonitor from './pages/dashboards/LGAMonitor'
+import SchoolReporting from './pages/dashboards/SchoolReporting'
+import SupplyChainTracker from './pages/dashboards/SupplyChainTracker'
+import FinancialTracker from './pages/dashboards/FinancialTracker'
+import SafetyMonitor from './pages/dashboards/SafetyMonitor'
+import ErrorBoundary from './components/ErrorBoundary'
 
 import HomePage from './pages/HomePage'
 import SchoolsPage from './pages/SchoolsPage'
@@ -29,6 +40,7 @@ const router = createBrowserRouter([
   {
     path: '/',
     element: <App />,
+    errorElement: <ErrorBoundary />,
     children: [
       { index: true, element: <HomePage /> },
       { path: 'schools', element: <SchoolsPage /> },
@@ -40,6 +52,14 @@ const router = createBrowserRouter([
       { path: 'register', element: <RegisterPage /> },
       { path: 'login', element: <LoginPage /> },
       { path: 'admin/vendors', element: <AdminVendorsPage /> },
+      { path: 'transparency', element: <PublicPortal /> },
+      { path: 'dashboard/national', element: <NationalCommandCenter /> },
+      { path: 'dashboard/state', element: <StateDashboard /> },
+      { path: 'dashboard/lga', element: <LGAMonitor /> },
+      { path: 'dashboard/school-report', element: <SchoolReporting /> },
+      { path: 'dashboard/supply-chain', element: <SupplyChainTracker /> },
+      { path: 'dashboard/finance', element: <FinancialTracker /> },
+      { path: 'dashboard/safety', element: <SafetyMonitor /> },
     ],
   },
   // Admin routes with separate layout
@@ -61,8 +81,10 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <DonationProvider>
-      <RouterProvider router={router} />
-    </DonationProvider>
+    <AuthProvider>
+      <DonationProvider>
+        <RouterProvider router={router} />
+      </DonationProvider>
+    </AuthProvider>
   </StrictMode>,
 )
