@@ -20,16 +20,25 @@ const app = express()
 
 const allowedOrigins = [
     'http://localhost:5173',
+    'http://localhost:5174',
     'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:5173',
+    'http://127.0.0.1:5174',
     'https://www.snacksforthoughts.com',
-    'https://snacksforthoughts.com'
+    'https://snacksforthoughts.com',
+    'https://snacksforthoughts-frontend.onrender.com'
 ]
 
 app.use(cors({
     origin: function (origin, callback) {
-        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+        // Allow requests with no origin (like mobile apps or curl)
+        if (!origin) return callback(null, true);
+        
+        if (allowedOrigins.indexOf(origin) !== -1 || origin.startsWith('http://localhost:')) {
             callback(null, true)
         } else {
+            console.error(`CORS blocked for origin: ${origin}`);
             callback(new Error('Not allowed by CORS'))
         }
     }
@@ -51,6 +60,20 @@ app.use('/api/auth', authRouter)
 app.use('/api/dashboard', dashboardRouter)
 app.use('/api/supply-chain', supplyChainRouter)
 app.use('/api/safety', safetyRouter)
+
+// Catch-all for undefined routes
+app.use((_req, res) => {
+    res.status(404).json({ error: "API endpoint not found" });
+});
+
+// Error handler to ensure JSON response instead of HTML
+app.use((err: any, _req: any, res: any, _next: any) => {
+    console.error("Unhandle error:", err);
+    res.status(err.status || 500).json({ 
+        error: err.message || "Internal Server Error",
+        details: process.env.NODE_ENV === 'development' ? err.stack : undefined
+    });
+});
 
 const port = process.env.PORT ? Number(process.env.PORT) : 4000
 app.listen(port, () => {
