@@ -17,14 +17,38 @@ export default function Hero() {
             {/* Overlay Gradient */}
             <div className="absolute inset-0 bg-gradient-to-r from-blue-900/80 via-blue-800/70 to-blue-900/80" />
 
-            {/* Top Navigation / Login Button */}
-            <div className="absolute top-0 left-0 right-0 z-50 p-6 flex justify-end">
+            {/* Top Navigation / Logo Bar */}
+            <div className="absolute top-0 left-0 right-0 z-50 p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                {/* Official Logos */}
+                <div className="flex flex-wrap items-center gap-4 bg-white/10 backdrop-blur-md p-3 rounded-2xl border border-white/20">
+                    <img
+                        src="/images/Coat_of_arms_of_Nigeria.svg.png"
+                        alt="Nigeria Coat of Arms"
+                        className="h-10 md:h-12 w-auto object-contain"
+                    />
+                    <img
+                        src="/images/Fed. Min. of Humanitarian Affairs logo.png"
+                        alt="Ministry Logo"
+                        className="h-10 md:h-12 w-auto object-contain"
+                    />
+                    <img
+                        src="/images/NSIPA-LOGO-MAIN.png"
+                        alt="NSIPA Logo"
+                        className="h-10 md:h-12 w-auto object-contain"
+                    />
+                    <img
+                        src="/images/RH-NHGSFP.png"
+                        alt="NHGSFP Logo"
+                        className="h-10 md:h-12 w-auto object-contain"
+                    />
+                </div>
+
                 <Link to="/login">
                     <motion.button
-                        whileHover={{ opacity: 1 }}
-                        className="text-white/40 hover:text-white font-bold text-sm tracking-widest uppercase transition-all"
+                        whileHover={{ scale: 1.05, opacity: 1 }}
+                        className="text-white/60 hover:text-white font-bold text-xs tracking-[0.3em] uppercase transition-all bg-white/5 px-6 py-3 rounded-full border border-white/10 backdrop-blur-sm"
                     >
-                        Login / Sign Up
+                        Login / Register
                     </motion.button>
                 </Link>
             </div>

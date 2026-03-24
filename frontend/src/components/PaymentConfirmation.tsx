@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 
 interface Supplier {
     id: string
@@ -34,17 +36,20 @@ export default function PaymentConfirmation({
 }: PaymentConfirmationProps) {
     const [paymentConfirmed, setPaymentConfirmed] = useState(false)
     const [isProcessing, setIsProcessing] = useState(false)
+    const { isAuthenticated } = useAuth()
+    const navigate = useNavigate()
 
     const handlePaymentConfirmation = async () => {
+        // Guard: require login before confirming payment
+        if (!isAuthenticated) {
+            navigate('/login?redirect=donation')
+            return
+        }
+
         setIsProcessing(true)
-
-        // Simulate API call to confirm payment
         await new Promise(resolve => setTimeout(resolve, 2000))
-
         setPaymentConfirmed(true)
         setIsProcessing(false)
-
-        // Notify supplier after a short delay
         setTimeout(() => {
             onPaymentConfirmed()
         }, 1000)
