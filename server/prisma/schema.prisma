@@ -14,32 +14,38 @@ datasource db {
 }
 
 model User {
-  id           String   @id @default(cuid())
-  name         String
-  nin          String   @unique
-  email        String?  @unique
-  passwordHash String?
-  role         Role
-  qrCode       String?   @unique @default(cuid())
-  state        String?
-  lga          String?
-  schoolId     String?
-  isActive     Boolean  @default(true)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id             String   @id @default(cuid())
+  name           String
+  nin            String?  @unique
+  email          String?  @unique
+  passwordHash   String?
+  role           Role
+  qrCode         String?  @unique @default(cuid())
+  state          String?
+  lga            String?
+  schoolId       String?
+  isActive       Boolean  @default(true)
   
-  school       School?  @relation(fields: [schoolId], references: [id])
-  reports      SchoolReport[]
+  // Supplier Specific Fields
+  companyName    String?
+  accountDetails Json?
+  contactInfo    Json?    // phone, email, etc.
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  
+  school         School?  @relation(fields: [schoolId], references: [id])
+  reports        SchoolReport[]
+  
+  donorRequests    SupplyRequest[] @relation("DonorRequests")
+  supplierRequests SupplyRequest[] @relation("SupplierRequests")
 }
 
 enum Role {
-  NATIONAL_CMD
-  STATE_CONTROL
-  LGA_MONITOR
-  SCHOOL_REPORTER
-  VENDOR
-  FARMER
-  AGGREGATOR
+  ADMIN
+  SUPPLIER
+  VERIFIER
+  DONOR
 }
 
 model School {
@@ -71,103 +77,36 @@ model School {
   importBatch   String?  // Track which import batch this school came from
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
-  donations     Donation[]
-  breakfastDonations BreakfastDonation[]
   users         User[]
   reports       SchoolReport[]
+  supplyRequests SupplyRequest[]
 }
 
-model Vendor {
-  id        String   @id @default(cuid())
-  name      String
-  category  String
-  verified  Boolean  @default(false)
-  nin       String?  @unique
-  qrCode    String?   @unique @default(cuid())
-  hygieneCertified Boolean @default(false)
-  contact   String?
-  portfolio String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Donation {
-  id        String   @id @default(cuid())
-  donorName String
-  // For cash donations
-  amount    Int?
-  // For in-kind donations
-  kindType  String?   // e.g., materials, services
-  kindDesc  String?
-  imageUrl  String?
-  type      DonationType
-  date      DateTime @default(now())
-  schoolId  String
-  school    School   @relation(fields: [schoolId], references: [id])
-}
-
-enum DonationType {
-  CASH
-  IN_KIND
-}
-
-model Company {
-  id               String    @id @default(cuid())
-  name             String
-  logo             String?
-  description      String?
-  supportedCauses  String[]  // array of strings
-  partnershipType  String?   // one-time donor, recurring partner, etc.
-  contact          String?
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
-}
-
-model Supplier {
+model SupplyRequest {
   id              String   @id @default(cuid())
-  name            String
-  logo            String?
-  description     String?
-  specialties     String[] // array of specialties like ["Biscuits", "Juices", "Cereals"]
-  rating          Float    @default(0)
-  deliveryAreas   String[] // array of delivery areas
-  accountDetails  Json     // bank account details
-  contactInfo     Json     // phone, email
-  verified        Boolean  @default(false)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  breakfastDonations BreakfastDonation[]
-}
-
-model BreakfastDonation {
-  id              String   @id @default(cuid())
-  donorName       String
+  donorId         String
   schoolId        String
   supplierId      String
-  selectedWeeks   String[] // array of week IDs
-  totalAmount     Int
-  costPerStudent  Int      @default(50)
-  studentCount    Int
-  paymentConfirmed Boolean @default(false)
-  paymentReference String?
-  status          DonationStatus @default(PENDING)
+  academicPeriod  String
+  supplyDate      String?
+  items           Json     // Array of items and quantities
+  status          RequestStatus @default(PENDING_PAYMENT)
+  proofImageUrl   String?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+
+  donor           User     @relation("DonorRequests", fields: [donorId], references: [id])
   school          School   @relation(fields: [schoolId], references: [id])
-  supplier        Supplier @relation(fields: [supplierId], references: [id])
+  supplier        User     @relation("SupplierRequests", fields: [supplierId], references: [id])
 }
 
-enum DonationStatus {
-  PENDING
+enum RequestStatus {
+  PENDING_PAYMENT
+  PAYMENT_CLAIMED
   PAYMENT_CONFIRMED
-  SUPPLIER_NOTIFIED
-  IN_PROGRESS
   DELIVERED
-  COMPLETED
-  CANCELLED
+  VERIFIED
 }
-
-// Operational Blueprint Additional Models
 
 model SchoolReport {
   id                String   @id @default(cuid())
@@ -184,49 +123,4 @@ model SchoolReport {
   
   school            School   @relation(fields: [schoolId], references: [id])
   reporter          User?    @relation(fields: [reportedByUserId], references: [id])
-}
-
-model FoodSupply {
-  id             String   @id @default(cuid())
-  product        String
-  quantity       Float
-  unit           String   @default("units")
-  state          String
-  sourceId       String?
-  destinationId  String?
-  status         String   @default("In Transit")
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-}
-
-model FinancialRecord {
-  id          String   @id @default(cuid())
-  category    String   // Food procurement, Vendor payments, Logistics, Monitoring
-  amount      Float
-  description String?
-  date        DateTime @default(now())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
-
-model SafetyReport {
-  id          String   @id @default(cuid())
-  type        String   // inspection, spoiled_food, complaint
-  description String
-  status      String   @default("Pending")
-  targetId    String?  // Could refer to vendorId or schoolId dynamically
-  reportedAt  DateTime @default(now())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
-
-model ImpactMetric {
-  id            String   @id @default(cuid())
-  indicatorName String
-  valueType     String   // percentage, count, etc.
-  currentValue  Float
-  trend         String?  // increase, reduction
-  measuredAt    DateTime @default(now())
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
 }

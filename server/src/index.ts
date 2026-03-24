@@ -13,6 +13,7 @@ import authRouter from './routes/auth'
 import dashboardRouter from './routes/dashboard'
 import supplyChainRouter from './routes/supply-chain'
 import safetyRouter from './routes/safety'
+import donorsRouter from './routes/donors'
 
 dotenv.config()
 
@@ -77,6 +78,8 @@ app.use('/api/auth', authRouter)
 app.use('/api/dashboard', dashboardRouter)
 app.use('/api/supply-chain', supplyChainRouter)
 app.use('/api/safety', safetyRouter)
+app.use('/api/donors', donorsRouter)
+app.use('/api/donor', donorsRouter) // Handle both /api/donors and /api/donor
 
 // Catch-all for undefined routes
 app.use((_req, res) => {

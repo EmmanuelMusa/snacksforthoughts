@@ -65,102 +65,78 @@ async function importSchoolsFromExcel() {
 
         // Process and import schools
         const importBatch = `excel_import_${Date.now()}`
-        const processedSchools = []
+        const schoolDataList: any[] = []
         const errors = []
+
+        console.log('🔄 Preparing data for batch import...')
 
         for (let i = 0; i < rows.length; i++) {
             const row = rows[i]
-
-            // Skip empty rows
-            if (!row.some(cell => cell !== null && cell !== undefined && cell !== '')) {
-                continue
-            }
+            if (!row.some(cell => cell !== null && cell !== undefined && cell !== '')) continue
 
             try {
-                // Map columns to school data
-                // We'll need to examine the actual structure, but let's assume common column names
-                const schoolData: any = {}
+                const schoolEntry: any = {
+                    importBatch,
+                    isActive: true,
+                    needs: ['Breakfast Programs', 'Educational Materials'],
+                    image: getRandomSchoolImage(),
+                    raisedAmount: 0,
+                    targetAmount: generateTargetAmount(),
+                    studentCount: generateStudentCount(),
+                    needType: 'General Education',
+                }
 
                 headers.forEach((header, index) => {
-                    const cleanHeader = cleanData(header).toLowerCase()
+                    const cleanHeader = cleanData(header).toUpperCase()
                     const value = cleanData(row[index])
 
-                    // Map common column names
-                    if (cleanHeader.includes('school') && cleanHeader.includes('name')) {
-                        schoolData.name = value
-                    } else if (cleanHeader.includes('state')) {
-                        schoolData.state = value
-                    } else if (cleanHeader.includes('lga') || cleanHeader.includes('local government')) {
-                        schoolData.lga = value
-                    } else if (cleanHeader.includes('ward')) {
-                        schoolData.ward = value
-                    } else if (cleanHeader.includes('address')) {
-                        schoolData.address = value
-                    } else if (cleanHeader.includes('phone') || cleanHeader.includes('contact')) {
-                        schoolData.phone = value
-                    } else if (cleanHeader.includes('email')) {
-                        schoolData.email = value
-                    } else if (cleanHeader.includes('student') && cleanHeader.includes('count')) {
-                        schoolData.studentCount = parseInt(value) || generateStudentCount()
-                    } else if (cleanHeader.includes('principal')) {
-                        schoolData.principalName = value
-                    } else if (cleanHeader.includes('type')) {
-                        schoolData.schoolType = value || 'Primary'
-                    }
+                    if (cleanHeader === 'NAMES OF PRIMARY SCHOOLS') schoolEntry.name = value
+                    else if (cleanHeader === 'STATE') schoolEntry.state = value
+                    else if (cleanHeader === 'LGA') schoolEntry.lga = value
+                    else if (cleanHeader === 'WARDS') schoolEntry.ward = value
+                    else if (cleanHeader === 'TOWN') schoolEntry.town = value
+                    else if (cleanHeader === 'LOCATION') schoolEntry.specificLocation = value
+                    else if (cleanHeader === 'CATEGORY OF SCHOOL') schoolEntry.category = value
+                    else if (cleanHeader === 'TYPE OF SCHOOL') schoolEntry.schoolType = value
+                    else if (cleanHeader === 'AGGREGATORS') schoolEntry.aggregator = value
+                    else if (cleanHeader === 'NO') schoolEntry.originalNo = value
                 })
 
-                // Ensure required fields
-                if (!schoolData.name) {
-                    schoolData.name = `School ${i + 1}`
-                }
-                if (!schoolData.state) {
-                    schoolData.state = 'Unknown'
-                }
-                if (!schoolData.lga) {
-                    schoolData.lga = 'Unknown'
-                }
+                if (!schoolEntry.name) continue
 
-                // Create school record
-                const school = await prisma.school.create({
-                    data: {
-                        name: schoolData.name,
-                        location: `${schoolData.lga}, ${schoolData.state}`,
-                        state: schoolData.state,
-                        lga: schoolData.lga,
-                        ward: schoolData.ward || '',
-                        address: schoolData.address || '',
-                        phone: schoolData.phone || '',
-                        email: schoolData.email || '',
-                        principalName: schoolData.principalName || '',
-                        schoolType: schoolData.schoolType || 'Primary',
-                        studentCount: schoolData.studentCount || generateStudentCount(),
-                        targetAmount: generateTargetAmount(),
-                        raisedAmount: 0,
-                        needs: ['Breakfast Programs', 'Educational Materials'],
-                        image: getRandomSchoolImage(),
-                        description: `A ${schoolData.schoolType || 'Primary'} school in ${schoolData.lga}, ${schoolData.state} committed to providing quality education.`,
-                        needType: 'General Education',
-                        isActive: true,
-                        importBatch,
-                    }
-                })
-
-                processedSchools.push(school)
-
-                if (processedSchools.length % 100 === 0) {
-                    console.log(`✅ Processed ${processedSchools.length} schools...`)
-                }
-
+                schoolEntry.location = `${schoolEntry.lga || 'Unknown'}, ${schoolEntry.state || 'Unknown'}`
+                schoolEntry.description = `A ${schoolEntry.schoolType || 'Primary'} school in ${schoolEntry.lga || 'Unknown'}, ${schoolEntry.state || 'Unknown'} committed to providing quality education.`
+                
+                schoolDataList.push(schoolEntry)
             } catch (error) {
-                errors.push({
-                    row: i + 2,
-                    error: error instanceof Error ? error.message : 'Unknown error',
-                    data: row
-                })
+                errors.push({ row: i + 2, error: error instanceof Error ? error.message : 'Unknown' })
             }
         }
 
-        console.log(`🎉 Successfully imported ${processedSchools.length} schools!`)
+        console.log(`📦 Ready to import ${schoolDataList.length} schools in batches...`)
+
+        const BATCH_SIZE = 200
+        let importedCount = 0
+
+        for (let i = 0; i < schoolDataList.length; i += BATCH_SIZE) {
+            const batch = schoolDataList.slice(i, i + BATCH_SIZE)
+            try {
+                await (prisma as any).school.createMany({
+                    data: batch,
+                    skipDuplicates: true
+                })
+                importedCount += batch.length
+                console.log(`✅ Progress: ${i + batch.length}/${schoolDataList.length} schools processed...`)
+                
+                // Add a small delay to prevent overwhelming the DB/connection
+                await new Promise(resolve => setTimeout(resolve, 500))
+            } catch (err) {
+                console.error(`❌ Error in batch starting at index ${i}:`, err)
+                // Continue to next batch
+            }
+        }
+
+        console.log(`🎉 Finished processing ${schoolDataList.length} schools!`)
 
         if (errors.length > 0) {
             console.log(`⚠️  ${errors.length} errors occurred:`)

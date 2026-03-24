@@ -31,7 +31,7 @@ router.post('/register', async (req, res) => {
             }
         });
 
-        const token = jwt.sign({ id: user.id, role: user.role, nin: user.nin }, JWT_SECRET, { expiresIn: '24h' });
+        const token = jwt.sign({ id: user.id, role: user.role, state: user.state, lga: user.lga }, JWT_SECRET, { expiresIn: '24h' });
 
         res.status(201).json({ user: { id: user.id, name: user.name, role: user.role }, token });
     } catch (error) {
@@ -66,7 +66,7 @@ router.post('/login', async (req, res) => {
             return res.status(401).json({ error: "Invalid credentials" });
         }
 
-        const token = jwt.sign({ id: user.id, role: user.role, nin: user.nin }, JWT_SECRET, { expiresIn: '24h' });
+        const token = jwt.sign({ id: user.id, role: user.role, state: user.state, lga: user.lga }, JWT_SECRET, { expiresIn: '24h' });
 
         const loginUserData: any = { 
             id: user.id, 

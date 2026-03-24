@@ -1,7 +1,6 @@
 import { Router } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { authenticateToken, requireRole } from '../middleware/auth';
-import { NIGERIAN_STATES } from '../constants';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
@@ -9,8 +8,8 @@ import fs from 'fs';
 const router = Router();
 const prisma = new PrismaClient();
 
-// Multer setup for evidence uploads
-const uploadDir = path.join(process.cwd(), 'uploads', 'reports');
+// Multer setup for verifier proof uploads
+const uploadDir = path.join(process.cwd(), 'uploads', 'proofs');
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
 }
@@ -21,215 +20,216 @@ const storage = multer.diskStorage({
     },
     filename: (req, file, cb) => {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, 'evidence-' + uniqueSuffix + path.extname(file.originalname));
+        cb(null, 'proof-' + uniqueSuffix + path.extname(file.originalname));
     }
 });
 
 const upload = multer({ storage: storage });
 
-// Helper to get start of today
-const getStartOfToday = () => {
-    const d = new Date();
-    d.setHours(0, 0, 0, 0);
-    return d;
-};
+// ==========================================
+// ADMIN ENDPOINTS
+// ==========================================
 
-// National Command Center Data
-router.get('/national', authenticateToken, requireRole(['NATIONAL_CMD']), async (req, res) => {
+router.get('/admin/overview', authenticateToken, requireRole(['ADMIN']), async (req, res) => {
     try {
-        const today = getStartOfToday();
-        
-        // Sum of pupils fed today
-        const totalPupilsFed = await prisma.schoolReport.aggregate({ 
-            where: { createdAt: { gte: today } },
-            _sum: { pupilsFedToday: true } 
-        });
-
-        // Count unique schools that reported today
-        const activeToday = await prisma.schoolReport.groupBy({
-            by: ['schoolId'],
-            where: { createdAt: { gte: today } }
-        });
-
+        const totalRequests = await prisma.supplyRequest.count();
+        const completedRequests = await prisma.supplyRequest.count({ where: { status: 'VERIFIED' } });
         const totalSchools = await prisma.school.count();
-        const totalVendors = await prisma.vendor.count();
-        const totalFarmers = await prisma.user.count({ where: { role: 'FARMER' } });
+        const verifiedSuppliers = await prisma.user.count({ where: { role: 'SUPPLIER' } });
 
         res.json({
-            pupilsFedToday: totalPupilsFed._sum.pupilsFedToday || 0,
-            schoolsParticipating: activeToday.length, // Active schools today
-            totalSchoolsCount: totalSchools,
-            vendorsActive: totalVendors,
-            farmersLinked: totalFarmers,
+            totalRequests,
+            completedRequests,
+            totalSchools,
+            verifiedSuppliers
         });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: "Failed to fetch national data" });
+        res.status(500).json({ error: "Failed to fetch admin overview" });
     }
 });
 
-// State Control Dashboard
-router.get('/state/:stateName', authenticateToken, requireRole(['NATIONAL_CMD', 'STATE_CONTROL']), async (req, res) => {
+router.get('/admin/supplies', authenticateToken, requireRole(['ADMIN']), async (req, res) => {
     try {
-        const stateName = req.params.stateName.toUpperCase();
-        const today = getStartOfToday();
+        const supplies = await prisma.supplyRequest.findMany({
+            include: {
+                donor: { select: { name: true, email: true } },
+                supplier: { select: { companyName: true, name: true } },
+                school: { select: { name: true, state: true, lga: true } }
+            },
+            orderBy: { createdAt: 'desc' }
+        });
+        res.json(supplies);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Failed to fetch supply ledger" });
+    }
+});
+
+// ==========================================
+// SUPPLIER ENDPOINTS
+// ==========================================
+
+router.get('/supplier/requests', authenticateToken, requireRole(['SUPPLIER', 'ADMIN']), async (req: any, res) => {
+    try {
+        // Find requests assigned to this supplier
+        const supplierId = req.user.id;
+        const requests = await prisma.supplyRequest.findMany({
+            where: { supplierId },
+            include: {
+                donor: { select: { name: true, email: true } },
+                school: { select: { name: true, state: true, lga: true, address: true, phone: true } }
+            },
+            orderBy: { createdAt: 'desc' }
+        });
+        res.json(requests);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Failed to fetch supplier requests" });
+    }
+});
+
+router.post('/supplier/request/:id/status', authenticateToken, requireRole(['SUPPLIER']), async (req: any, res) => {
+    try {
+        const { status } = req.body;
+        const requestId = req.params.id;
         
-        if (!NIGERIAN_STATES.includes(stateName)) {
-            return res.status(400).json({ error: "Invalid Nigerian State" });
+        // Ensure the supplier owns this request
+        const supplyRequest = await prisma.supplyRequest.findUnique({ where: { id: requestId } });
+        if (!supplyRequest || supplyRequest.supplierId !== req.user.id) {
+            return res.status(403).json({ error: "Unauthorized to update this request." });
         }
 
-        const schoolsInState = await prisma.school.findMany({ where: { state: stateName } });
-        const schoolIds = schoolsInState.map(s => s.id);
-
-        const pupilsFed = await prisma.schoolReport.aggregate({
-            where: { 
-                schoolId: { in: schoolIds },
-                createdAt: { gte: today }
-            },
-            _sum: { pupilsFedToday: true }
+        const updated = await prisma.supplyRequest.update({
+            where: { id: requestId },
+            data: { status }
         });
-
-        // Unique schools reporting today in this state
-        const activeToday = await prisma.schoolReport.groupBy({
-            by: ['schoolId'],
-            where: { 
-                schoolId: { in: schoolIds },
-                createdAt: { gte: today } 
-            }
-        });
-
-        const activeVendors = await prisma.user.count({ where: { role: 'VENDOR', state: stateName } });
-
-        res.json({
-            schoolsParticipating: activeToday.length,
-            totalSchoolsInState: schoolsInState.length,
-            pupilsFedToday: pupilsFed._sum.pupilsFedToday || 0,
-            vendorsActive: activeVendors
-        });
+        res.json({ message: "Status updated successfully", request: updated });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: "Failed to fetch state data" });
+        res.status(500).json({ error: "Failed to update status" });
     }
 });
 
-// LGA Monitoring Panel
-router.get('/lga/:lgaName', authenticateToken, requireRole(['NATIONAL_CMD', 'STATE_CONTROL', 'LGA_MONITOR']), async (req, res) => {
-    try {
-        const lgaName = req.params.lgaName.toUpperCase();
-        const today = getStartOfToday();
-        const schoolsInLga = await prisma.school.findMany({ where: { lga: lgaName } });
-        const schoolIds = schoolsInLga.map(s => s.id);
+// ==========================================
+// VERIFIER ENDPOINTS
+// ==========================================
 
-        const pupilsFed = await prisma.schoolReport.aggregate({
-            where: { 
-                schoolId: { in: schoolIds },
-                createdAt: { gte: today }
+router.get('/verifier/requests', authenticateToken, requireRole(['VERIFIER', 'ADMIN']), async (req: any, res) => {
+    try {
+        const state = req.user.state;
+        if (!state) return res.status(400).json({ error: "Verifier has no state assigned." });
+
+        // Verifiers see DELIVERED or VERIFIED requests in their state
+        const requests = await prisma.supplyRequest.findMany({
+            where: {
+                school: { state: state },
+                status: { in: ['DELIVERED', 'VERIFIED'] }
             },
-            _sum: { pupilsFedToday: true }
+            include: {
+                supplier: { select: { companyName: true, name: true } },
+                school: { select: { name: true, state: true, lga: true } }
+            },
+            orderBy: { updatedAt: 'desc' }
+        });
+        res.json(requests);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Failed to fetch verifier requests" });
+    }
+});
+
+router.post('/verifier/request/:id/verify', authenticateToken, requireRole(['VERIFIER']), upload.single('evidence'), async (req: any, res) => {
+    try {
+        const requestId = req.params.id;
+        const supplyRequest = await prisma.supplyRequest.findUnique({ 
+            where: { id: requestId },
+            include: { school: true }
         });
 
-        // Unique schools reporting today in this LGA
-        const activeToday = await prisma.schoolReport.groupBy({
-            by: ['schoolId'],
-            where: { 
-                schoolId: { in: schoolIds },
-                createdAt: { gte: today } 
+        if (!supplyRequest) return res.status(404).json({ error: "Supply request not found." });
+        
+        // Ensure it's in the verifier's state
+        if (supplyRequest.school.state !== req.user.state) {
+            return res.status(403).json({ error: "Unauthorized: Request is in a different state." });
+        }
+
+        let proofUrl = null;
+        if (req.file) {
+            proofUrl = `/uploads/proofs/${req.file.filename}`;
+        }
+
+        const updated = await prisma.supplyRequest.update({
+            where: { id: requestId },
+            data: { 
+                status: 'VERIFIED',
+                proofImageUrl: proofUrl || supplyRequest.proofImageUrl 
+            }
+        });
+        res.json({ message: "Supply verified successfully", request: updated });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Failed to verify request" });
+    }
+});
+
+// ==========================================
+// DONOR ENDPOINTS
+// ==========================================
+
+router.get('/donors/suppliers/:state', async (req, res) => {
+    try {
+        const stateName = req.params.state.toUpperCase();
+        const suppliers = await prisma.user.findMany({
+            where: { role: 'SUPPLIER', state: stateName },
+            select: {
+                id: true,
+                companyName: true,
+                accountDetails: true,
+                contactInfo: true,
+                state: true
+            }
+        });
+        res.json(suppliers);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Failed to fetch suppliers for state" });
+    }
+});
+
+router.post('/donor/request', authenticateToken, requireRole(['DONOR']), async (req: any, res) => {
+    try {
+        const { schoolId, supplierId, academicPeriod, items } = req.body;
+        const donorId = req.user.id;
+
+        if (!schoolId || !supplierId || !academicPeriod || !items) {
+            return res.status(400).json({ error: "Missing required fields" });
+        }
+
+        const request = await prisma.supplyRequest.create({
+            data: {
+                donorId,
+                schoolId,
+                supplierId,
+                academicPeriod,
+                items, // JSON array
+                status: 'PAYMENT_CLAIMED' // Instantly assume they've hit "I've made payment"
             }
         });
 
-        const inspectionVisits = await prisma.safetyReport.count({ 
-            where: { type: 'inspection', createdAt: { gte: today } } 
-        });
-
-        res.json({
-            schoolsFeeding: activeToday.length,
-            totalSchoolsInLga: schoolsInLga.length,
-            pupilsServed: pupilsFed._sum.pupilsFedToday || 0,
-            inspectionVisits: inspectionVisits + 12, // Base mock + real-time
-            schools: schoolsInLga
-        });
+        res.status(201).json({ message: "Supply request initiated", request });
     } catch (error) {
-        res.status(500).json({ error: "Failed to fetch LGA data" });
+        console.error(error);
+        res.status(500).json({ error: "Failed to create supply request" });
     }
 });
 
-// Public Transparency Portal (No Auth)
+// Backward compatibility or public stats
 router.get('/public', async (req, res) => {
     try {
-        const totalPupilsFed = await prisma.schoolReport.aggregate({ _sum: { pupilsFedToday: true } });
-        
-        // Count distinct states that are in our valid list
-        const participatingStates = await prisma.school.findMany({ 
-            where: { state: { in: NIGERIAN_STATES } },
-            select: { state: true }, 
-            distinct: ['state'] 
-        });
-        
-        const farmersEngaged = await prisma.user.count({ where: { role: 'FARMER' } });
-
-        res.json({
-            pupilsFed: totalPupilsFed._sum.pupilsFedToday || 0,
-            statesParticipating: participatingStates.length,
-            farmersEngaged
-        });
-    } catch (error) {
-        res.status(500).json({ error: "Failed to fetch public data" });
-    }
-});
-
-// School Reporting POST with Evidence Capture
-router.post('/report', authenticateToken, requireRole(['SCHOOL_REPORTER']), upload.single('evidence'), async (req: any, res) => {
-    try {
-        const { pupilsFedToday, menuServed, vendorName, qualityScore } = req.body;
-        const evidenceFile = req.file;
-
-        if (pupilsFedToday === undefined || !menuServed) {
-            return res.status(400).json({ error: "Missing required fields: pupilsFedToday and menuServed are required." });
-        }
-        
-        const user = await prisma.user.findUnique({ where: { id: req.user.id } });
-        if (!user) {
-            return res.status(401).json({ error: "Authenticated user not found in database." });
-        }
-
-        const schoolId = user.schoolId;
-        if (!schoolId) {
-            return res.status(400).json({ error: "Your account is not linked to a school. Please contact your administrator." });
-        }
-
-        // Step 1: Create the core report using only stable fields (safe across Prisma generations)
-        const report = await prisma.schoolReport.create({
-            data: {
-                schoolId: schoolId,
-                pupilsFedToday: Number(pupilsFedToday),
-                menuServed,
-                vendorName: vendorName || "N/A",
-                qualityScore: Number(qualityScore) || 5,
-                reportedByUserId: user.id
-            }
-        });
-
-        // Step 2: Save evidence URL separately via raw SQL to avoid Prisma client version mismatch
-        if (evidenceFile) {
-            const evidenceUrl = `/uploads/reports/${evidenceFile.filename}`;
-            try {
-                await prisma.$executeRawUnsafe(
-                    `UPDATE "SchoolReport" SET "evidenceUrl" = $1 WHERE id = $2`,
-                    evidenceUrl,
-                    report.id
-                );
-            } catch (evidenceErr) {
-                // Non-fatal: log it but don't fail the report submission
-                console.warn('[Evidence] Could not save evidenceUrl:', evidenceErr);
-            }
-        }
-
-        console.log(`[Report Sync] Report saved for school ${schoolId} with evidence: ${evidenceFile?.filename || 'None'}`);
-
-        res.status(201).json({ message: "Report submitted successfully!", report });
-    } catch (error) {
-        console.error("Report Post error:", error);
-        res.status(500).json({ error: "Failed to save report: " + (error instanceof Error ? error.message : "Unknown error") });
+        res.json({});
+    } catch (err) {
+        res.json({});
     }
 });
 
