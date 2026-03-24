@@ -40,6 +40,10 @@ router.post('/register', async (req, res) => {
     }
 });
 
+router.get('/login', (_req, res) => {
+    res.json({ message: "Auth endpoint is alive. Please use POST for login.", method: "GET" });
+});
+
 router.post('/login', async (req, res) => {
     try {
         const { identifier, password } = req.body;

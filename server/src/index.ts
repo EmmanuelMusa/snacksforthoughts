@@ -54,8 +54,17 @@ app.use(cors({
 app.use(express.json())
 app.use('/uploads', express.static('uploads'))
 
+app.get('/', (_req, res) => {
+    res.json({ 
+        status: "Online", 
+        version: "1.0.1", 
+        message: "National Digital School Feeding Platform API - Production",
+        timestamp: new Date().toISOString()
+    });
+});
+
 app.get('/api/health', (_req, res) => {
-    res.json({ ok: true })
+    res.json({ ok: true, version: "1.0.1" })
 })
 
 app.use('/api/schools', schoolsRouter)
