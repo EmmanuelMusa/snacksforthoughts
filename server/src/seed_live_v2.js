@@ -109,15 +109,6 @@ async function main() {
             );
         }
 
-        // 6. Create Safety Reports
-        console.log('Populating Safety & Quality Inspections...');
-        for (const school of targetSchools.slice(0, 10)) {
-            await client.query(
-                `INSERT INTO "SafetyReport" (id, type, description, status, "targetId", "updatedAt") 
-                 VALUES (gen_random_uuid()::text, 'inspection', 'Kitchen hygiene and food quality standards met.', 'pass', $1, NOW())`,
-                [school.id]
-            );
-        }
 
         console.log('--- Live Seeding Complete Successfully ---');
     } catch (error) {

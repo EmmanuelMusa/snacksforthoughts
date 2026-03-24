@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient, Role } from '@prisma/client'
 
 const prisma = new PrismaClient()
 const router = Router()
@@ -13,13 +13,14 @@ router.get('/suppliers/:state', async (req, res) => {
         // Fetch users in the state, then filter by role in memory.
         // This prevents Prisma Enum mismatch errors if the live database hasn't updated its ENUM definition,
         // and also safely retrieves users who might still have the old 'VENDOR' role.
-        const users = await (prisma.user as any).findMany({
+        const users = await prisma.user.findMany({
             where: {
                 state: {
                     equals: state,
                     mode: 'insensitive'
                 },
-                isActive: true
+                isActive: true,
+                role: Role.SUPPLIER
             },
             select: {
                 id: true,
@@ -33,9 +34,7 @@ router.get('/suppliers/:state', async (req, res) => {
             }
         })
         
-        const suppliers = users.filter((u: any) => u.role === 'SUPPLIER' || u.role === 'VENDOR')
-        
-        res.json(suppliers)
+        res.json(users)
     } catch (error) {
         console.error('Error fetching suppliers:', error)
         res.status(500).json({ error: 'Failed to fetch suppliers' })

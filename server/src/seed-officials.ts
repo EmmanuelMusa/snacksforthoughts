@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient, Role } from '@prisma/client'
 import bcrypt from 'bcryptjs'
 
 const prisma = new PrismaClient()
@@ -7,10 +7,10 @@ async function main() {
     console.log("Seeding dashboard officials...")
 
     const roles = [
-        { role: 'NATIONAL_CMD', name: 'National Commander', nin: '11111111111' },
-        { role: 'STATE_CONTROL', name: 'State Controller (Lagos)', nin: '22222222222', state: 'Lagos' },
-        { role: 'LGA_MONITOR', name: 'LGA Monitor (Ikeja)', nin: '33333333333', state: 'Lagos', lga: 'Ikeja' },
-        { role: 'SCHOOL_REPORTER', name: 'School Reporter', nin: '44444444444' }
+        { role: Role.ADMIN, name: 'National Commander', nin: '11111111111' },
+        { role: Role.ADMIN, name: 'State Controller (Lagos)', nin: '22222222222', state: 'Lagos' },
+        { role: Role.VERIFIER, name: 'LGA Monitor (Ikeja)', nin: '33333333333', state: 'Lagos', lga: 'Ikeja' },
+        { role: Role.VERIFIER, name: 'School Reporter', nin: '44444444444' }
     ]
 
     const passwordHash = await bcrypt.hash('password123', 10)
@@ -20,7 +20,7 @@ async function main() {
         await prisma.user.upsert({
             where: { nin: data.nin },
             update: {
-                role: data.role as any,
+                role: data.role,
                 state: data.state,
                 lga: data.lga,
                 passwordHash
@@ -29,7 +29,7 @@ async function main() {
                 name: data.name,
                 nin: data.nin,
                 passwordHash,
-                role: data.role as any,
+                role: data.role,
                 state: data.state,
                 lga: data.lga
             }

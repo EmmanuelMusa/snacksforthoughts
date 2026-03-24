@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Role } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -17,7 +17,7 @@ async function main() {
         select: { id: true, role: true }
     });
 
-    const oldSuppliers = allUsers.filter((u: any) => u.role === 'SUPPLIER' || u.role === 'VENDOR');
+    const oldSuppliers = allUsers.filter((u: any) => u.role === Role.SUPPLIER);
     const oldIds = oldSuppliers.map((u: any) => u.id);
     
     if (oldIds.length > 0) {
@@ -31,7 +31,7 @@ async function main() {
                 // If it fails (foreign key constraint), deactivate and change role
                 await prisma.user.update({
                     where: { id },
-                    data: { isActive: false, role: 'DONOR' as any }
+                    data: { isActive: false, role: Role.DONOR }
                 });
                 deactivated++;
             }
@@ -71,7 +71,7 @@ async function main() {
             newSuppliers.push({
                 name,
                 email: `supplier_${state.replace(/\s+/g, '').toLowerCase()}_${i}@example.com`,
-                role: 'SUPPLIER',
+                role: Role.SUPPLIER,
                 state,
                 isActive: true,
                 companyName,

@@ -4,15 +4,14 @@ import cors from 'cors'
 import dotenv from 'dotenv'
 import { z } from 'zod'
 import schoolsRouter from './routes/schools'
-import vendorsRouter from './routes/vendors'
-import donationsRouter from './routes/donations'
-import companiesRouter from './routes/companies'
-import suppliersRouter from './routes/suppliers'
-import breakfastDonationsRouter from './routes/breakfast-donations'
+// import vendorsRouter from './routes/vendors'
+// import donationsRouter from './routes/donations'
+// import companiesRouter from './routes/companies'
+// import suppliersRouter from './routes/suppliers'
+// import breakfastDonationsRouter from './routes/breakfast-donations'
 import authRouter from './routes/auth'
 import dashboardRouter from './routes/dashboard'
-import supplyChainRouter from './routes/supply-chain'
-import safetyRouter from './routes/safety'
+// import supplyChainRouter from './routes/supply-chain'
 import donorsRouter from './routes/donors'
 
 dotenv.config()
@@ -69,15 +68,14 @@ app.get('/api/health', (_req, res) => {
 })
 
 app.use('/api/schools', schoolsRouter)
-app.use('/api/vendors', vendorsRouter)
-app.use('/api/donations', donationsRouter)
-app.use('/api/companies', companiesRouter)
-app.use('/api/suppliers', suppliersRouter)
-app.use('/api/breakfast-donations', breakfastDonationsRouter)
+// app.use('/api/vendors', vendorsRouter)
+// app.use('/api/donations', donationsRouter)
+// app.use('/api/companies', companiesRouter)
+// app.use('/api/suppliers', suppliersRouter)
+// app.use('/api/breakfast-donations', breakfastDonationsRouter)
 app.use('/api/auth', authRouter)
 app.use('/api/dashboard', dashboardRouter)
-app.use('/api/supply-chain', supplyChainRouter)
-app.use('/api/safety', safetyRouter)
+// app.use('/api/supply-chain', supplyChainRouter)
 app.use('/api/donors', donorsRouter)
 app.use('/api/donor', donorsRouter) // Handle both /api/donors and /api/donor
 
