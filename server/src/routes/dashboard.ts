@@ -2,9 +2,30 @@ import { Router } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { authenticateToken, requireRole } from '../middleware/auth';
 import { NIGERIAN_STATES } from '../constants';
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
 
 const router = Router();
 const prisma = new PrismaClient();
+
+// Multer setup for evidence uploads
+const uploadDir = path.join(process.cwd(), 'uploads', 'reports');
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, uploadDir);
+    },
+    filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, 'evidence-' + uniqueSuffix + path.extname(file.originalname));
+    }
+});
+
+const upload = multer({ storage: storage });
 
 // Helper to get start of today
 const getStartOfToday = () => {
@@ -156,19 +177,24 @@ router.get('/public', async (req, res) => {
     }
 });
 
-// School Reporting POST
-router.post('/report', authenticateToken, requireRole(['SCHOOL_REPORTER']), async (req: any, res) => {
+// School Reporting POST with Evidence Capture
+router.post('/report', authenticateToken, requireRole(['SCHOOL_REPORTER']), upload.single('evidence'), async (req: any, res) => {
     try {
         const { pupilsFedToday, menuServed, vendorName, qualityScore } = req.body;
-        if (!pupilsFedToday || !menuServed) {
-            return res.status(400).json({ error: "Missing required fields" });
+        const evidenceFile = req.file;
+
+        if (pupilsFedToday === undefined || !menuServed) {
+            return res.status(400).json({ error: "Missing required fields: pupilsFedToday and menuServed are required." });
         }
         
         const user = await prisma.user.findUnique({ where: { id: req.user.id } });
-        let schoolId = user?.schoolId;
+        if (!user) {
+            return res.status(401).json({ error: "Authenticated user not found in database." });
+        }
+
+        const schoolId = user.schoolId;
         if (!schoolId) {
-            const firstSchool = await prisma.school.findFirst();
-            schoolId = firstSchool?.id || "temp-school-id"; 
+            return res.status(400).json({ error: "Your account is not linked to a school. Please contact your administrator." });
         }
 
         const report = await prisma.schoolReport.create({
@@ -178,14 +204,17 @@ router.post('/report', authenticateToken, requireRole(['SCHOOL_REPORTER']), asyn
                 menuServed,
                 vendorName: vendorName || "N/A",
                 qualityScore: Number(qualityScore) || 5,
-                reportedByUserId: user?.id
+                reportedByUserId: user.id,
+                evidenceUrl: evidenceFile ? `/uploads/reports/${evidenceFile.filename}` : null
             }
         });
+
+        console.log(`[Report Sync] Report saved for school ${schoolId} with evidence: ${evidenceFile?.filename || 'None'}`);
 
         res.status(201).json({ message: "Report submitted successfully!", report });
     } catch (error) {
         console.error("Report Post error:", error);
-        res.status(500).json({ error: "Failed to save report" });
+        res.status(500).json({ error: "Failed to save report: " + (error instanceof Error ? error.message : "Unknown error") });
     }
 });
 
