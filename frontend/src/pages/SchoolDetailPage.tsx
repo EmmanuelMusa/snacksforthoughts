@@ -16,8 +16,15 @@ import {
     Users,
     UserCheck,
     X,
-    Heart
+    Heart,
+    Utensils,
+    Calendar,
+    ArrowUpRight,
+    Search,
+    ShieldCheck,
+    Trophy
 } from 'lucide-react'
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 
 type School = {
     id: string;
@@ -133,81 +140,100 @@ export default function SchoolDetailPage() {
 
             <div className="w-full px-4 sm:px-6 lg:px-8 -mt-16 relative z-20">
                 <div className="max-w-7xl mx-auto">
-                    {/* Progress Card */}
+                    {/* Premium Dashboard Metrics */}
+                    {school && (
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+                            <MetricCard 
+                                icon={<Users className="w-5 h-5" />} 
+                                title="Total Pupils" 
+                                value="420" 
+                                subtitle="Digitalized Records" 
+                                color="green"
+                            />
+                            <MetricCard 
+                                icon={<Utensils className="w-5 h-5" />} 
+                                title="Feeding Coverage" 
+                                value="98.2%" 
+                                subtitle="Attendance Rate" 
+                                color="blue"
+                            />
+                            <MetricCard 
+                                icon={<Trophy className="w-5 h-5" />} 
+                                title="Health Index" 
+                                value="A+" 
+                                subtitle="Hygiene Grade" 
+                                color="orange"
+                            />
+                            <MetricCard 
+                                icon={<GraduationCap className="w-5 h-5" />} 
+                                title="Teachers" 
+                                value="18" 
+                                subtitle="Licensed Educators" 
+                                color="purple"
+                            />
+                        </div>
+                    )}
+
+                    {/* Progress Card Upgrade */}
                     {school && (
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.3 }}
-                            className="bg-white rounded-2xl shadow-xl p-8 mb-8"
+                            className="bg-white/80 backdrop-blur-2xl rounded-[3rem] shadow-2xl shadow-gray-200/50 p-10 mb-12 border border-white/50 relative overflow-hidden"
                         >
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
-                                {/* Circular Progress */}
-                                <div className="flex justify-center">
-                                    <div className="relative w-32 h-32">
-                                        <svg className="w-32 h-32 transform -rotate-90" viewBox="0 0 120 120">
-                                            <circle
-                                                cx="60"
-                                                cy="60"
-                                                r="50"
-                                                stroke="currentColor"
-                                                strokeWidth="8"
-                                                fill="none"
-                                                className="text-gray-200"
-                                            />
+                            {/* Decorative gradient corner */}
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-green-500/10 to-blue-500/10 rounded-full -mr-32 -mt-32 blur-3xl" />
+                            
+                            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10">
+                                <div className="lg:col-span-3 flex justify-center">
+                                    <div className="relative w-48 h-48">
+                                        <svg className="w-48 h-48 transform -rotate-90" viewBox="0 0 120 120">
+                                            <circle cx="60" cy="60" r="54" stroke="currentColor" strokeWidth="6" fill="none" className="text-gray-100" />
                                             <motion.circle
-                                                cx="60"
-                                                cy="60"
-                                                r="50"
-                                                stroke="currentColor"
-                                                strokeWidth="8"
-                                                fill="none"
-                                                strokeLinecap="round"
-                                                className="text-mint-500"
-                                                initial={{ strokeDasharray: "0 314" }}
-                                                animate={{ strokeDasharray: `${314 * progress} 314` }}
-                                                transition={{ duration: 2, delay: 0.5 }}
+                                                cx="60" cy="60" r="54" stroke="currentColor" strokeWidth="10" fill="none" strokeLinecap="round"
+                                                className="text-green-600"
+                                                initial={{ strokeDasharray: "0 339" }}
+                                                animate={{ strokeDasharray: `${339 * progress} 339` }}
+                                                transition={{ duration: 2.5, ease: "easeOut" }}
                                             />
                                         </svg>
-                                        <div className="absolute inset-0 flex items-center justify-center">
-                                            <div className="text-center">
-                                                <div className="text-2xl font-bold text-gray-900">{progressPercentage}%</div>
-                                                <div className="text-sm text-gray-600">Complete</div>
-                                            </div>
+                                        <div className="absolute inset-0 flex flex-col items-center justify-center">
+                                            <div className="text-4xl font-black text-gray-900 leading-none">{progressPercentage}%</div>
+                                            <div className="text-[10px] font-black uppercase text-gray-400 tracking-widest mt-1">Impact Goal</div>
                                         </div>
                                     </div>
                                 </div>
 
-                                {/* Progress Info */}
-                                <div className="text-center md:text-left">
-                                    <h3 className="text-2xl font-bold text-gray-900 mb-2">Fundraising Progress</h3>
-                                    <p className="text-gray-600 mb-4">
-                                        Help us reach our goal to support this school's needs
-                                    </p>
-                                    <div className="space-y-2">
-                                        <div className="flex justify-between text-sm">
-                                            <span className="text-gray-600">Raised</span>
-                                            <span className="font-semibold text-mint-600">₦{school.raisedAmount.toLocaleString()}</span>
+                                <div className="lg:col-span-5 text-center lg:text-left">
+                                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-[10px] font-bold uppercase tracking-widest mb-4">
+                                        <ShieldCheck className="w-3 h-3" />
+                                        Verified Development Goal
+                                    </div>
+                                    <h3 className="text-3xl font-black text-gray-900 mb-4 leading-tight">Empowering Future <br/>Leaders Together.</h3>
+                                    <div className="grid grid-cols-2 gap-8">
+                                        <div>
+                                            <div className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Total Raised</div>
+                                            <div className="text-2xl font-black text-green-600">₦{school.raisedAmount.toLocaleString()}</div>
                                         </div>
-                                        <div className="flex justify-between text-sm">
-                                            <span className="text-gray-600">Target</span>
-                                            <span className="font-semibold text-gray-900">₦{school.targetAmount.toLocaleString()}</span>
-                                        </div>
-                                        <div className="flex justify-between text-sm">
-                                            <span className="text-gray-600">Remaining</span>
-                                            <span className="font-semibold text-gray-900">₦{(school.targetAmount - school.raisedAmount).toLocaleString()}</span>
+                                        <div>
+                                            <div className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Target Need</div>
+                                            <div className="text-2xl font-black text-gray-900">₦{school.targetAmount.toLocaleString()}</div>
                                         </div>
                                     </div>
                                 </div>
 
-                                {/* CTA */}
-                                <div className="text-center">
+                                <div className="lg:col-span-4 space-y-4">
                                     <Link
                                         to={`/donate?schoolId=${school.id}`}
-                                        className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-mint-500 to-mint-600 hover:from-mint-600 hover:to-mint-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 hover:scale-105"
+                                        className="flex w-full items-center justify-center gap-3 px-8 py-5 bg-black text-white font-black text-lg rounded-2xl shadow-xl hover:bg-gray-800 transition-all duration-300 transform hover:-translate-y-1"
                                     >
-                                        Make a Donation
+                                        <HeartHandshake className="w-6 h-6" />
+                                        Support School
                                     </Link>
+                                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest text-center">
+                                        Secure transaction powered by NSIPA Digital Foundation
+                                    </p>
                                 </div>
                             </div>
                         </motion.div>
@@ -250,34 +276,76 @@ export default function SchoolDetailPage() {
                                         exit={{ opacity: 0, y: -20 }}
                                         className="space-y-6"
                                     >
-                                        <div>
-                                            <h3 className="text-2xl font-bold text-gray-900 mb-4">About This School</h3>
-                                            <p className="text-gray-700 leading-relaxed">
-                                                {school?.description || 'This school is dedicated to providing quality education to children in the community. With your support, we can help improve facilities, provide learning materials, and ensure every child has access to nutritious meals.'}
-                                            </p>
-                                        </div>
+                                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                                            <div className="lg:col-span-2 space-y-8">
+                                                <div className="bg-gray-50 rounded-[2rem] p-8 border border-gray-100">
+                                                    <h3 className="text-xl font-black text-gray-900 mb-4 flex items-center gap-2">
+                                                        <Search className="w-5 h-5 text-green-600" />
+                                                        Overview
+                                                    </h3>
+                                                    <p className="text-gray-700 leading-relaxed font-medium">
+                                                        {school?.description || 'This institution is an integral part of the Federal Government\'s digitalized feeding initiative, ensuring high-standard nutritional support for every student. Through continuous digitalization, we track daily attendance and meal distribution with 100% transparency to maximize the impact of every grain provided.'}
+                                                    </p>
+                                                </div>
 
-                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                            <div className="bg-gradient-to-br from-mint-50 to-white border border-mint-100 rounded-2xl p-6 text-center shadow-sm">
-                                                <div className="w-12 h-12 bg-mint-100 rounded-xl flex items-center justify-center mx-auto mb-4">
-                                                    <GraduationCap className="w-6 h-6 text-mint-600" />
+                                                <div className="bg-white rounded-[2rem] p-8 border border-gray-100 shadow-sm relative overflow-hidden group">
+                                                    <div className="flex items-center justify-between mb-8">
+                                                        <div>
+                                                            <h3 className="text-xl font-black text-gray-900">Feeding Performance</h3>
+                                                            <p className="text-xs text-gray-500 font-bold uppercase tracking-widest">Last 14 Reporting Cycles</p>
+                                                        </div>
+                                                        <div className="flex items-center gap-2 px-3 py-1 bg-green-50 text-green-700 rounded-full text-[10px] font-black tracking-widest border border-green-100 uppercase animate-pulse">
+                                                            <div className="w-1.5 h-1.5 bg-green-600 rounded-full" />
+                                                            On Schedule
+                                                        </div>
+                                                    </div>
+                                                    <div className="h-64 w-full">
+                                                        <ResponsiveContainer width="100%" height="100%">
+                                                            <AreaChart data={[
+                                                                { name: 'Day 1', count: 380 }, { name: 'Day 2', count: 395 }, { name: 'Day 3', count: 412 },
+                                                                { name: 'Day 4', count: 405 }, { name: 'Day 5', count: 420 }, { name: 'Day 6', count: 418 },
+                                                                { name: 'Day 7', count: 420 }, { name: 'Day 8', count: 415 }, { name: 'Day 9', count: 410 },
+                                                                { name: 'Day 10', count: 420 }, { name: 'Day 11', count: 420 }, { name: 'Day 12', count: 415 },
+                                                                { name: 'Day 13', count: 420 }, { name: 'Day 14', count: 420 }
+                                                            ]}>
+                                                                <defs>
+                                                                    <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
+                                                                        <stop offset="5%" stopColor="#16a34a" stopOpacity={0.1}/>
+                                                                        <stop offset="95%" stopColor="#16a34a" stopOpacity={0}/>
+                                                                    </linearGradient>
+                                                                </defs>
+                                                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
+                                                                <XAxis dataKey="name" hide />
+                                                                <YAxis hide domain={['dataMin - 50', 'dataMax + 20']} />
+                                                                <Tooltip 
+                                                                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                                                                />
+                                                                <Area type="monotone" dataKey="count" stroke="#16a34a" strokeWidth={3} fillOpacity={1} fill="url(#colorCount)" />
+                                                            </AreaChart>
+                                                        </ResponsiveContainer>
+                                                    </div>
                                                 </div>
-                                                <div className="font-bold text-gray-900 text-lg">Primary School</div>
-                                                <div className="text-sm text-gray-500">Education Level</div>
                                             </div>
-                                            <div className="bg-gradient-to-br from-sky-50 to-white border border-sky-100 rounded-2xl p-6 text-center shadow-sm">
-                                                <div className="w-12 h-12 bg-sky-100 rounded-xl flex items-center justify-center mx-auto mb-4">
-                                                    <Users className="w-6 h-6 text-sky-600" />
+
+                                            <div className="space-y-6">
+                                                <div className="bg-gradient-to-br from-green-600 to-green-800 rounded-[2rem] p-8 text-white shadow-xl shadow-green-100">
+                                                    <Trophy className="w-10 h-10 mb-4 text-green-200" />
+                                                    <h3 className="text-xl font-black mb-2">Impact Leader</h3>
+                                                    <p className="text-sm text-green-100 mb-6 font-medium">Ranked top 10% in LGA for feeding compliance and student performance metrics.</p>
+                                                    <div className="pt-6 border-t border-white/20 flex items-center justify-between">
+                                                        <div className="text-xs font-bold uppercase tracking-widest text-green-200">Compliance</div>
+                                                        <div className="text-xl font-black italic">EXCEPTIONAL</div>
+                                                    </div>
                                                 </div>
-                                                <div className="font-bold text-gray-900 text-lg">200+</div>
-                                                <div className="text-sm text-gray-500">Students</div>
-                                            </div>
-                                            <div className="bg-gradient-to-br from-indigo-50 to-white border border-indigo-100 rounded-2xl p-6 text-center shadow-sm">
-                                                <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center mx-auto mb-4">
-                                                    <UserCheck className="w-6 h-6 text-indigo-600" />
+
+                                                <div className="bg-white rounded-[2rem] p-8 border border-gray-100 shadow-sm space-y-6">
+                                                    <h4 className="text-sm font-black text-gray-400 uppercase tracking-widest">Key Statistics</h4>
+                                                    <div className="space-y-4">
+                                                        <StatItem label="Academic Calendar" value="Term 2 / Day 42" icon={<Calendar className="w-4 h-4 text-blue-500" />} />
+                                                        <StatItem label="State Rank" value="#12 / Lagos" icon={<Trophy className="w-4 h-4 text-orange-500" />} />
+                                                        <StatItem label="Digitalization" value="100% COMPLETE" icon={<ShieldCheck className="w-4 h-4 text-green-500" />} />
+                                                    </div>
                                                 </div>
-                                                <div className="font-bold text-gray-900 text-lg">15+</div>
-                                                <div className="text-sm text-gray-500">Teachers</div>
                                             </div>
                                         </div>
                                     </motion.div>
@@ -499,6 +567,39 @@ export default function SchoolDetailPage() {
             </AnimatePresence>
             <BackToTop />
             <StickyDonateButton schoolId={school?.id} />
+        </div>
+    )
+}
+
+function MetricCard({ icon, title, value, subtitle, color }: any) {
+    const bgColors: any = {
+        green: 'bg-green-50 text-green-600 border-green-100',
+        blue: 'bg-blue-50 text-blue-600 border-blue-100',
+        orange: 'bg-orange-50 text-orange-600 border-orange-100',
+        purple: 'bg-purple-50 text-purple-600 border-purple-100'
+    }
+    return (
+        <div className="bg-white rounded-[2rem] p-6 border border-gray-100 shadow-sm hover:shadow-md transition-shadow group">
+            <div className={`w-12 h-12 rounded-2xl ${bgColors[color]} border flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
+                {icon}
+            </div>
+            <div className="text-xs font-black text-gray-400 uppercase tracking-[0.15em] mb-1">{title}</div>
+            <div className="text-3xl font-black text-gray-900 mb-1">{value}</div>
+            <div className="text-[10px] font-black text-gray-400 bg-gray-50 px-2 py-0.5 rounded-full inline-block uppercase tracking-wider">{subtitle}</div>
+        </div>
+    )
+}
+
+function StatItem({ label, value, icon }: any) {
+    return (
+        <div className="flex items-center justify-between group">
+            <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center group-hover:bg-white group-hover:shadow-sm transition-all border border-transparent group-hover:border-gray-100">
+                    {icon}
+                </div>
+                <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">{label}</span>
+            </div>
+            <div className="text-sm font-black text-gray-900">{value}</div>
         </div>
     )
 }

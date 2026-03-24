@@ -65,8 +65,13 @@ export default function SchoolsPage() {
           const res = await fetch(`${apiBaseUrl}/api/schools/states`)
           const json: ApiList<string[]> = await res.json()
           const list = (json as any).data ?? json
-          const filteredList = (list || []).filter((s: string) => s && s.toUpperCase() !== 'UNKNOWN' && s.toUpperCase() !== 'NULL')
-          if (!cancelled) setStates(filteredList)
+          // Normalize to UPPERCASE and remove duplicates, UNKNOWN, and NULL
+          const uniqueStates = Array.from(new Set(
+            (list || [])
+              .map((s: string) => s ? s.trim().toUpperCase() : '')
+              .filter((s: string) => s && s !== 'UNKNOWN' && s !== 'NULL')
+          )).sort()
+          if (!cancelled) setStates(uniqueStates as string[])
         } catch {
           if (!cancelled) setStates([])
         }
