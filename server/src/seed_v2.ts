@@ -4,9 +4,13 @@ import { NIGERIAN_STATES } from './constants';
 
 const prisma = new PrismaClient();
 
-const generatePhoneNumber = () => {
-    return '080' + Math.floor(10000000 + Math.random() * 90000000).toString();
-};
+const firstNames = ["Emeka", "Amina", "Tunde", "Fatimah", "Chidi", "Ngozi", "Abubakar", "Ifeanyi", "Zainab", "Olumide", "Kalu", "Boma", "Yusuf", "Chioma", "Dayo", "Halima", "Uche", "Funke", "Musa", "Ada"];
+const lastNames = ["Okoro", "Bello", "Adeyemi", "Ibrahim", "Nwosu", "Danjuma", "Balogun", "Obi", "Usman", "Sowore", "Gbadamosi", "Nnaji", "Abdullahi", "Oni", "Ojo", "Idris"];
+const companySuffixes = ["Global", "Ventures", "Nig Ltd", "Enterprises", "Solutions", "Integrated Services", "Agro-Allied"];
+
+const getRandom = (arr: any[]) => arr[Math.floor(Math.random() * arr.length)];
+const generateName = () => `${getRandom(firstNames)} ${getRandom(lastNames)}`;
+const generateCompany = (state: string) => `${state} ${getRandom(lastNames)} ${getRandom(companySuffixes)}`;
 
 const supplierSpecialties = [
     ["Rice", "Beans", "Garri", "Yam"],
@@ -22,6 +26,15 @@ const bankNames = ["Access Bank", "GTBank", "Zenith Bank", "UBA", "First Bank", 
 async function main() {
     console.log('🌱 Starting V2 Database Seed: Donor-to-School Platform...');
     const hashedPassword = await bcrypt.hash('password123', 10);
+
+    // 0. Cleanup existing mock data (Keep schools and admins)
+    console.log('🧹 Cleaning up previous mock data...');
+    await (prisma as any).supplyRequest.deleteMany({});
+    await prisma.user.deleteMany({
+        where: {
+            role: { in: ['SUPPLIER', 'VERIFIER', 'DONOR'] as any }
+        }
+    });
 
     // 1. Create Super Admin
     console.log('👤 Creating Super Admin...');
@@ -64,18 +77,19 @@ async function main() {
         suppliersByState[sNameUpper] = [];
         const stateSchools = schoolsByState[sNameUpper] || [];
 
-        // Create 3 Suppliers
-        for (let i = 1; i <= 3; i++) {
-            const specialties = supplierSpecialties[Math.floor(Math.random() * supplierSpecialties.length)];
-            const bankName = bankNames[Math.floor(Math.random() * bankNames.length)];
+        // Create 4-6 Suppliers per state
+        const supplierCount = 4 + Math.floor(Math.random() * 3);
+        for (let i = 1; i <= supplierCount; i++) {
+            const specialties = getRandom(supplierSpecialties);
+            const bankName = getRandom(bankNames);
             const accNum = Math.floor(1000000000 + Math.random() * 9000000000).toString();
             
-            const supplierCompanyName = `${stateName} Supplier ${i} Ltd`;
-            const phone = generatePhoneNumber();
+            const supplierCompanyName = generateCompany(stateName);
+            const managerName = generateName();
 
             const supplierData: any = {
-                name: `Manager, ${supplierCompanyName}`,
-                email: `supplier${i}.${sNameUpper.toLowerCase()}@pbatfeeds.ng`,
+                name: managerName,
+                email: `supplier.${sNameUpper.toLowerCase()}.${i}@pbatfeeds.ng`,
                 passwordHash: hashedPassword,
                 role: 'SUPPLIER',
                 state: sNameUpper,
@@ -87,8 +101,8 @@ async function main() {
                     swift: "XXXNGLA"
                 },
                 contactInfo: {
-                    phone,
-                    address: `Block ${i}, Main Market, ${stateName}`,
+                    phone: '080' + Math.floor(10000000 + Math.random() * 90000000).toString(),
+                    address: `No ${Math.floor(Math.random() * 50) + 1}, Commercial Road, ${stateName}`,
                     specialties
                 }
             };
@@ -98,22 +112,23 @@ async function main() {
             totalSuppliers++;
         }
 
-        // Create 2 Verifiers
-        for (let j = 1; j <= 2; j++) {
+        // Create 3-4 Verifiers per state
+        const verifierCount = 3 + Math.floor(Math.random() * 2);
+        for (let j = 1; j <= verifierCount; j++) {
             let schoolId = null;
             if (stateSchools.length > 0) {
-                const randSchool = stateSchools[Math.floor(Math.random() * stateSchools.length)];
+                const randSchool = getRandom(stateSchools);
                 schoolId = randSchool.id;
             }
 
             const verifierData: any = {
-                name: `${stateName} Verifier ${j}`,
-                email: `verifier${j}.${sNameUpper.toLowerCase()}@pbatfeeds.ng`,
+                name: generateName(),
+                email: `verifier.${sNameUpper.toLowerCase()}.${j}@pbatfeeds.ng`,
                 passwordHash: hashedPassword,
                 role: 'VERIFIER',
                 state: sNameUpper,
                 schoolId: schoolId,
-                contactInfo: { phone: generatePhoneNumber() }
+                contactInfo: { phone: '080' + Math.floor(10000000 + Math.random() * 90000000).toString() }
             };
 
             await prisma.user.create({ data: verifierData });
@@ -129,19 +144,19 @@ async function main() {
         
         const donor1 = await prisma.user.create({
             data: {
-                name: 'Chief Donor One',
-                email: 'donor1@gmail.com',
+                name: generateName(),
+                email: 'donor.one@gmail.com',
                 passwordHash: hashedPassword,
                 role: 'DONOR' as any
-            }
+            } as any
         });
         const donor2 = await prisma.user.create({
             data: {
-                name: 'Corporate Giver Ltd',
-                email: 'donor2@corporate.com',
+                name: `${getRandom(lastNames)} Holdings Ltd`,
+                email: 'donor.corporate@gmail.com',
                 passwordHash: hashedPassword,
                 role: 'DONOR' as any
-            }
+            } as any
         });
         
         const donors = [donor1.id, donor2.id];
@@ -149,15 +164,15 @@ async function main() {
         const statuses = ["PENDING_PAYMENT", "PAYMENT_CONFIRMED", "DELIVERED", "VERIFIED"];
 
         let mockCount = 0;
-        for (let k = 0; k < 50; k++) { // Reduced to 50 for speed
-            const school = allSchools[Math.floor(Math.random() * allSchools.length)];
+        for (let k = 0; k < 150; k++) {
+            const school = getRandom(allSchools);
             const state = school.state?.toUpperCase() || 'LAGOS';
             const stateSuppliers = suppliersByState[state];
             if (!stateSuppliers || stateSuppliers.length === 0) continue;
             
-            const supplierId = stateSuppliers[Math.floor(Math.random() * stateSuppliers.length)];
-            const donorId = donors[Math.floor(Math.random() * donors.length)];
-            const status = statuses[Math.floor(Math.random() * statuses.length)];
+            const supplierId = getRandom(stateSuppliers);
+            const donorId = getRandom(donors);
+            const status = getRandom(statuses);
 
             const items = [
                 { name: "Biscuit", price: 300, totalCost: 300 * (school.studentCount || 200) * 5 },
@@ -169,7 +184,7 @@ async function main() {
                     donorId,
                     schoolId: school.id,
                     supplierId,
-                    academicPeriod: periods[Math.floor(Math.random() * periods.length)],
+                    academicPeriod: getRandom(periods),
                     items: items,
                     status: status as any,
                     proofImageUrl: status === 'VERIFIED' ? '/images/children_in_a_classroom_in_nigeria_smiling.jpeg' : null
