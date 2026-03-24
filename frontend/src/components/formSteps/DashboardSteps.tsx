@@ -92,12 +92,10 @@ export function DashboardStep2({ formData, updateFormData }: DashboardStepsProps
                 <select
                     value={data.role}
                     onChange={(e) => handleChange('role', e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 font-bold"
                 >
-                    <option value="NATIONAL_CMD">National Command Center</option>
-                    <option value="STATE_CONTROL">State Control Dashboard</option>
-                    <option value="LGA_MONITOR">Local Government Monitor</option>
-                    <option value="SCHOOL_REPORTER">School Feeding Reporter</option>
+                    <option value="SUPPLIER">Verified Food Supplier</option>
+                    <option value="VERIFIER">Regional School Verifier</option>
                 </select>
             </div>
             <div className="grid grid-cols-2 gap-4">

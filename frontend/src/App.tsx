@@ -1,6 +1,6 @@
 import './App.css'
 import Footer from './sections/Footer'
-import { NavLink, Outlet, useNavigate } from 'react-router-dom'
+import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from './context/AuthContext'
@@ -10,6 +10,10 @@ function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const { isAuthenticated, user, logout } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
+
+  // Don't show navbar on home page
+  if (location.pathname === '/') return null;
 
   const handleLogout = () => {
     logout()
@@ -112,10 +116,10 @@ function Navbar() {
               <div className="flex items-center gap-4 border-l pl-4 border-gray-200">
                 <NavLink
                   to={
-                    user.role === 'NATIONAL_CMD' ? '/dashboard/national' :
-                    user.role === 'STATE_CONTROL' ? '/dashboard/state' :
-                    user.role === 'LGA_MONITOR' ? '/dashboard/lga' :
-                    '/dashboard/school-report'
+                    user.role === 'ADMIN' ? '/admin' :
+                    user.role === 'SUPPLIER' ? '/dashboard/supplier' :
+                    user.role === 'VERIFIER' ? '/dashboard/verifier' :
+                    '/dashboard/donor'
                   }
                   className="px-4 py-2 text-sm font-bold text-green-700 hover:text-green-800 bg-green-50 hover:bg-green-100 rounded-lg transition-all duration-200 flex items-center gap-2"
                 >
@@ -226,10 +230,10 @@ function Navbar() {
                       <div className="px-4 py-3 bg-gray-50 rounded-lg mb-2">
                         <NavLink
                           to={
-                            user.role === 'NATIONAL_CMD' ? '/dashboard/national' :
-                            user.role === 'STATE_CONTROL' ? '/dashboard/state' :
-                            user.role === 'LGA_MONITOR' ? '/dashboard/lga' :
-                            '/dashboard/school-report'
+                            user.role === 'ADMIN' ? '/admin' :
+                            user.role === 'SUPPLIER' ? '/dashboard/supplier' :
+                            user.role === 'VERIFIER' ? '/dashboard/verifier' :
+                            '/dashboard/donor'
                           }
                           onClick={closeMobileMenu}
                           className="flex items-center gap-3 w-full px-4 py-3 text-base font-bold text-green-700 bg-green-50 rounded-lg mb-3"
@@ -279,10 +283,14 @@ function Navbar() {
 
 
 function App() {
+  const location = useLocation()
+  const hideNavbarPaths = ['/', '/login', '/register']
+  const isNavbarHidden = hideNavbarPaths.includes(location.pathname)
+
   return (
     <div className="min-h-dvh flex flex-col">
-      <Navbar />
-      <main className="flex-1 pt-16">
+      {!isNavbarHidden && <Navbar />}
+      <main className={`flex-1 ${isNavbarHidden ? '' : 'pt-16'}`}>
         <Outlet />
       </main>
       <Footer />

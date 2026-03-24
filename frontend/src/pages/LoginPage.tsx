@@ -53,20 +53,23 @@ export default function LoginPage() {
 
             // Redirect based on role
             switch (data.user.role) {
-                case 'NATIONAL_CMD':
-                    navigate('/dashboard/national')
+                case 'ADMIN':
+                    navigate('/admin')
                     break;
-                case 'STATE_CONTROL':
-                    navigate('/dashboard/state')
+                case 'SUPPLIER':
+                    navigate('/dashboard/supplier')
                     break;
-                case 'LGA_MONITOR':
-                    navigate('/dashboard/lga')
+                case 'VERIFIER':
+                    navigate('/dashboard/verifier')
                     break;
-                case 'SCHOOL_REPORTER':
-                    navigate('/dashboard/school-report')
+                case 'DONOR':
+                    navigate('/dashboard/donor')
+                    break;
+                case 'SCHOOL':
+                    navigate('/')
                     break;
                 default:
-                    navigate('/transparency')
+                    navigate('/')
             }
         } catch (err: any) {
             setError(err.message)

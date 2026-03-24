@@ -10,43 +10,44 @@ import { VendorStep1, VendorStep2, VendorStep3, VendorStep4 } from '../component
 import { SchoolStep1, SchoolStep2, SchoolStep3, SchoolStep4 } from '../components/formSteps/SchoolSteps'
 import { DashboardStep1, DashboardStep2, DashboardStep3 } from '../components/formSteps/DashboardSteps'
 
-type TabKey = 'individual' | 'company' | 'vendor' | 'school' | 'official'
+type TabKey = 'school' | 'supplier' | 'verifier'
 
 const tabs: { key: TabKey; label: string; icon: string; description: string }[] = [
-    { key: 'individual', label: 'Individual Donor', icon: '👤', description: 'Support schools as an individual' },
-    { key: 'company', label: 'Company', icon: '🏢', description: 'Corporate donations and partnerships' },
-    { key: 'vendor', label: 'Service Provider', icon: '🛠️', description: 'Offer services to schools' },
     { key: 'school', label: 'School Registration', icon: '🏫', description: 'Register your school for support' },
+    { key: 'supplier', label: 'Food Supplier', icon: '🚚', description: 'Apply as a verified food supplier' },
+    { key: 'verifier', label: 'Local Verifier', icon: '🔍', description: 'Join as a regional impact verifier' },
 ]
 
 export default function RegisterPage() {
     const { apiBaseUrl } = useDonation()
-    const [active, setActive] = useState<TabKey>('individual')
+    const [active, setActive] = useState<TabKey>('school')
 
     const handleSubmit = async (formData: any) => {
         const fd = new FormData()
 
+        // For Supplier/Verifier, we need to ensure the role is set correctly before sending
+        const dataToSubmit = { ...formData }
+        if (active === 'supplier') dataToSubmit.role = 'SUPPLIER'
+        if (active === 'verifier') dataToSubmit.role = 'VERIFIER'
+
         // Add all form data to FormData
-        Object.keys(formData).forEach(key => {
-            if (formData[key] instanceof File) {
-                fd.append(key, formData[key])
-            } else if (Array.isArray(formData[key])) {
-                fd.append(key, JSON.stringify(formData[key]))
+        Object.keys(dataToSubmit).forEach(key => {
+            if (dataToSubmit[key] instanceof File) {
+                fd.append(key, dataToSubmit[key])
+            } else if (Array.isArray(dataToSubmit[key])) {
+                fd.append(key, JSON.stringify(dataToSubmit[key]))
             } else {
-                fd.append(key, formData[key])
+                fd.append(key, dataToSubmit[key])
             }
         })
 
-        const isOfficial = active === 'official'
-        const endpoint = isOfficial ? 'auth/register' :
-            active === 'individual' ? 'individuals' :
-            active === 'company' ? 'companies' :
-            active === 'vendor' ? 'vendors' : 'schools'
+        const isOfficial = active === 'supplier' || active === 'verifier'
+        const endpoint = isOfficial ? 'auth/register' : 'schools'
 
         const requestOptions = isOfficial ? {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(formData)
+            body: JSON.stringify(dataToSubmit)
         } : {
             method: 'POST',
             body: fd
@@ -54,92 +55,14 @@ export default function RegisterPage() {
 
         const res = await fetch(`${apiBaseUrl}/api/${endpoint}`, requestOptions)
 
-        if (!res.ok) throw new Error('Failed to submit registration')
+        if (!res.ok) {
+            const err = await res.json()
+            throw new Error(err.error || 'Failed to submit registration')
+        }
     }
 
     const getSteps = () => {
         switch (active) {
-            case 'individual':
-                return [
-                    {
-                        title: 'Basic Information',
-                        description: 'Tell us about yourself',
-                        icon: '',
-                        component: <IndividualStep1 formData={{}} updateFormData={() => { }} />
-                    },
-                    {
-                        title: 'Contact Details',
-                        description: 'How can we reach you?',
-                        icon: '',
-                        component: <IndividualStep2 formData={{}} updateFormData={() => { }} />
-                    },
-                    {
-                        title: 'Preferences',
-                        description: 'Your donation preferences',
-                        icon: '',
-                        component: <IndividualStep3 formData={{}} updateFormData={() => { }} />
-                    },
-                    {
-                        title: 'Confirmation',
-                        description: 'Review and submit',
-                        icon: '',
-                        component: <IndividualStep4 formData={{}} updateFormData={() => { }} />
-                    }
-                ]
-            case 'company':
-                return [
-                    {
-                        title: 'Company Information',
-                        description: 'Basic company details',
-                        icon: '',
-                        component: <CompanyStep1 formData={{}} updateFormData={() => { }} />
-                    },
-                    {
-                        title: 'Contact & Location',
-                        description: 'Where are you located?',
-                        icon: '',
-                        component: <CompanyStep2 formData={{}} updateFormData={() => { }} />
-                    },
-                    {
-                        title: 'Business Details',
-                        description: 'Tell us about your business',
-                        icon: '',
-                        component: <CompanyStep3 formData={{}} updateFormData={() => { }} />
-                    },
-                    {
-                        title: 'Confirmation',
-                        description: 'Review and submit',
-                        icon: '',
-                        component: <CompanyStep4 formData={{}} updateFormData={() => { }} />
-                    }
-                ]
-            case 'vendor':
-                return [
-                    {
-                        title: 'Personal Information',
-                        description: 'Tell us about yourself',
-                        icon: '',
-                        component: <VendorStep1 formData={{}} updateFormData={() => { }} />
-                    },
-                    {
-                        title: 'Service Details',
-                        description: 'What services do you offer?',
-                        icon: '',
-                        component: <VendorStep2 formData={{}} updateFormData={() => { }} />
-                    },
-                    {
-                        title: 'Verification',
-                        description: 'Upload required documents',
-                        icon: '',
-                        component: <VendorStep3 formData={{}} updateFormData={() => { }} />
-                    },
-                    {
-                        title: 'Confirmation',
-                        description: 'Review and submit',
-                        icon: '',
-                        component: <VendorStep4 formData={{}} updateFormData={() => { }} />
-                    }
-                ]
             case 'school':
                 return [
                     {
@@ -167,23 +90,24 @@ export default function RegisterPage() {
                         component: <SchoolStep4 formData={{}} updateFormData={() => { }} />
                     }
                 ]
-            case 'official':
+            case 'supplier':
+            case 'verifier':
                 return [
                     {
-                        title: 'NIN Verification',
-                        description: 'Verify your identity securely',
+                        title: 'Identity Verification',
+                        description: 'Verify your ID and contact details',
                         icon: '',
                         component: <DashboardStep1 formData={{}} updateFormData={() => { }} />
                     },
                     {
                         title: 'Role & Assignment',
-                        description: 'Select your operational role',
+                        description: 'Configure your operational area',
                         icon: '',
                         component: <DashboardStep2 formData={{}} updateFormData={() => { }} />
                     },
                     {
-                        title: 'Confirmation',
-                        description: 'Review and confirm access',
+                        title: 'Final Review',
+                        description: 'Confirm registration details',
                         icon: '',
                         component: <DashboardStep3 formData={{}} updateFormData={() => { }} />
                     }

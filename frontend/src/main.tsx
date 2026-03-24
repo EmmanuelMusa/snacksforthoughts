@@ -7,13 +7,9 @@ import './index.css'
 import App from './App.tsx'
 
 import PublicPortal from './pages/transparency/PublicPortal'
-import NationalCommandCenter from './pages/dashboards/NationalCommandCenter'
-import StateDashboard from './pages/dashboards/StateDashboard'
-import LGAMonitor from './pages/dashboards/LGAMonitor'
-import SchoolReporting from './pages/dashboards/SchoolReporting'
-import SupplyChainTracker from './pages/dashboards/SupplyChainTracker'
-import FinancialTracker from './pages/dashboards/FinancialTracker'
-import SafetyMonitor from './pages/dashboards/SafetyMonitor'
+import SupplierWorkbench from './pages/dashboards/SupplierWorkbench'
+import VerifierPortal from './pages/dashboards/VerifierPortal'
+import DonorDashboard from './pages/dashboards/DonorDashboard'
 import ErrorBoundary from './components/ErrorBoundary'
 
 import HomePage from './pages/HomePage'
@@ -53,13 +49,9 @@ const router = createBrowserRouter([
       { path: 'login', element: <LoginPage /> },
       { path: 'admin/vendors', element: <AdminVendorsPage /> },
       { path: 'transparency', element: <PublicPortal /> },
-      { path: 'dashboard/national', element: <NationalCommandCenter /> },
-      { path: 'dashboard/state', element: <StateDashboard /> },
-      { path: 'dashboard/lga', element: <LGAMonitor /> },
-      { path: 'dashboard/school-report', element: <SchoolReporting /> },
-      { path: 'dashboard/supply-chain', element: <SupplyChainTracker /> },
-      { path: 'dashboard/finance', element: <FinancialTracker /> },
-      { path: 'dashboard/safety', element: <SafetyMonitor /> },
+      { path: 'dashboard/supplier', element: <SupplierWorkbench /> },
+      { path: 'dashboard/verifier', element: <VerifierPortal /> },
+      { path: 'dashboard/donor', element: <DonorDashboard /> },
     ],
   },
   // Admin routes with separate layout

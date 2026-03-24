@@ -1,353 +1,221 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import {
-    Users,
-    Building2,
-    Calendar,
-    Package,
-    TrendingUp,
-    DollarSign,
-    Clock,
-    CheckCircle,
-    AlertCircle,
-    BarChart3,
-    PieChart
+import { 
+    Users, 
+    Building2, 
+    Package, 
+    TrendingUp, 
+    CheckCircle, 
+    Clock, 
+    Truck, 
+    BarChart3, 
+    ShieldCheck, 
+    Filter,
+    Search
 } from 'lucide-react'
 import { useDonation } from '../../context/DonationContext'
 
-interface DashboardStats {
+interface AdminStats {
+    totalRequests: number
+    pendingPayments: number
+    paidRequests: number
+    deliveredRequests: number
+    verifiedRequests: number
     totalSchools: number
-    totalSuppliers: number
-    totalDonations: number
-    totalAmount: number
-    activeWeeks: number
-    reservedWeeks: number
-    pendingDonations: number
-    completedDonations: number
 }
 
-interface WeeklyData {
-    week: string
-    available: number
-    reserved: number
-    total: number
-}
-
-interface SupplierData {
+interface SupplyRequest {
     id: string
-    name: string
-    orders: number
-    revenue: number
-    rating: number
+    academicPeriod: string
+    status: string
+    items: any[]
+    school: { name: string; state: string }
+    supplier: { companyName: string }
+    donor: { name: string }
+    createdAt: string
 }
 
 export default function AdminDashboard() {
     const { apiBaseUrl } = useDonation()
-    const [stats, setStats] = useState<DashboardStats>({
-        totalSchools: 0,
-        totalSuppliers: 0,
-        totalDonations: 0,
-        totalAmount: 0,
-        activeWeeks: 0,
-        reservedWeeks: 0,
-        pendingDonations: 0,
-        completedDonations: 0
-    })
-
-    const [weeklyData, setWeeklyData] = useState<WeeklyData[]>([])
-    const [topSuppliers, setTopSuppliers] = useState<SupplierData[]>([])
+    const [stats, setStats] = useState<AdminStats | null>(null)
+    const [supplies, setSupplies] = useState<SupplyRequest[]>([])
     const [loading, setLoading] = useState(true)
+    const [filterStatus, setFilterStatus] = useState('ALL')
 
     useEffect(() => {
-        let cancelled = false
-        ;(async () => {
+        const fetchDashboard = async () => {
             try {
-                const [schoolsRes, suppliersRes, donationsRes] = await Promise.all([
-                    fetch(`${apiBaseUrl}/api/schools/search?limit=1&page=1`),
-                    fetch(`${apiBaseUrl}/api/suppliers`),
-                    fetch(`${apiBaseUrl}/api/donations?limit=100`),
+                const token = localStorage.getItem('token')
+                const [statsRes, suppliesRes] = await Promise.all([
+                    fetch(`${apiBaseUrl}/api/admin/overview`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    }),
+                    fetch(`${apiBaseUrl}/api/admin/supplies`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    })
                 ])
-
-                const schoolsJson = await schoolsRes.json()
-                const suppliersJson = await suppliersRes.json()
-                const donationsJson = await donationsRes.json()
-
-                const schoolsPayload = (schoolsJson as any).data ?? schoolsJson
-                const totalSchools = schoolsPayload.pagination?.total || 0
-
-                const suppliers = Array.isArray(suppliersJson) ? suppliersJson : (suppliersJson.data ?? [])
-                const totalSuppliers = Array.isArray(suppliers) ? suppliers.length : 0
-
-                const donations = Array.isArray(donationsJson) ? donationsJson : (donationsJson.data ?? [])
-                const totalDonations = Array.isArray(donations) ? donations.length : 0
-                const totalAmount = Array.isArray(donations)
-                    ? donations.reduce((sum: number, d: any) => sum + (typeof d.amount === 'number' ? d.amount : 0), 0)
-                    : 0
-
-                const nextStats: DashboardStats = {
-                    totalSchools,
-                    totalSuppliers,
-                    totalDonations,
-                    totalAmount,
-                    activeWeeks: 0,
-                    reservedWeeks: 0,
-                    pendingDonations: 0,
-                    completedDonations: 0,
-                }
-
-                if (!cancelled) {
-                    setStats(nextStats)
-                    setWeeklyData([])
-                    setTopSuppliers(
-                        Array.isArray(suppliers)
-                            ? suppliers.slice(0, 5).map((s: any) => ({
-                                id: s.id,
-                                name: s.name,
-                                orders: 0,
-                                revenue: 0,
-                                rating: s.rating || 0,
-                            }))
-                            : [],
-                    )
-                    setLoading(false)
-                }
-            } catch {
-                if (!cancelled) setLoading(false)
+                
+                const statsData = await statsRes.json()
+                const suppliesData = await suppliesRes.json()
+                
+                setStats(statsData)
+                setSupplies(suppliesData)
+            } catch (err) {
+                console.error('Error fetching admin data:', err)
+            } finally {
+                setLoading(false)
             }
-        })()
-
-        return () => {
-            cancelled = true
         }
+        fetchDashboard()
     }, [apiBaseUrl])
 
-    const statCards = [
-        {
-            title: 'Total Schools',
-            value: stats.totalSchools.toLocaleString(),
-            icon: Building2,
-            color: 'blue',
-            change: '+12%',
-            changeType: 'positive'
-        },
-        {
-            title: 'Active Suppliers',
-            value: stats.totalSuppliers.toString(),
-            icon: Package,
-            color: 'green',
-            change: '+2',
-            changeType: 'positive'
-        },
-        {
-            title: 'Total Donations',
-            value: stats.totalDonations.toString(),
-            icon: TrendingUp,
-            color: 'purple',
-            change: '+23%',
-            changeType: 'positive'
-        },
-        {
-            title: 'Total Amount',
-            value: `₦${(stats.totalAmount / 1000000).toFixed(1)}M`,
-            icon: DollarSign,
-            color: 'yellow',
-            change: '+18%',
-            changeType: 'positive'
-        },
-        {
-            title: 'Available Weeks',
-            value: stats.activeWeeks.toString(),
-            icon: Calendar,
-            color: 'indigo',
-            change: '-5',
-            changeType: 'negative'
-        },
-        {
-            title: 'Reserved Weeks',
-            value: stats.reservedWeeks.toString(),
-            icon: Clock,
-            color: 'orange',
-            change: '+8',
-            changeType: 'positive'
-        },
-        {
-            title: 'Pending Donations',
-            value: stats.pendingDonations.toString(),
-            icon: AlertCircle,
-            color: 'red',
-            change: '+3',
-            changeType: 'negative'
-        },
-        {
-            title: 'Completed',
-            value: stats.completedDonations.toString(),
-            icon: CheckCircle,
-            color: 'emerald',
-            change: '+15',
-            changeType: 'positive'
-        }
-    ]
+    const filteredSupplies = filterStatus === 'ALL' 
+        ? supplies 
+        : supplies.filter(s => s.status === filterStatus)
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center h-64">
+            <div className="flex items-center justify-center min-h-[400px]">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
             </div>
         )
     }
 
+    const statCards = [
+        { label: 'Total Volume', value: stats?.totalRequests || 0, icon: Package, color: 'bg-blue-600' },
+        { label: 'Awaiting Payment', value: stats?.pendingPayments || 0, icon: Clock, color: 'bg-orange-500' },
+        { label: 'Processing', value: stats?.paidRequests || 0, icon: Truck, color: 'bg-emerald-500' },
+        { label: 'Verified Delivery', value: stats?.verifiedRequests || 0, icon: ShieldCheck, color: 'bg-indigo-600' }
+    ]
+
     return (
-        <div className="space-y-6">
+        <div className="space-y-8 pb-12">
             {/* Header */}
-            <div>
-                <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-                <p className="mt-2 text-gray-600">
-                    Monitor and manage the Snacks For Thoughts - PBAT Feeds initiative
-                </p>
-            </div>
-
-            {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {statCards.map((stat, index) => {
-                    const Icon = stat.icon
-                    const colorClasses = {
-                        blue: 'bg-blue-500 text-white',
-                        green: 'bg-green-500 text-white',
-                        purple: 'bg-purple-500 text-white',
-                        yellow: 'bg-yellow-500 text-white',
-                        indigo: 'bg-indigo-500 text-white',
-                        orange: 'bg-orange-500 text-white',
-                        red: 'bg-red-500 text-white',
-                        emerald: 'bg-emerald-500 text-white'
-                    }
-
-                    return (
-                        <motion.div
-                            key={stat.title}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: index * 0.1 }}
-                            className="bg-white rounded-xl shadow-sm border border-gray-200 p-6"
-                        >
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className="text-sm font-medium text-gray-600">{stat.title}</p>
-                                    <p className="text-2xl font-bold text-gray-900 mt-1">{stat.value}</p>
-                                    <div className="flex items-center mt-2">
-                                        <span className={`text-sm font-medium ${stat.changeType === 'positive' ? 'text-green-600' : 'text-red-600'
-                                            }`}>
-                                            {stat.change}
-                                        </span>
-                                        <span className="text-sm text-gray-500 ml-1">vs last month</span>
-                                    </div>
-                                </div>
-                                <div className={`p-3 rounded-lg ${colorClasses[stat.color as keyof typeof colorClasses]}`}>
-                                    <Icon className="h-6 w-6" />
-                                </div>
-                            </div>
-                        </motion.div>
-                    )
-                })}
-            </div>
-
-            {/* Charts Section */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Weekly Availability Chart */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.4 }}
-                    className="bg-white rounded-xl shadow-sm border border-gray-200 p-6"
-                >
-                    <div className="flex items-center justify-between mb-6">
-                        <h3 className="text-lg font-semibold text-gray-900">Weekly Availability</h3>
-                        <BarChart3 className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <div className="space-y-4">
-                        {weeklyData.map((week, index) => (
-                            <div key={week.week} className="space-y-2">
-                                <div className="flex justify-between text-sm">
-                                    <span className="font-medium text-gray-700">{week.week}</span>
-                                    <span className="text-gray-500">{week.available}/{week.total} available</span>
-                                </div>
-                                <div className="w-full bg-gray-200 rounded-full h-2">
-                                    <div
-                                        className="bg-blue-500 h-2 rounded-full transition-all duration-300"
-                                        style={{ width: `${(week.available / week.total) * 100}%` }}
-                                    />
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </motion.div>
-
-                {/* Top Suppliers */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.5 }}
-                    className="bg-white rounded-xl shadow-sm border border-gray-200 p-6"
-                >
-                    <div className="flex items-center justify-between mb-6">
-                        <h3 className="text-lg font-semibold text-gray-900">Top Suppliers</h3>
-                        <PieChart className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <div className="space-y-4">
-                        {topSuppliers.map((supplier, index) => (
-                            <div key={supplier.id} className="flex items-center justify-between">
-                                <div className="flex items-center space-x-3">
-                                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                                        <span className="text-sm font-medium text-blue-600">{index + 1}</span>
-                                    </div>
-                                    <div>
-                                        <p className="font-medium text-gray-900">{supplier.name}</p>
-                                        <p className="text-sm text-gray-500">{supplier.orders} orders</p>
-                                    </div>
-                                </div>
-                                <div className="text-right">
-                                    <p className="font-semibold text-gray-900">₦{(supplier.revenue / 1000).toFixed(0)}K</p>
-                                    <div className="flex items-center">
-                                        <span className="text-sm text-gray-500">⭐ {supplier.rating}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </motion.div>
-            </div>
-
-            {/* Recent Activity */}
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6 }}
-                className="bg-white rounded-xl shadow-sm border border-gray-200 p-6"
-            >
-                <h3 className="text-lg font-semibold text-gray-900 mb-6">Recent Activity</h3>
-                <div className="space-y-4">
-                    {[
-                        { action: 'New donation received', school: 'Sunrise Primary', amount: '₦15,000', time: '2 hours ago' },
-                        { action: 'Week reserved', school: 'Unity Primary', amount: 'Week 3', time: '4 hours ago' },
-                        { action: 'Payment confirmed', school: 'Greenfield School', amount: '₦22,500', time: '6 hours ago' },
-                        { action: 'New supplier registered', school: 'Nestlé Nigeria', amount: 'Food & Nutrition', time: '1 day ago' },
-                        { action: 'Donation completed', school: 'Harmony Primary', amount: '₦18,000', time: '2 days ago' },
-                    ].map((activity, index) => (
-                        <div key={index} className="flex items-center justify-between py-3 border-b border-gray-100 last:border-b-0">
-                            <div className="flex items-center space-x-3">
-                                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                                <div>
-                                    <p className="font-medium text-gray-900">{activity.action}</p>
-                                    <p className="text-sm text-gray-500">{activity.school}</p>
-                                </div>
-                            </div>
-                            <div className="text-right">
-                                <p className="font-medium text-gray-900">{activity.amount}</p>
-                                <p className="text-sm text-gray-500">{activity.time}</p>
-                            </div>
-                        </div>
-                    ))}
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                <div>
+                    <h1 className="text-3xl font-black text-gray-900 font-display">Command Center</h1>
+                    <p className="text-gray-500 font-medium">National Digital School Feeding Registry — Live Feed</p>
                 </div>
-            </motion.div>
+                <div className="flex items-center gap-3">
+                    <div className="px-4 py-2 bg-green-50 text-green-700 text-xs font-black rounded-full border border-green-100 flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                        SYSTEM OPERATIONAL
+                    </div>
+                </div>
+            </div>
+
+            {/* Stats Overview */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {statCards.map((card, idx) => (
+                    <motion.div 
+                        key={idx}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: idx * 0.1 }}
+                        className="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-xl shadow-gray-200/50 flex items-center gap-5"
+                    >
+                        <div className={`${card.color} p-4 rounded-2xl text-white shadow-lg`}>
+                            <card.icon className="w-6 h-6" />
+                        </div>
+                        <div>
+                            <div className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">{card.label}</div>
+                            <div className="text-2xl font-black text-gray-900">{card.value}</div>
+                        </div>
+                    </motion.div>
+                ))}
+            </div>
+
+            {/* Supply Tracker */}
+            <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-2xl shadow-gray-200/50 overflow-hidden">
+                <div className="p-8 border-b border-gray-50 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                    <div className="flex items-center gap-4">
+                        <div className="p-3 bg-blue-50 rounded-xl">
+                            <BarChart3 className="w-6 h-6 text-blue-600" />
+                        </div>
+                        <h2 className="text-xl font-black text-gray-900">Supply Tracker</h2>
+                    </div>
+                    
+                    <div className="flex flex-wrap items-center gap-3">
+                        <div className="flex items-center gap-2 bg-gray-50 p-1 rounded-2xl border border-gray-100">
+                            {['ALL', 'PENDING', 'PAYMENT_CONFIRMED', 'DELIVERED', 'VERIFIED'].map(s => (
+                                <button
+                                    key={s}
+                                    onClick={() => setFilterStatus(s)}
+                                    className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all ${
+                                        filterStatus === s ? 'bg-white text-blue-600 shadow-md' : 'text-gray-400 hover:text-gray-600'
+                                    }`}
+                                >
+                                    {s.split('_')[0]}
+                                </button>
+                            ))}
+                        </div>
+                        <div className="relative">
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                            <input 
+                                type="text" 
+                                placeholder="Search tracker..."
+                                className="pl-10 pr-4 py-2.5 bg-gray-50 border-transparent rounded-xl text-sm focus:bg-white focus:border-blue-500 transition-all"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                        <thead className="bg-gray-50/50 border-b border-gray-50">
+                            <tr>
+                                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-gray-400">Request ID</th>
+                                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-gray-400">Target School / State</th>
+                                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-gray-400">Supplier</th>
+                                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-gray-400">Donor</th>
+                                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-gray-400">Status</th>
+                                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-gray-400 text-right">Date</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-50">
+                            {filteredSupplies.map((supply) => (
+                                <tr key={supply.id} className="hover:bg-blue-50/10 transition-colors group">
+                                    <td className="px-8 py-6">
+                                        <div className="font-black text-gray-900 text-xs">#{supply.id.slice(-8).toUpperCase()}</div>
+                                        <div className="text-[10px] text-blue-600 font-bold">{supply.academicPeriod}</div>
+                                    </td>
+                                    <td className="px-8 py-6">
+                                        <div className="font-bold text-gray-800 text-sm">{supply.school?.name}</div>
+                                        <div className="flex items-center gap-1 text-[10px] text-gray-400 font-black uppercase">
+                                            <Building2 className="w-3 h-3" /> {supply.school?.state}
+                                        </div>
+                                    </td>
+                                    <td className="px-8 py-6">
+                                        <div className="font-bold text-gray-800 text-sm">{supply.supplier?.companyName}</div>
+                                    </td>
+                                    <td className="px-8 py-6 font-medium text-sm text-gray-600">
+                                        {supply.donor?.name}
+                                    </td>
+                                    <td className="px-8 py-6">
+                                        <span className={`px-3 py-1.5 rounded-full text-[10px] font-black uppercase border shrink-0 ${
+                                            supply.status === 'VERIFIED' ? 'bg-indigo-50 text-indigo-700 border-indigo-100' :
+                                            supply.status === 'DELIVERED' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' :
+                                            supply.status === 'PAYMENT_CONFIRMED' ? 'bg-blue-50 text-blue-700 border-blue-100' :
+                                            'bg-orange-50 text-orange-700 border-orange-100'
+                                        }`}>
+                                            {supply.status.replace('_', ' ')}
+                                        </span>
+                                    </td>
+                                    <td className="px-8 py-6 text-right font-bold text-xs text-gray-400">
+                                        {new Date(supply.createdAt).toLocaleDateString()}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                    
+                    {filteredSupplies.length === 0 && (
+                        <div className="p-20 text-center font-bold text-gray-300">
+                            No supply records found for this filter.
+                        </div>
+                    )}
+                </div>
+            </div>
         </div>
     )
 }

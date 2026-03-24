@@ -1,21 +1,15 @@
 import Hero from '../sections/Hero'
 import ImpactMetrics from '../sections/ImpactMetrics'
+import DonationFlow from '../sections/DonationFlow'
 import PresidentialSection from '../sections/PresidentialSection'
 import HowItWorks from '../sections/HowItWorks'
-import FeaturedSchools from '../sections/FeaturedSchools'
-import FeaturedPartners from '../sections/FeaturedPartners'
-import TestimonialCarousel from '../sections/TestimonialCarousel'
 
 export default function HomePage() {
     return (
         <>
             <Hero />
-            <ImpactMetrics />
-            <PresidentialSection />
             <HowItWorks />
-            <FeaturedSchools />
-            <FeaturedPartners />
-            <TestimonialCarousel />
+            <DonationFlow />
         </>
     )
 }
