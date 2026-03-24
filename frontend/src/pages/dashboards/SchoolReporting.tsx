@@ -56,10 +56,12 @@ export default function SchoolReporting() {
                 body: formData
             });
 
-            const data = await res.json();
-            
+            const text = await res.text();
+            let data: any = {};
+            try { data = JSON.parse(text); } catch {}
+
             if (!res.ok) {
-                throw new Error(data.error || 'Failed to submit report');
+                throw new Error(data.error || data.message || `Server responded with ${res.status}: ${text.substring(0, 50)}`);
             }
 
             setStatus({ type: 'success', message: 'Feeding report submitted successfully!' });

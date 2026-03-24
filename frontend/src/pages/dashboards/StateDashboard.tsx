@@ -55,8 +55,10 @@ export default function StateDashboard() {
         })
         .then(async res => {
             if (!res.ok) {
-                const data = await res.json();
-                throw new Error(data.error || `Server responded with ${res.status}`);
+                const text = await res.text();
+                let msg = text;
+                try { msg = JSON.parse(text).error || text; } catch {}
+                throw new Error(msg || `Server responded with ${res.status}`);
             }
             return res.json();
         })
