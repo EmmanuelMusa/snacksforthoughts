@@ -284,7 +284,14 @@ function Navbar() {
 
 function App() {
   const location = useLocation()
-  const hideNavbarPaths = ['/', '/login', '/register']
+  const hideNavbarPaths = [
+    '/', 
+    '/login', 
+    '/register', 
+    '/dashboard/supplier', 
+    '/dashboard/verifier', 
+    '/dashboard/donor'
+  ]
   const isNavbarHidden = hideNavbarPaths.includes(location.pathname)
 
   return (
