@@ -245,10 +245,10 @@ export default function DonationFlow() {
                             {/* Impact Highlights */}
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 px-4">
                                 {[
-                                    { label: 'Verified Schools', value: '450+', color: 'text-blue-600' },
-                                    { label: 'Pupils Impacted', value: '12,000+', color: 'text-green-600' },
-                                    { label: 'Active Suppliers', value: '85', color: 'text-orange-600' },
-                                    { label: 'Successful Cycles', value: '1.2k', color: 'text-purple-600' },
+                                    { label: 'Verified Schools', value: '66,000+', color: 'text-blue-600' },
+                                    { label: 'Pupils Impacted', value: '1.2M+', color: 'text-green-600' },
+                                    { label: 'Active Suppliers', value: '2,500+', color: 'text-orange-600' },
+                                    { label: 'Total Funding', value: '₦450M+', color: 'text-purple-600' },
                                 ].map((stat, i) => (
                                     <div key={i} className="text-center p-4 rounded-3xl bg-gray-50/50 border border-gray-100">
                                         <div className={`text-2xl font-black ${stat.color}`}>{stat.value}</div>

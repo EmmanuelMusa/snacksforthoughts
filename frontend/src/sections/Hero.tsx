@@ -20,7 +20,7 @@ export default function Hero() {
             {/* Top Navigation / Login Button */}
             <div className="absolute top-0 left-0 right-0 z-50 p-6 flex justify-end">
                 <Link to="/login">
-                    <motion.button 
+                    <motion.button
                         whileHover={{ opacity: 1 }}
                         className="text-white/40 hover:text-white font-bold text-sm tracking-widest uppercase transition-all"
                     >
@@ -37,14 +37,6 @@ export default function Hero() {
                     transition={{ duration: 0.8 }}
                     className="max-w-4xl mx-auto"
                 >
-                    {/* Logos Integration */}
-                    <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 mb-12 opacity-90 group">
-                        <img src="/images/Nigeria Logo.jpeg" alt="Nigeria Logo" className="h-8 sm:h-12 w-auto object-contain grayscale group-hover:grayscale-0 transition-all duration-500" />
-                        <img src="/images/Ministry Logo.png" alt="Ministry Logo" className="h-8 sm:h-12 w-auto object-contain grayscale group-hover:grayscale-0 transition-all duration-500" />
-                        <img src="/images/NSIPA Logo.jpeg" alt="NSIPA Logo" className="h-8 sm:h-12 w-auto object-contain grayscale group-hover:grayscale-0 transition-all duration-500" />
-                        <img src="/images/rh_nhgsfp logo.png" alt="NHGSFP Logo" className="h-8 sm:h-12 w-auto object-contain grayscale group-hover:grayscale-0 transition-all duration-500" />
-                        <img src="/images/PBAT format.png" alt="PBAT initiative" className="h-8 sm:h-12 w-auto object-contain grayscale group-hover:grayscale-0 transition-all duration-500" />
-                    </div>
 
                     <div className="space-y-4 mb-12">
                         <h1 className="text-5xl sm:text-7xl lg:text-[7rem] font-black text-white font-display leading-none tracking-tight">
