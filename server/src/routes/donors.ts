@@ -1,6 +1,5 @@
 import { Router } from 'express'
-import { PrismaClient, Role } from '@prisma/client'
-import { z } from 'zod'
+import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
 const router = Router()
@@ -10,9 +9,11 @@ const router = Router()
 router.get('/suppliers/:state', async (req, res) => {
     try {
         const { state } = req.params
-        const suppliers = await prisma.user.findMany({
+        
+        // Use raw string 'SUPPLIER' with 'as any' to bypass Prisma client enum mismatch
+        const suppliers = await (prisma.user as any).findMany({
             where: {
-                role: Role.SUPPLIER,
+                role: 'SUPPLIER',
                 state: {
                     equals: state,
                     mode: 'insensitive'
@@ -36,18 +37,18 @@ router.get('/suppliers/:state', async (req, res) => {
     }
 })
 
-// @route   POST /api/donor/request
+// @route   POST /api/donors/request
 // @desc    Initiate a new supply request for a school
 router.post('/request', async (req, res) => {
     try {
-        const { schoolId, supplierId, academicPeriod, supplyDate, items } = req.body
-        const donorId = (req as any).user?.id // Assuming middleware adds user
+        const { donorId, schoolId, supplierId, academicPeriod, supplyDate, items } = req.body
+        const userId = (req as any).user?.id || donorId
 
-        if (!donorId) return res.status(401).json({ error: 'Unauthorized: Donor ID missing' })
+        if (!userId) return res.status(401).json({ error: 'Please log in to confirm your donation.' })
 
-        const supplyRequest = await prisma.supplyRequest.create({
+        const supplyRequest = await (prisma as any).supplyRequest.create({
             data: {
-                donorId,
+                donorId: userId,
                 schoolId,
                 supplierId,
                 academicPeriod,

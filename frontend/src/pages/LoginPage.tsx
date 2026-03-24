@@ -4,13 +4,6 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useDonation } from '../context/DonationContext'
 
-const TEST_ACCOUNTS = [
-    { role: 'Admin', email: 'admin@pbatfeeds.ng', password: 'password123', color: 'bg-red-100 text-red-700 border-red-200' },
-    { role: 'Supplier', email: 'supplier.lagos.1@pbatfeeds.ng', password: 'password123', color: 'bg-orange-100 text-orange-700 border-orange-200' },
-    { role: 'Verifier', email: 'verifier.lagos.1@pbatfeeds.ng', password: 'password123', color: 'bg-blue-100 text-blue-700 border-blue-200' },
-    { role: 'Donor', email: 'donor.one@gmail.com', password: 'password123', color: 'bg-green-100 text-green-700 border-green-200' },
-]
-
 export default function LoginPage() {
     const navigate = useNavigate()
     const [searchParams] = useSearchParams()
@@ -149,28 +142,6 @@ export default function LoginPage() {
                             No account?{' '}
                             <Link to="/register" className="text-blue-600 font-semibold hover:underline">Register here</Link>
                         </p>
-                    </motion.div>
-
-                    {/* Test Accounts */}
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.3 }}
-                        className="mt-6"
-                    >
-                        <p className="text-xs text-slate-400 uppercase tracking-widest font-bold text-center mb-3">Demo Accounts (password: password123)</p>
-                        <div className="grid grid-cols-2 gap-2">
-                            {TEST_ACCOUNTS.map(acc => (
-                                <button
-                                    key={acc.role}
-                                    onClick={() => fillCredentials(acc.email, acc.password)}
-                                    className={`text-left px-3 py-2.5 rounded-xl border text-xs font-medium transition-all hover:scale-[1.02] ${acc.color}`}
-                                >
-                                    <div className="font-bold mb-0.5">{acc.role}</div>
-                                    <div className="opacity-70 truncate">{acc.email}</div>
-                                </button>
-                            ))}
-                        </div>
                     </motion.div>
                 </div>
             </div>

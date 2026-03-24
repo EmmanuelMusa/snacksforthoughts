@@ -32,11 +32,6 @@ export default function Hero() {
                         className="h-10 md:h-12 w-auto object-contain"
                     />
                     <img
-                        src="/images/NSIPA-LOGO-MAIN.png"
-                        alt="NSIPA Logo"
-                        className="h-10 md:h-12 w-auto object-contain"
-                    />
-                    <img
                         src="/images/RH-NHGSFP.png"
                         alt="NHGSFP Logo"
                         className="h-10 md:h-12 w-auto object-contain"
