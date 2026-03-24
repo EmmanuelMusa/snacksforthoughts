@@ -57,17 +57,27 @@ export default function SchoolReporting() {
 
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col">
-            {/* Header Sticky */}
-            <div className="bg-white border-b border-gray-100 p-4 sticky top-0 z-10 shadow-sm">
-                <div className="max-w-md mx-auto flex items-center justify-between">
-                    <div>
-                        <h1 className="text-xl font-black text-gray-900 leading-tight">Feeding Report</h1>
-                        <div className="flex items-center gap-1 text-[10px] text-gray-400 font-bold uppercase tracking-wider">
-                            <MapPin className="w-3 h-3" /> {user?.schoolName || 'St. Mary\'s Primary'}
+            {/* Premium Header */}
+            <div className="bg-white/80 backdrop-blur-xl border-b border-gray-100 p-6 sticky top-0 z-50 shadow-sm">
+                <div className="max-w-xl mx-auto flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-green-600 to-green-700 flex items-center justify-center text-white shadow-lg shadow-green-200">
+                            <Building2 className="w-6 h-6" />
+                        </div>
+                        <div>
+                            <h1 className="text-2xl font-black text-gray-900 leading-tight tracking-tight uppercase font-display">School Portal</h1>
+                            <div className="flex items-center gap-2 text-[10px] text-gray-400 font-black uppercase tracking-[0.1em]">
+                                <MapPin className="w-3 h-3 text-green-500" /> 
+                                <span className="bg-gray-100 px-2 py-0.5 rounded-full">{user?.schoolName || 'St. Mary\'s Primary'}</span>
+                            </div>
                         </div>
                     </div>
-                    <div className="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center text-green-600 font-bold text-xs ring-4 ring-green-50">
-                        {new Date().getDate()}
+                    <div className="relative">
+                        <div className="w-12 h-12 rounded-2xl bg-gray-50 flex flex-col items-center justify-center text-gray-900 font-black ring-1 ring-gray-100 border border-white shadow-inner">
+                            <span className="text-[10px] text-gray-400 -mb-1">MAR</span>
+                            <span className="text-lg leading-none">{new Date().getDate()}</span>
+                        </div>
+                        <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white animate-pulse" />
                     </div>
                 </div>
             </div>
@@ -103,48 +113,51 @@ export default function SchoolReporting() {
                         )}
                     </AnimatePresence>
 
-                    <div className="bg-white rounded-[2.5rem] shadow-2xl shadow-gray-200/50 border border-gray-100 p-8">
-                        <form onSubmit={handleSubmit} className="space-y-8">
-                            <div className="space-y-6">
+                    <div className="bg-white rounded-[3rem] shadow-2xl shadow-gray-200/50 border border-white p-10 relative overflow-hidden">
+                        {/* Decorative background element */}
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-green-50 rounded-full -mr-32 -mt-32 opacity-50 blur-3xl pointer-events-none" />
+                        
+                        <form onSubmit={handleSubmit} className="space-y-10 relative z-10">
+                            <div className="space-y-8">
                                 <FormInput 
-                                    label="How many pupils were fed today?" 
+                                    label="Daily Feeding Count" 
                                     icon={<Users className="w-5 h-5" />}
                                     type="number" 
-                                    placeholder="Total count..."
+                                    placeholder="Enter total pupils fed today..."
                                     value={pupilsFed}
                                     onChange={setPupilsFed}
                                 />
 
                                 <FormInput 
-                                    label="What was on the menu?" 
+                                    label="Today's Menu" 
                                     icon={<Utensils className="w-5 h-5" />}
                                     type="text" 
-                                    placeholder="e.g. Rice & Beans..."
+                                    placeholder="What was served today?"
                                     value={menuServed}
                                     onChange={setMenuServed}
                                 />
 
                                 <FormInput 
-                                    label="Vendor / Food Supplier" 
-                                    icon={<Building2 className="w-5 h-5" />}
+                                    label="Assigned Vendor" 
+                                    icon={<Star className="w-5 h-5" />}
                                     type="text" 
-                                    placeholder="Enter vendor name..."
+                                    placeholder="Name of food supplier..."
                                     value={vendorName}
                                     onChange={setVendorName}
                                 />
 
                                 <div className="space-y-4">
-                                    <label className="block text-sm font-black text-gray-800 uppercase tracking-widest ml-1 text-center">Meal Quality Score</label>
-                                    <div className="flex justify-center gap-4">
+                                    <label className="block text-xs font-black text-gray-500 uppercase tracking-widest ml-1 text-center">Meal Quality Audit</label>
+                                    <div className="flex justify-center gap-3">
                                         {[1, 2, 3, 4, 5].map((num) => (
                                             <button
                                                 key={num}
                                                 type="button"
                                                 onClick={() => setQualityScore(num)}
-                                                className={`w-12 h-12 rounded-2xl font-black text-lg transition-all ${
-                                                    qualityScore === num 
-                                                    ? 'bg-green-600 text-white shadow-lg shadow-green-200 scale-110' 
-                                                    : 'bg-gray-50 text-gray-400 hover:bg-gray-100'
+                                                className={`w-12 h-12 rounded-2xl font-black text-lg transition-all duration-300 ${
+                                                    qualityScore >= num 
+                                                    ? 'bg-gradient-to-br from-green-500 to-green-600 text-white shadow-lg shadow-green-100 scale-105' 
+                                                    : 'bg-gray-50 text-gray-300 hover:bg-gray-100'
                                                 }`}
                                             >
                                                 {num}
@@ -153,14 +166,14 @@ export default function SchoolReporting() {
                                     </div>
                                 </div>
 
-                                <div className="space-y-2">
-                                    <label className="block text-sm font-black text-gray-800 uppercase tracking-widest ml-1">Proof of Feeding</label>
-                                    <div className="group relative border-2 border-dashed border-gray-200 rounded-3xl p-10 flex flex-col items-center justify-center text-center hover:border-green-400 hover:bg-green-50 transition-all cursor-pointer overflow-hidden">
-                                        <div className="bg-white p-4 rounded-2xl shadow-sm mb-4 group-hover:scale-110 transition-transform">
-                                            <Camera className="w-8 h-8 text-green-600" />
+                                <div className="space-y-3">
+                                    <label className="block text-xs font-black text-gray-500 uppercase tracking-widest ml-1">Evidence Portfolio</label>
+                                    <div className="group relative border-2 border-dashed border-gray-100 rounded-3xl p-12 flex flex-col items-center justify-center text-center hover:border-green-400 hover:bg-green-50/50 transition-all cursor-pointer overflow-hidden bg-gray-50/30">
+                                        <div className="bg-white p-5 rounded-2xl shadow-sm mb-4 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500">
+                                            <Camera className="w-10 h-10 text-green-600" />
                                         </div>
-                                        <span className="text-sm font-bold text-gray-500">Tap to capture live photo</span>
-                                        <p className="text-[10px] text-gray-400 mt-1 uppercase font-bold">Mandatory for verification</p>
+                                        <span className="text-sm font-bold text-gray-600">Capture Proof of Delivery</span>
+                                        <p className="text-[10px] text-gray-400 mt-2 uppercase font-black tracking-widest">Geo-tagged live photo required</p>
                                     </div>
                                 </div>
                             </div>
@@ -168,17 +181,19 @@ export default function SchoolReporting() {
                             <button 
                                 type="submit" 
                                 disabled={isSubmitting}
-                                className={`w-full bg-black text-white py-5 rounded-[2rem] text-lg font-black flex items-center justify-center gap-3 transition-all active:scale-95 shadow-xl shadow-black/10 ${isSubmitting ? 'opacity-70' : 'hover:bg-gray-800'}`}
+                                className={`w-full bg-gradient-to-r from-gray-900 to-black text-white py-6 rounded-3xl text-xl font-black flex items-center justify-center gap-4 transition-all active:scale-95 shadow-2xl shadow-black/20 ${isSubmitting ? 'opacity-70' : 'hover:shadow-black/30 hover:-translate-y-1'}`}
                             >
                                 {isSubmitting ? (
                                     <>
-                                        <Loader2 className="w-6 h-6 animate-spin" />
-                                        Processing...
+                                        <Loader2 className="w-6 h-6 animate-spin text-green-400" />
+                                        Submitting Report...
                                     </>
                                 ) : (
                                     <>
-                                        Submit Report
-                                        <ArrowRight className="w-6 h-6" />
+                                        Authorize & Submit
+                                        <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
+                                            <CheckCircle2 className="w-4 h-4" />
+                                        </div>
                                     </>
                                 )}
                             </button>
@@ -208,10 +223,10 @@ export default function SchoolReporting() {
 
 function FormInput({ label, icon, type, placeholder, value, onChange }: any) {
     return (
-        <div className="space-y-2">
-            <label className="block text-sm font-black text-gray-800 uppercase tracking-widest ml-1">{label}</label>
-            <div className="relative">
-                <div className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400">
+        <div className="space-y-3">
+            <label className="block text-xs font-black text-gray-500 uppercase tracking-widest ml-1">{label}</label>
+            <div className="relative group">
+                <div className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-green-600 transition-colors">
                     {icon}
                 </div>
                 <input 
@@ -219,7 +234,7 @@ function FormInput({ label, icon, type, placeholder, value, onChange }: any) {
                     required
                     value={value}
                     onChange={(e) => onChange(e.target.value)}
-                    className="w-full bg-gray-50 border-none rounded-2xl py-5 pl-14 pr-6 text-lg font-bold text-gray-900 outline-none ring-2 ring-transparent focus:ring-green-500 transition-all placeholder:text-gray-300 shadow-inner" 
+                    className="w-full bg-gray-50 border border-gray-100 rounded-[1.5rem] py-6 pl-16 pr-8 text-lg font-black text-gray-900 outline-none ring-4 ring-transparent focus:ring-green-100 focus:bg-white focus:border-green-400 transition-all placeholder:text-gray-300 shadow-sm" 
                     placeholder={placeholder}
                 />
             </div>

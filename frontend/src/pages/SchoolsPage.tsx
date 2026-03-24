@@ -65,7 +65,8 @@ export default function SchoolsPage() {
           const res = await fetch(`${apiBaseUrl}/api/schools/states`)
           const json: ApiList<string[]> = await res.json()
           const list = (json as any).data ?? json
-          if (!cancelled) setStates(list || [])
+          const filteredList = (list || []).filter((s: string) => s && s.toUpperCase() !== 'UNKNOWN' && s.toUpperCase() !== 'NULL')
+          if (!cancelled) setStates(filteredList)
         } catch {
           if (!cancelled) setStates([])
         }
@@ -167,17 +168,36 @@ export default function SchoolsPage() {
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-4xl font-bold text-gray-900 mb-4 font-display"
+              className="text-5xl font-black text-gray-900 mb-6 font-display leading-tight"
             >
-              Find Schools Near You
+              National School <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-blue-600 text-6xl">Registry</span>
             </motion.h1>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.2 }}
+              className="flex flex-wrap justify-center gap-6 mb-12"
+            >
+              <div className="bg-white/80 backdrop-blur-md px-6 py-4 rounded-2xl shadow-sm border border-gray-100 min-w-[160px]">
+                <div className="text-3xl font-black text-green-600">66,681</div>
+                <div className="text-xs font-bold text-gray-500 uppercase tracking-widest">Digitalized Schools</div>
+              </div>
+              <div className="bg-white/80 backdrop-blur-md px-6 py-4 rounded-2xl shadow-sm border border-gray-100 min-w-[160px]">
+                <div className="text-3xl font-black text-blue-600">36+FCT</div>
+                <div className="text-xs font-bold text-gray-500 uppercase tracking-widest">States Coverage</div>
+              </div>
+              <div className="bg-white/80 backdrop-blur-md px-6 py-4 rounded-2xl shadow-sm border border-gray-100 min-w-[160px]">
+                <div className="text-3xl font-black text-purple-600">100%</div>
+                <div className="text-xs font-bold text-gray-500 uppercase tracking-widest">Transparency</div>
+              </div>
+            </motion.div>
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="text-xl text-gray-600 max-w-2xl mx-auto"
+              transition={{ delay: 0.3 }}
+              className="text-xl text-gray-600 max-w-3xl mx-auto font-medium leading-relaxed"
             >
-              Select State → LGA → Ward, then click “Find Schools Near You”.
+              Explore our comprehensive database of digitalized primary schools across Nigeria. Select a state and LGA to monitor feeding performance and impact locally.
             </motion.p>
           </div>
 
