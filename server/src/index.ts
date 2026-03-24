@@ -32,16 +32,24 @@ const allowedOrigins = [
 
 app.use(cors({
     origin: function (origin, callback) {
-        // Allow requests with no origin (like mobile apps or curl)
+        // Allow requests with no origin (like mobile apps, curl, or some server-side fetches)
         if (!origin) return callback(null, true);
         
-        if (allowedOrigins.indexOf(origin) !== -1 || origin.startsWith('http://localhost:')) {
+        const isLocalhost = origin.includes('localhost') || origin.includes('127.0.0.1') || origin.startsWith('http://192.168.');
+        const isOfficialDomain = allowedOrigins.indexOf(origin) !== -1 || origin.endsWith('.onrender.com');
+
+        if (isLocalhost || isOfficialDomain) {
             callback(null, true)
         } else {
-            console.error(`CORS blocked for origin: ${origin}`);
-            callback(new Error('Not allowed by CORS'))
+            // Instead of throwing an error that returns HTML, we just don't allow the origin.
+            // This will cause a standard CORS failure in the browser rather than a server-side crash/HTML response.
+            console.warn(`CORS attempt from unrecognized origin: ${origin}`);
+            callback(null, false); 
         }
-    }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept']
 }))
 app.use(express.json())
 app.use('/uploads', express.static('uploads'))
