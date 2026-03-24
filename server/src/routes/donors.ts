@@ -9,10 +9,8 @@ const router = Router()
 router.get('/suppliers/:state', async (req, res) => {
     try {
         const { state } = req.params
+        console.log(`[API] Fetching suppliers for state: "${state}"`)
         
-        // Fetch users in the state, then filter by role in memory.
-        // This prevents Prisma Enum mismatch errors if the live database hasn't updated its ENUM definition,
-        // and also safely retrieves users who might still have the old 'VENDOR' role.
         const users = await prisma.user.findMany({
             where: {
                 state: {
@@ -34,10 +32,11 @@ router.get('/suppliers/:state', async (req, res) => {
             }
         })
         
-        res.json(users)
+        console.log(`[API] Found ${users.length} suppliers for state: "${state}"`)
+        res.json({ success: true, data: users })
     } catch (error) {
         console.error('Error fetching suppliers:', error)
-        res.status(500).json({ error: 'Failed to fetch suppliers' })
+        res.status(500).json({ success: false, error: 'Failed to fetch suppliers' })
     }
 })
 
