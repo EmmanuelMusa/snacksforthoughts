@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { 
-    ShieldCheck, 
-    Truck, 
-    CheckCircle, 
-    Camera, 
+import {
+    ShieldCheck,
+    Truck,
+    CheckCircle,
+    Camera,
     MapPin,
     AlertCircle,
     Calendar,
@@ -12,7 +12,8 @@ import {
     ArrowRight,
     Layers,
     Clock,
-    FileText
+    FileText,
+    Building2
 } from 'lucide-react'
 import { useDonation } from '../../context/DonationContext'
 
@@ -58,11 +59,11 @@ export default function VerifierPortal() {
             const token = localStorage.getItem('token')
             const res = await fetch(`${apiBaseUrl}/api/verifier/request/${id}/verify`, {
                 method: 'PATCH',
-                headers: { 
+                headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}` 
+                    'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ 
+                body: JSON.stringify({
                     verificationPhoto: 'https://images.unsplash.com/photo-1588072432836-e10032774350?auto=format&fit=crop&q=80',
                     notes: 'Delivery inspected and confirmed at school premises.'
                 })
@@ -85,50 +86,14 @@ export default function VerifierPortal() {
     }
 
     return (
-        <div className="min-h-screen pb-20 px-4 sm:px-6 lg:px-8">
-            {/* Glass Header */}
-            <div className="relative mb-12 pt-8">
-                <div className="absolute -top-10 -left-10 w-64 h-64 bg-emerald-500/10 blur-[100px] rounded-full" />
-                <div className="absolute top-20 right-0 w-80 h-80 bg-blue-500/10 blur-[120px] rounded-full" />
-                
-                <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6 p-8 bg-white/40 backdrop-blur-xl border border-white/20 rounded-[2.5rem] shadow-2xl shadow-emerald-900/5">
-                    <div className="space-y-2">
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 bg-emerald-500 rounded-xl shadow-lg shadow-emerald-500/20">
-                                <ShieldCheck className="w-6 h-6 text-white" />
-                            </div>
-                            <h1 className="text-4xl font-black tracking-tight text-gray-900 leading-none">
-                                Verifier <span className="text-emerald-600">Portal</span>
-                            </h1>
-                        </div>
-                        <p className="text-gray-500 font-medium max-w-md">
-                            Ensuring every snack reaches every child. Last mile transparency for the National School Feeding Program.
-                        </p>
-                    </div>
-                    
-                    <div className="flex items-center gap-4">
-                        <div className="bg-white/60 backdrop-blur-md px-6 py-3 rounded-2xl border border-white/40 shadow-sm flex items-center gap-3">
-                            <div className="text-right">
-                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Active Tasks</p>
-                                <p className="text-xl font-black text-emerald-600">{requests.length}</p>
-                            </div>
-                            <div className="w-px h-8 bg-gray-200" />
-                            <div className="text-right">
-                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Region</p>
-                                <p className="text-sm font-bold text-gray-800">National</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
+        <div className="min-h-screen pb-20 px-4 sm:px-6 lg:px-8 pt-8">
             {/* Main Content Area */}
             <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
                 {/* Request List */}
                 <div className="xl:col-span-3 space-y-6">
                     <AnimatePresence mode="popLayout">
                         {requests.length === 0 ? (
-                            <motion.div 
+                            <motion.div
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 className="flex flex-col items-center justify-center py-20 bg-white/30 backdrop-blur-md rounded-[3rem] border border-dashed border-gray-300"
@@ -141,7 +106,7 @@ export default function VerifierPortal() {
                             </motion.div>
                         ) : (
                             requests.map((req, idx) => (
-                                <motion.div 
+                                <motion.div
                                     key={req.id}
                                     layout
                                     initial={{ opacity: 0, x: -20 }}
@@ -205,7 +170,7 @@ export default function VerifierPortal() {
 
                                         {/* Actions */}
                                         <div className="lg:w-64 shrink-0 flex flex-col justify-center">
-                                            <button 
+                                            <button
                                                 onClick={() => handleVerify(req.id)}
                                                 disabled={verifyingId === req.id}
                                                 className="relative group/btn w-full py-4 bg-gray-900 text-white font-black rounded-2xl overflow-hidden transition-all hover:bg-emerald-600 hover:shadow-xl hover:shadow-emerald-500/20 disabled:opacity-50"
@@ -238,7 +203,7 @@ export default function VerifierPortal() {
                                 </div>
                                 <h4 className="font-black text-lg">Region Insights</h4>
                             </div>
-                            
+
                             <div className="space-y-4">
                                 <div className="space-y-2">
                                     <div className="flex justify-between text-xs font-bold text-gray-400 uppercase">
@@ -249,7 +214,7 @@ export default function VerifierPortal() {
                                         <div className="h-full w-[94%] bg-emerald-500 rounded-full shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
                                     </div>
                                 </div>
-                                
+
                                 <div className="grid grid-cols-2 gap-4 pt-4">
                                     <div className="text-center p-4 bg-white/5 rounded-2xl border border-white/10">
                                         <p className="text-[10px] font-black text-gray-500 uppercase">This Month</p>

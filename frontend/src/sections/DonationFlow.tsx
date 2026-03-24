@@ -130,12 +130,21 @@ export default function DonationFlow() {
         setSelectedSchool(school)
         setStep(1)
         // Fetch suppliers for that school's state
-        fetch(`${apiBaseUrl}/api/donors/suppliers/${school.state}`)
-            .then(res => res.json())
-            .then(data => setSuppliers(data))
-            .catch(err => console.error('Error fetching suppliers:', err))
+        setSuppliers([]) // Reset current suppliers
+        setLoading(true) // Use the same loading state for visual feedback if needed
         
-        // Scroll to wizard if needed, but we'll show it as an overlay/transition
+        const stateParam = encodeURIComponent(school.state)
+        fetch(`${apiBaseUrl}/api/donors/suppliers/${stateParam}`)
+            .then(res => res.json())
+            .then(json => {
+                const data = json.data || []
+                setSuppliers(Array.isArray(data) ? data : [])
+            })
+            .catch(err => {
+                console.error('Error fetching suppliers:', err)
+                setSuppliers([])
+            })
+            .finally(() => setLoading(false))
     }
 
     const nextStep = () => setStep(s => s + 1)
