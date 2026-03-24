@@ -35,7 +35,7 @@ export default function LGAMonitor() {
         inspectionVisits: 12,
         schools: [] as any[]
     });
-    const lgaName = user?.lga || 'Ikeja';
+    const lgaName = (user?.lga || 'IKEJA').toUpperCase();
     const [isLoading, setIsLoading] = useState(true);
     const currentDate = new Date().toLocaleDateString('en-NG', { 
         weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
@@ -195,8 +195,8 @@ export default function LGAMonitor() {
                             </div>
                         ))}
                     </div>
-                    <button className="w-full mt-6 py-3 text-sm font-bold text-gray-600 hover:text-green-600 transition-colors">
-                        View All {stats.schoolsFeeding} Schools
+                    <button className="w-full mt-6 py-3 text-sm font-bold text-green-600 bg-green-50 rounded-xl hover:bg-green-100 transition-colors">
+                        View All {stats.schoolsFeeding} Local Schools
                     </button>
                 </div>
             </div>

@@ -32,7 +32,7 @@ export default function Hero() {
                             transition={{ duration: 0.6, delay: 0.2 }}
                             className="inline-block bg-gradient-to-r from-yellow-400 to-yellow-500 text-gray-900 px-6 py-3 rounded-full text-lg sm:text-xl font-bold shadow-lg mb-6"
                         >
-                            PBAT Feeds - 'Snacks For Thought': A Federal, State, CSR and Private-Driven Breakfast Initiative for School Children
+                            PBAT Feeds - 'Snacks For Thought': A Federal, State, CSR and Private Sector-Driven Breakfast Initiative for School Children
                         </motion.div>
                     </div>
 

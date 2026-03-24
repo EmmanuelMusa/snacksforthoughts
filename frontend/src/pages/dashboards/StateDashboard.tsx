@@ -152,36 +152,15 @@ export default function StateDashboard() {
                         </div>
                     </div>
 
-                    <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl shadow-lg p-6 text-white relative overflow-hidden group">
-                        <div className="absolute -right-6 -bottom-6 opacity-10 group-hover:scale-110 transition-transform">
-                            <TrendingUp className="w-48 h-48" />
+                    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 flex flex-col items-center justify-center text-center">
+                         <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center mb-4">
+                            <TrendingUp className="text-blue-600 w-6 h-6" />
                         </div>
-                        <div className="relative z-10">
-                            <p className="text-blue-100 text-sm font-bold uppercase tracking-wider mb-1">Impact Projection</p>
-                            <h4 className="text-2xl font-black mb-4">+1.2M Meals</h4>
-                            <p className="text-sm text-blue-100/80 leading-relaxed mb-6">
-                                Based on current growth, {stateName} will surpass 1.2M meals served by the end of next month.
-                            </p>
-                            <button 
-                                onClick={() => {
-                                    const projectionData = {
-                                        state: stateName,
-                                        date: currentDate,
-                                        projectedMeals: "1.2M",
-                                        status: "On Track"
-                                    };
-                                    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(projectionData));
-                                    const downloadAnchorNode = document.createElement('a');
-                                    downloadAnchorNode.setAttribute("href", dataStr);
-                                    downloadAnchorNode.setAttribute("download", `${stateName}_impact_projection.json`);
-                                    document.body.appendChild(downloadAnchorNode);
-                                    downloadAnchorNode.click();
-                                    downloadAnchorNode.remove();
-                                }}
-                                className="bg-white text-blue-600 px-4 py-2 rounded-xl text-sm font-bold shadow-sm hover:translate-y-[-2px] transition-transform"
-                            >
-                                Download Projection
-                            </button>
+                        <h3 className="text-lg font-bold text-gray-900 mb-2">Performance Tracking</h3>
+                        <p className="text-sm text-gray-500 mb-4">Real-time monitoring of operational excellence across all geopolitical zones.</p>
+                        <div className="w-full bg-blue-600 text-white p-4 rounded-2xl">
+                             <p className="text-xs font-bold uppercase tracking-widest opacity-80 mb-1">Impact Goal</p>
+                             <p className="text-2xl font-black">+1.2M Meals</p>
                         </div>
                     </div>
 

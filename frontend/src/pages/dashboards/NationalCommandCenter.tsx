@@ -89,19 +89,11 @@ export default function NationalCommandCenter() {
                     </div>
                     <div className="flex items-center gap-3">
                         <button 
-                            onClick={() => {
-                                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(stats));
-                                const downloadAnchorNode = document.createElement('a');
-                                downloadAnchorNode.setAttribute("href", dataStr);
-                                downloadAnchorNode.setAttribute("download", "national_report.json");
-                                document.body.appendChild(downloadAnchorNode);
-                                downloadAnchorNode.click();
-                                downloadAnchorNode.remove();
-                            }}
-                            className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors shadow-sm font-display"
+                            onClick={() => window.print()}
+                            className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors shadow-sm font-display print:hidden"
                         >
                             <Download className="w-4 h-4" />
-                            Export Report
+                            Export PDF Report
                         </button>
                         <div className="h-10 w-[1px] bg-gray-200 mx-2 hidden md:block"></div>
                         <div className="flex items-center gap-2 px-3 py-2 bg-green-50 text-green-700 rounded-lg border border-green-100 animate-pulse">
@@ -273,7 +265,6 @@ export default function NationalCommandCenter() {
                                 (selectedState === 'All States' || s === selectedState) &&
                                 s.toLowerCase().includes(searchTerm.toLowerCase())
                             ).map((state, idx) => {
-                                // Find if we have mock data for this state, else use defaults
                                 const mockData = stateDistributionData.find(d => d.name === state) || { schools: 450, pupils: 90000 };
                                 return (
                                     <tr key={state} className="hover:bg-gray-50/50 transition-colors">
@@ -312,7 +303,7 @@ export default function NationalCommandCenter() {
             </div>
 
             {/* Nigeria Map Placeholder Section - Revamped */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8 print:hidden">
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 flex flex-col items-center justify-center text-center">
                     <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mb-4">
                         <MapIcon className="w-8 h-8 text-blue-600" />
@@ -347,6 +338,66 @@ export default function NationalCommandCenter() {
                         <button className="w-full py-3 text-sm font-bold text-blue-600 bg-blue-50 rounded-xl hover:bg-blue-100 transition-colors">
                             View Compliance Dashboard
                         </button>
+                    </div>
+                </div>
+            </div>
+
+            {/* Print-Only Report Header */}
+            <div className="hidden print:block fixed inset-0 bg-white z-[200] p-10 font-sans">
+                <div className="flex items-center justify-between border-b-4 border-green-700 pb-6 mb-8">
+                    <div className="flex items-center gap-4">
+                        <img src="/images/Nigeria Logo.jpeg" className="h-20 w-auto" alt="Coat of Arms" />
+                        <div>
+                            <h1 className="text-2xl font-black text-gray-900 uppercase">National Digital School Feeding</h1>
+                            <p className="text-sm font-bold text-green-700 uppercase tracking-widest leading-none">Programme Performance Report</p>
+                        </div>
+                    </div>
+                    <div className="text-right">
+                        <p className="text-sm font-bold text-gray-400 uppercase">Generated On</p>
+                        <p className="text-lg font-black text-gray-900">{currentDate}</p>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-4 gap-6 mb-10">
+                    <PrintStatCard label="Total Pupils Fed" value={stats.pupilsFedToday.toLocaleString()} />
+                    <PrintStatCard label="Active Schools" value={stats.schoolsParticipating.toLocaleString()} />
+                    <PrintStatCard label="Verified Vendors" value={stats.vendorsActive.toLocaleString()} />
+                    <PrintStatCard label="Farmers Linked" value={stats.farmersLinked.toLocaleString()} />
+                </div>
+
+                <div className="border-2 border-gray-100 rounded-3xl p-8 mb-10">
+                    <h3 className="text-xl font-black text-gray-900 mb-6 uppercase tracking-tight">Geopolitical Zone Distribution</h3>
+                    <table className="w-full text-left">
+                        <thead>
+                            <tr className="border-b-2 border-gray-100">
+                                <th className="py-3 text-sm font-bold text-gray-500 uppercase">State</th>
+                                <th className="py-3 text-sm font-bold text-gray-500 uppercase">Schools</th>
+                                <th className="py-3 text-sm font-bold text-gray-500 uppercase">Pupils</th>
+                                <th className="py-3 text-sm font-bold text-gray-500 uppercase text-right">Performance</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-50">
+                            {stateDistributionData.map(state => (
+                                <tr key={state.name}>
+                                    <td className="py-4 font-bold text-gray-900">{state.name}</td>
+                                    <td className="py-4 text-gray-600">{state.schools}</td>
+                                    <td className="py-4 text-gray-600">{state.pupils.toLocaleString()}</td>
+                                    <td className="py-4 text-right font-black text-green-600">92%</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div className="mt-20 pt-10 border-t border-gray-100 flex justify-between items-end">
+                    <div>
+                        <div className="w-32 h-[1px] bg-gray-400 mb-2"></div>
+                        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Authorized Signature</p>
+                        <p className="text-sm font-black text-gray-900">National Programme Director</p>
+                    </div>
+                    <div className="text-right flex items-center gap-4">
+                        <img src="/images/rh_nhgsfp logo.png" className="h-10 w-auto" alt="NHGSFP" />
+                        <img src="/images/NSIPA Logo.jpeg" className="h-10 w-auto" alt="NSIPA" />
                     </div>
                 </div>
             </div>
@@ -391,6 +442,15 @@ function MetricCard({ title, value, icon, trend, color, delay }: any) {
     );
 }
 
+function PrintStatCard({ label, value }: any) {
+    return (
+        <div className="bg-gray-50 p-6 rounded-2xl border border-gray-100">
+            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">{label}</p>
+            <p className="text-3xl font-black text-gray-900">{value}</p>
+        </div>
+    );
+}
+
 function AuditItem({ title, time, status, desc }: any) {
     return (
         <div className="flex gap-4">
@@ -410,4 +470,3 @@ function AuditItem({ title, time, status, desc }: any) {
         </div>
     );
 }
-

@@ -10,9 +10,9 @@ export default function PresidentialSection() {
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-                    
+
                     {/* Presidential Image Frame */}
-                    <motion.div 
+                    <motion.div
                         initial={{ opacity: 0, x: -50 }}
                         whileInView={{ opacity: 1, x: 0 }}
                         viewport={{ once: true }}
@@ -20,26 +20,25 @@ export default function PresidentialSection() {
                         className="relative"
                     >
                         <div className="relative z-10 rounded-3xl overflow-hidden shadow-2xl border-8 border-white group">
-                            <img 
-                                src="/images/President-Bola-Ahmed-Tinubu.jpg" 
-                                alt="His Excellency, President Bola Ahmed Tinubu" 
+                            <img
+                                src="/images/President-Bola-Ahmed-Tinubu.jpg"
+                                alt="His Excellency, President Bola Ahmed Tinubu"
                                 className="w-full h-auto grayscale-[20%] group-hover:grayscale-0 transition-all duration-700 hover:scale-105"
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                         </div>
-                        
+
                         {/* Decorative Frames */}
                         <div className="absolute -top-6 -right-6 w-32 h-32 bg-green-600 rounded-full opacity-10 animate-pulse" />
                         <div className="absolute -bottom-10 -left-10 w-48 h-48 border-4 border-green-600/20 rounded-3xl -z-10 rotate-12" />
-                        
+
                         <div className="absolute bottom-6 left-6 right-6 z-20 text-white">
-                            <p className="text-sm font-bold tracking-[0.2em] uppercase mb-1 opacity-90">Honoring the Visionary</p>
-                            <h4 className="text-2xl font-black font-display leading-tight">His Excellency,<br/>President Bola Ahmed Tinubu</h4>
+                            <h4 className="text-2xl font-black font-display leading-tight">His Excellency,<br />President Bola Ahmed Tinubu</h4>
                         </div>
                     </motion.div>
 
                     {/* Content Section */}
-                    <motion.div 
+                    <motion.div
                         initial={{ opacity: 0, x: 50 }}
                         whileInView={{ opacity: 1, x: 0 }}
                         viewport={{ once: true }}
@@ -51,7 +50,7 @@ export default function PresidentialSection() {
                         </div>
 
                         <h2 className="text-4xl sm:text-5xl font-black text-gray-900 mb-8 font-display leading-[1.1]">
-                            Driven by <span className="text-green-600 italic">Vision</span>, 
+                            Driven by <span className="text-green-600 italic">Vision</span>,
                             <br />
                             Sustained by <span className="text-blue-600 underline decoration-yellow-400 decoration-4 underline-offset-8">Commitment</span>
                         </h2>
