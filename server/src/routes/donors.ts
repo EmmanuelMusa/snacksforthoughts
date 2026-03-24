@@ -9,8 +9,15 @@ const router = Router()
 router.get('/suppliers/:state', async (req, res) => {
     try {
         const { state } = req.params
-        console.log(`[API] Fetching suppliers for state: "${state}"`)
+        console.log(`[DIAGNOSTIC] Fetching suppliers for state: "${state}"`)
         
+        // Log all roles in the DB for debugging
+        const allRoles = await prisma.user.groupBy({
+            by: ['role'],
+            _count: { _all: true }
+        })
+        console.log(`[DIAGNOSTIC] Current roles in DB:`, JSON.stringify(allRoles))
+
         const users = await prisma.user.findMany({
             where: {
                 state: {
@@ -32,10 +39,18 @@ router.get('/suppliers/:state', async (req, res) => {
             }
         })
         
-        console.log(`[API] Found ${users.length} suppliers for state: "${state}"`)
+        console.log(`[DIAGNOSTIC] Found ${users.length} suppliers matching state "${state}" and role "SUPPLIER"`)
+        if (users.length === 0) {
+            // Check if there are any suppliers in OTHER states
+            const otherSuppliers = await prisma.user.count({
+                where: { role: Role.SUPPLIER, isActive: true }
+            })
+            console.log(`[DIAGNOSTIC] Total active suppliers in entire DB: ${otherSuppliers}`)
+        }
+
         res.json({ success: true, data: users })
     } catch (error) {
-        console.error('Error fetching suppliers:', error)
+        console.error('[DIAGNOSTIC] Error fetching suppliers:', error)
         res.status(500).json({ success: false, error: 'Failed to fetch suppliers' })
     }
 })
