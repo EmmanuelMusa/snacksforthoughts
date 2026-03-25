@@ -1,7 +1,17 @@
 import { motion } from 'framer-motion'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
+import { LogOut, Activity } from 'lucide-react'
 
 export default function Hero() {
+    const { isAuthenticated, user, logout } = useAuth()
+    const navigate = useNavigate()
+
+    const handleLogout = () => {
+        logout()
+        navigate('/')
+    }
+
     return (
         <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
             {/* Background Image */}
@@ -38,14 +48,43 @@ export default function Hero() {
                     />
                 </div>
 
-                <Link to="/login">
-                    <motion.button
-                        whileHover={{ scale: 1.05, opacity: 1 }}
-                        className="text-white/60 hover:text-white font-bold text-xs tracking-[0.3em] uppercase transition-all bg-white/5 px-6 py-3 rounded-full border border-white/10 backdrop-blur-sm"
-                    >
-                        Login / Register
-                    </motion.button>
-                </Link>
+                <div className="flex items-center gap-4">
+                    {isAuthenticated && user ? (
+                        <div className="flex items-center gap-3">
+                            <Link to={
+                                user.role === 'ADMIN' ? '/admin' :
+                                user.role === 'SUPPLIER' ? '/dashboard/supplier' :
+                                user.role === 'VERIFIER' ? '/dashboard/verifier' :
+                                '/dashboard/donor'
+                            }>
+                                <motion.button
+                                    whileHover={{ scale: 1.05 }}
+                                    className="flex items-center gap-2 bg-green-600/20 hover:bg-green-600/30 text-green-400 font-bold text-xs tracking-[0.1em] uppercase px-5 py-3 rounded-full border border-green-500/30 backdrop-blur-sm transition-all"
+                                >
+                                    <Activity className="w-4 h-4" />
+                                    Visit Dashboard
+                                </motion.button>
+                            </Link>
+                            <motion.button
+                                onClick={handleLogout}
+                                whileHover={{ scale: 1.05 }}
+                                className="flex items-center gap-2 bg-white/5 hover:bg-red-500/20 text-white/60 hover:text-red-400 font-bold text-xs tracking-[0.1em] uppercase px-5 py-3 rounded-full border border-white/10 backdrop-blur-sm transition-all"
+                            >
+                                <LogOut className="w-4 h-4" />
+                                Logout
+                            </motion.button>
+                        </div>
+                    ) : (
+                        <Link to="/login">
+                            <motion.button
+                                whileHover={{ scale: 1.05, opacity: 1 }}
+                                className="text-white/60 hover:text-white font-bold text-xs tracking-[0.3em] uppercase transition-all bg-white/5 px-6 py-3 rounded-full border border-white/10 backdrop-blur-sm"
+                            >
+                                Login / Register
+                            </motion.button>
+                        </Link>
+                    )}
+                </div>
             </div>
 
             {/* Content */}

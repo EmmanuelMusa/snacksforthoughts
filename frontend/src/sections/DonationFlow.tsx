@@ -163,9 +163,9 @@ export default function DonationFlow() {
     const prevStep = () => setStep(s => s - 1)
 
     const handleSubmit = async () => {
+        console.log('[DEBUG] handleSubmit clicked. isAuthenticated:', isAuthenticated)
         if (!isAuthenticated) {
-            // Store current path to redirect back after login? 
-            // For now, simple redirect to login
+            console.log('[DEBUG] Not authenticated, redirecting to /login')
             navigate('/login')
             return
         }
