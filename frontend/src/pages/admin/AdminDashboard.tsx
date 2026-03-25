@@ -113,8 +113,6 @@ export default function AdminDashboard() {
     const [editingEntity, setEditingEntity] = useState<any>(null)
     const [isEditModalOpen, setIsEditModalOpen] = useState(false)
     const [isAddSchoolModalOpen, setIsAddSchoolModalOpen] = useState(false)
-    const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false)
-    const [isSettingsOpen, setIsSettingsOpen] = useState(false)
 
     // Pagination State
     const [schoolsPage, setSchoolsPage] = useState(1)
@@ -250,7 +248,9 @@ export default function AdminDashboard() {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    ...schoolData,
+                    name: schoolData.name,
+                    state: schoolData.state,
+                    lga: schoolData.lga,
                     studentCount: parseInt(schoolData.studentCount as string)
                 })
             })
@@ -346,7 +346,7 @@ export default function AdminDashboard() {
             {/* Sidebar */}
             <aside className="w-80 bg-white border-r border-gray-100 flex flex-col fixed h-full z-50">
                 <div className="p-8 border-b border-gray-50 flex items-center gap-4">
-                    <img src="/images/Snacks for Thoughts Logo.png" alt="Logo" className="w-12 h-12 object-contain" />
+                    <img src="/images/Snacks for Thoughts Logo.png" alt="Logo" className="w-24 h-24 object-contain" />
                     <div>
                         <h2 className="text-sm font-black text-[#006D3E] leading-none uppercase tracking-tighter">PBAT FEEDS</h2>
                         <h3 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1 text-nowrap">Admin Dashboard</h3>
@@ -471,6 +471,11 @@ export default function AdminDashboard() {
                                         <option value="VERIFIER">Verifier</option>
                                     </select>
                                 )}
+                                {activeTab === 'REQUESTS' && (
+                                    <div className="flex items-center gap-2 bg-white p-1.5 rounded-2xl border border-gray-100 shadow-sm">
+                                        {['ALL', 'PENDING', 'DELIVERED', 'VERIFIED'].map(s => <button key={s} onClick={() => { setFilterStatus(s); setRequestsPage(1); }} className={`px-5 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${filterStatus === s ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' : 'text-gray-400 hover:text-gray-600'}`}>{s}</button>)}
+                                    </div>
+                                )}
                                 <div className="relative group"><Search className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-300 w-4 h-4 group-focus-within:text-blue-600 transition-colors" /><input type="text" placeholder={`Search ${activeTab.toLowerCase()}...`} value={searchQuery} onChange={(e) => { setSearchQuery(e.target.value); setSchoolsPage(1); setUsersPage(1); setRequestsPage(1); }} className="pl-14 pr-8 py-4 bg-white border border-gray-100 rounded-2xl text-xs font-bold focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 transition-all w-full lg:w-80 shadow-sm" /></div>
                                 {activeTab === 'SCHOOLS' && <button onClick={() => setIsAddSchoolModalOpen(true)} className="px-8 py-4 bg-gray-900 text-white rounded-2xl hover:bg-black transition-all shadow-xl shadow-gray-900/10 flex items-center gap-3"><Plus className="w-4 h-4" /><span className="text-[10px] font-black uppercase tracking-widest">Add School</span></button>}
                             </div>
@@ -493,12 +498,11 @@ export default function AdminDashboard() {
                             )}
                             {activeTab === 'SCHOOLS' && (
                                 <table className="w-full text-left">
-                                    <thead className="bg-gray-50/50 border-b border-gray-50"><tr><th className="px-10 py-6 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">School / Region</th><th className="px-10 py-6 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">Student Capacity</th><th className="px-10 py-6 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">Aggregator</th><th className="px-10 py-6 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400 text-right">Actions</th></tr></thead>
+                                    <thead className="bg-gray-50/50 border-b border-gray-50"><tr><th className="px-10 py-6 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">School / Region</th><th className="px-10 py-6 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">Student Capacity</th><th className="px-10 py-6 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400 text-right">Actions</th></tr></thead>
                                     <tbody className="divide-y divide-gray-50">{paginatedSchools.map((school) => (
                                         <tr key={school.id} className="hover:bg-blue-50/5 transition-colors group">
                                             <td className="px-10 py-8"><div className="font-black text-gray-900 text-base font-display">{school.name}</div><div className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mt-2">{school.lga}, {school.state}</div></td>
                                             <td className="px-10 py-8"><div className="flex items-center gap-3"><div className="text-sm font-black text-gray-900">{school.studentCount}</div><div className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Pupils</div></div></td>
-                                            <td className="px-10 py-8"><div className="px-3 py-1 bg-gray-50 rounded-lg text-[9px] font-black text-gray-500 uppercase w-fit border border-gray-100">{school.aggregator || 'Direct'}</div></td>
                                             <td className="px-10 py-8 text-right space-x-2"><button onClick={() => { setEditingEntity(school); setIsEditModalOpen(true); }} className="p-3 text-gray-300 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all"><Edit2 className="w-4 h-4" /></button><button onClick={() => handleDeleteSchool(school.id)} className="p-3 text-gray-300 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all"><Trash2 className="w-4 h-4" /></button></td>
                                         </tr>
                                     ))}</tbody>
@@ -559,10 +563,7 @@ export default function AdminDashboard() {
                                     <div className="space-y-2"><label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">State</label><input name="state" required placeholder="e.g. Lagos" className="w-full px-8 py-5 bg-gray-50/50 border border-gray-100 rounded-[1.5rem] text-sm font-bold focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 transition-all outline-none shadow-sm" /></div>
                                     <div className="space-y-2"><label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">LGA</label><input name="lga" required placeholder="e.g. Ikeja" className="w-full px-8 py-5 bg-gray-50/50 border border-gray-100 rounded-[1.5rem] text-sm font-bold focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 transition-all outline-none shadow-sm" /></div>
                                 </div>
-                                <div className="grid grid-cols-2 gap-6">
-                                    <div className="space-y-2"><label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Student Capacity</label><input name="studentCount" type="number" required placeholder="e.g. 1200" className="w-full px-8 py-5 bg-gray-50/50 border border-gray-100 rounded-[1.5rem] text-sm font-bold focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 transition-all outline-none shadow-sm" /></div>
-                                    <div className="space-y-2"><label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Aggregator / Vendor</label><input name="aggregator" placeholder="Optional" className="w-full px-8 py-5 bg-gray-50/50 border border-gray-100 rounded-[1.5rem] text-sm font-bold focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 transition-all outline-none shadow-sm" /></div>
-                                </div>
+                                <div className="space-y-2"><label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Student Capacity</label><input name="studentCount" type="number" required placeholder="e.g. 1200" className="w-full px-8 py-5 bg-gray-50/50 border border-gray-100 rounded-[1.5rem] text-sm font-bold focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 transition-all outline-none shadow-sm" /></div>
                             </div>
                             <button type="submit" className="w-full py-6 bg-blue-600 text-white rounded-[2rem] text-[11px] font-black uppercase tracking-[0.2em] shadow-2xl shadow-blue-600/20 hover:bg-blue-700 hover:-translate-y-1 transition-all">Finalize Onboarding</button>
                         </form>
