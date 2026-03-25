@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import bcrypt from 'bcryptjs'
 import { PrismaClient, Role } from '@prisma/client'
+import { authenticateToken } from '../middleware/auth'
 
 const prisma = new PrismaClient()
 const router = Router()
@@ -152,9 +153,9 @@ router.post('/request', async (req, res) => {
 
 // @route   GET /api/donors/requests
 // @desc    Get all supply requests for the current donor
-router.get('/requests', async (req, res) => {
+router.get('/requests', authenticateToken, async (req: any, res) => {
     try {
-        const userId = (req as any).user?.id || req.headers['x-user-id']
+        const userId = req.user?.id
         if (!userId) return res.status(401).json({ error: 'Unauthorized' })
 
         const requests = await (prisma as any).supplyRequest.findMany({
