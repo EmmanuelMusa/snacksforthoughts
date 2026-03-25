@@ -36,7 +36,17 @@ router.get('/admin/db-diagnostic', async (req, res) => {
         const inactiveCount = await prisma.user.count({ where: { role: Role.SUPPLIER, isActive: false } });
         const activeCount = await prisma.user.count({ where: { role: Role.SUPPLIER, isActive: true } });
 
-        res.json({ roles, states, sampleSuppliers: sampleUsers, stats: { activeSuppliers: activeCount, inactiveSuppliers: inactiveCount } });
+        const schoolStates = await prisma.school.groupBy({ by: ['state'], _count: { _all: true } });
+        const sampleSchools = await prisma.school.findMany({ take: 5, select: { id: true, name: true, state: true } });
+
+        res.json({ 
+            roles, 
+            userStates: states, 
+            schoolStates,
+            sampleSuppliers: sampleUsers, 
+            sampleSchools,
+            stats: { activeSuppliers: activeCount, inactiveSuppliers: inactiveCount } 
+        });
     } catch (error) {
         res.status(500).json({ success: false, error: String(error) });
     }
