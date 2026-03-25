@@ -12,9 +12,10 @@ function Navbar() {
   const navigate = useNavigate()
   const location = useLocation()
 
-  // Don't show navbar on login/register pages OR dashboards (they have their own headers)
+  // Don't show navbar on home page, login/register, or dashboards
   const isDashboard = location.pathname.startsWith('/dashboard') || location.pathname.startsWith('/admin');
-  if (['/login', '/register'].includes(location.pathname) || isDashboard) return null;
+  const isAuthPage = ['/login', '/register'].includes(location.pathname);
+  if (location.pathname === '/' || isAuthPage || isDashboard) return null;
 
   const handleLogout = () => {
     logout()
@@ -285,7 +286,8 @@ function Navbar() {
 
 function App() {
   const location = useLocation()
-  const isNavbarHidden = ['/login', '/register'].includes(location.pathname) || 
+  const isNavbarHidden = location.pathname === '/' || 
+                         ['/login', '/register'].includes(location.pathname) || 
                          location.pathname.startsWith('/dashboard') || 
                          location.pathname.startsWith('/admin');
 

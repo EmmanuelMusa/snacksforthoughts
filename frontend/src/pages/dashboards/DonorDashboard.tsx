@@ -36,7 +36,7 @@ export default function DonorDashboard() {
                     headers: { 'Authorization': `Bearer ${token}` }
                 })
                 const data = await res.json()
-                setRequests(data)
+                setRequests(Array.isArray(data) ? data : [])
             } catch (err) {
                 console.error('Error fetching donor requests:', err)
             } finally {
@@ -128,12 +128,12 @@ export default function DonorDashboard() {
                                     </div>
 
                                     <div className="flex flex-wrap gap-2">
-                                        {req.items.slice(0, 3).map((item: any, i) => (
+                                        {(req.items || []).slice(0, 3).map((item: any, i: number) => (
                                             <span key={i} className="px-3 py-1 bg-gray-50 text-gray-500 font-bold text-[10px] rounded-lg">
                                                 {item.quantity} × {item.name}
                                             </span>
                                         ))}
-                                        {req.items.length > 3 && (
+                                        {req.items?.length > 3 && (
                                             <span className="px-3 py-1 bg-gray-50 text-gray-400 font-bold text-[10px] rounded-lg">
                                                 +{req.items.length - 3} more
                                             </span>
