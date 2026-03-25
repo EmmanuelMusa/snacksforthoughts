@@ -32,20 +32,115 @@ const upload = multer({ storage: storage });
 
 router.get('/admin/overview', authenticateToken, requireRole(['ADMIN']), async (req, res) => {
     try {
-        const totalRequests = await prisma.supplyRequest.count();
-        const completedRequests = await prisma.supplyRequest.count({ where: { status: 'VERIFIED' } });
-        const totalSchools = await prisma.school.count();
-        const verifiedSuppliers = await prisma.user.count({ where: { role: 'SUPPLIER' } });
+        const [
+            totalRequests,
+            completedRequests,
+            uniqueSchoolsData,
+            verifiedSuppliers,
+            totalDonors,
+            pupilStats,
+            statesData,
+            lgasData,
+            deliveredRequests,
+            pendingRequests,
+            sponsorshipDays,
+            statusBreakdown
+        ] = await Promise.all([
+            prisma.supplyRequest.count(),
+            prisma.supplyRequest.count({ where: { status: 'VERIFIED' } }),
+            prisma.school.groupBy({ by: ['name'] }),
+            prisma.user.count({ where: { role: 'SUPPLIER' } }),
+            prisma.user.count({ where: { role: 'DONOR' } }),
+            prisma.school.aggregate({ _sum: { studentCount: true } }),
+            prisma.school.groupBy({ by: ['state'] }),
+            prisma.school.groupBy({ by: ['lga'] }),
+            prisma.supplyRequest.count({ where: { status: 'DELIVERED' } }),
+            prisma.supplyRequest.count({ 
+                where: { 
+                    status: { 
+                        in: ['PAYMENT_CONFIRMED', 'ADMIN_APPROVED', 'SUPPLIER_ALLOCATED', 'DISPATCHED'] 
+                    } 
+                } 
+            }),
+            prisma.supplyRequest.count({ 
+                where: { 
+                    supplyDate: { contains: '2026' } 
+                } 
+            }),
+            prisma.supplyRequest.groupBy({
+                by: ['status'],
+                _count: { _all: true }
+            })
+        ]);
+
+        const totalSchools = uniqueSchoolsData.length;
+
+        // Estimated school days per year (approx 190)
+        const schoolDaysPerYear = 190;
+        const totalPossibleSchoolDays = totalSchools * schoolDaysPerYear;
+        const unsponsoredDays = Math.max(0, totalPossibleSchoolDays - sponsorshipDays);
 
         res.json({
             totalRequests,
             completedRequests,
             totalSchools,
-            verifiedSuppliers
+            verifiedSuppliers,
+            totalStates: statesData.length,
+            totalLGAs: lgasData.length,
+            totalPupils: pupilStats._sum.studentCount || 0,
+            totalDonors,
+            sponsoredDays: sponsorshipDays,
+            unsponsoredDays: unsponsoredDays,
+            suppliesDelivered: deliveredRequests,
+            pendingDeliveries: pendingRequests,
+            completedFeedingDays: completedRequests,
+            statusBreakdown
         });
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: "Failed to fetch admin overview" });
+    }
+});
+
+router.get('/admin/geo-stats', authenticateToken, requireRole(['ADMIN']), async (req, res) => {
+    try {
+        const { state, lga } = req.query;
+
+        if (state && lga) {
+            // Detailed stats for specific LGA (Schools list)
+            const schools = await prisma.school.findMany({
+                where: { state: String(state), lga: String(lga) },
+                include: {
+                    _count: {
+                        select: { supplyRequests: true }
+                    }
+                }
+            });
+            return res.json({ type: 'lga', data: schools });
+        }
+
+        if (state) {
+            // Stats for specific State (LGAs list)
+            const lgas = await prisma.school.groupBy({
+                by: ['lga'],
+                where: { state: String(state) },
+                _count: { id: true },
+                _sum: { studentCount: true }
+            });
+            return res.json({ type: 'state', data: lgas });
+        }
+
+        // Summary for Nigeria (States list)
+        const states = await prisma.school.groupBy({
+            by: ['state'],
+            _count: { id: true },
+            _sum: { studentCount: true }
+        });
+        
+        res.json({ type: 'country', data: states });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Failed to fetch geo stats" });
     }
 });
 

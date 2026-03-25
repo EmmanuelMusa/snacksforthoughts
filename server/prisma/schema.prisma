@@ -87,11 +87,22 @@ model SupplyRequest {
   donorId         String
   schoolId        String
   supplierId      String
-  academicPeriod  String
-  supplyDate      String?
+  academicPeriod  String   // e.g. "Term 1, Week 4" or specific dates
+  supplyDate      String?  // e.g. "2026-03-25"
   items           Json     // Array of items and quantities
   status          RequestStatus @default(PENDING_PAYMENT)
   proofImageUrl   String?
+  
+  // Digital Trail Timestamps & Metadata
+  bookedAt        DateTime @default(now())
+  adminApprovedAt DateTime?
+  supplierAllocatedAt DateTime?
+  dispatchedAt    DateTime?
+  deliveredAt     DateTime?
+  receivedAt      DateTime?
+  verifiedAt      DateTime?
+  issueLog        String?  // Description of any issues
+  
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
@@ -104,8 +115,13 @@ enum RequestStatus {
   PENDING_PAYMENT
   PAYMENT_CLAIMED
   PAYMENT_CONFIRMED
+  ADMIN_APPROVED
+  SUPPLIER_ALLOCATED
+  DISPATCHED
   DELIVERED
+  RECEIVED
   VERIFIED
+  ISSUE_LOGGED
 }
 
 model SchoolReport {
