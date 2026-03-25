@@ -1,17 +1,36 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { 
-    Users, 
-    Building2, 
-    Package, 
-    TrendingUp, 
-    CheckCircle, 
-    Clock, 
-    Truck, 
-    BarChart3, 
-    ShieldCheck, 
-    Filter,
+import {
+    BarChart,
+    Bar,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip,
+    ResponsiveContainer,
+    LineChart,
+    Line,
+    AreaChart,
+    Area,
+    PieChart,
+    Pie,
+    Cell
+} from 'recharts'
+import {
+    LayoutDashboard,
+    Package,
+    Building2,
+    Users,
     Search,
+    Filter,
+    MoreVertical,
+    ArrowUpRight,
+    ArrowDownRight,
+    Clock,
+    CheckCircle2,
+    TrendingUp,
+    BarChart3,
+    ShieldCheck,
     Edit2,
     Trash2,
     Star,
@@ -20,8 +39,11 @@ import {
     ChevronDown,
     MapPin,
     Phone,
-    Mail
+    Mail,
+    LogOut,
+    Truck
 } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import { useDonation } from '../../context/DonationContext'
 
 interface AdminStats {
@@ -31,6 +53,10 @@ interface AdminStats {
     deliveredRequests: number
     verifiedRequests: number
     totalSchools: number
+    totalDonations: number
+    totalImpact: number
+    donationGrowth: number
+    impactGrowth: number
 }
 
 interface SupplyRequest {
@@ -70,6 +96,7 @@ interface School {
 
 export default function AdminDashboard() {
     const { apiBaseUrl } = useDonation()
+    const navigate = useNavigate()
     const [stats, setStats] = useState<AdminStats | null>(null)
     const [supplies, setSupplies] = useState<SupplyRequest[]>([])
     const [schools, setSchools] = useState<AdminSchool[]>([])
@@ -78,10 +105,37 @@ export default function AdminDashboard() {
     const [activeTab, setActiveTab] = useState<'OVERVIEW' | 'REQUESTS' | 'SCHOOLS' | 'USERS'>('OVERVIEW')
     const [filterStatus, setFilterStatus] = useState('ALL')
     const [searchQuery, setSearchQuery] = useState('')
-    
+
     // Management Modals/State
     const [editingEntity, setEditingEntity] = useState<any>(null)
     const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+    const [isAddSchoolModalOpen, setIsAddSchoolModalOpen] = useState(false)
+    const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false)
+
+    const handleLogout = () => {
+        localStorage.removeItem('token')
+        localStorage.removeItem('user')
+        navigate('/login')
+    }
+
+    const chartData = [
+        { name: 'Jan', donations: 45, impact: 1200 },
+        { name: 'Feb', donations: 52, impact: 1500 },
+        { name: 'Mar', donations: 48, impact: 1100 },
+        { name: 'Apr', donations: 61, impact: 1800 },
+        { name: 'May', donations: 55, impact: 1600 },
+        { name: 'Jun', donations: 67, impact: 2100 },
+    ]
+
+    const regionalData = [
+        { name: 'Lagos', value: 35 },
+        { name: 'Kano', value: 25 },
+        { name: 'Abuja', value: 20 },
+        { name: 'Rivers', value: 15 },
+        { name: 'Enugu', value: 5 },
+    ]
+
+    const COLORS = ['#e11d48', '#2563eb', '#059669', '#d97706', '#7c3aed']
 
     const fetchData = async () => {
         setLoading(true)
@@ -93,12 +147,12 @@ export default function AdminDashboard() {
                 fetch(`${apiBaseUrl}/api/schools/search?limit=1000`, { headers: { 'Authorization': `Bearer ${token}` } }),
                 fetch(`${apiBaseUrl}/api/admin/users`, { headers: { 'Authorization': `Bearer ${token}` } })
             ])
-            
+
             const statsData = await statsRes.json()
             const suppliesData = await suppliesRes.json()
             const schoolsData = await schoolsRes.json()
             const usersData = await usersRes.json()
-            
+
             setStats(statsData?.error ? null : statsData)
             setSupplies(Array.isArray(suppliesData) ? suppliesData : [])
             setSchools(schoolsData?.data?.schools || [])
@@ -119,9 +173,9 @@ export default function AdminDashboard() {
             const token = localStorage.getItem('token')
             await fetch(`${apiBaseUrl}/api/admin/request/${id}/status`, {
                 method: 'PATCH',
-                headers: { 
+                headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}` 
+                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({ status: newStatus })
             })
@@ -150,9 +204,9 @@ export default function AdminDashboard() {
             const token = localStorage.getItem('token')
             await fetch(`${apiBaseUrl}/api/admin/user/${user.id}`, {
                 method: 'PATCH',
-                headers: { 
+                headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}` 
+                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({ isActive: !user.isActive })
             })
@@ -162,24 +216,38 @@ export default function AdminDashboard() {
         }
     }
 
+    const handleDeleteUser = async (id: string) => {
+        if (!confirm('Are you sure you want to delete this user?')) return
+        try {
+            const token = localStorage.getItem('token')
+            await fetch(`${apiBaseUrl}/api/admin/user/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            })
+            fetchData()
+        } catch (err) {
+            console.error('Delete user error:', err)
+        }
+    }
+
     const filteredSupplies = supplies.filter(s => {
         const matchesStatus = filterStatus === 'ALL' || s.status === filterStatus
-        const matchesSearch = searchQuery === '' || 
+        const matchesSearch = searchQuery === '' ||
             s.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
             s.school?.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
             s.donor?.name.toLowerCase().includes(searchQuery.toLowerCase())
         return matchesStatus && matchesSearch
     })
 
-    const filteredSchools = schools.filter(s => 
-        searchQuery === '' || 
+    const filteredSchools = schools.filter(s =>
+        searchQuery === '' ||
         s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         s.state.toLowerCase().includes(searchQuery.toLowerCase()) ||
         s.lga.toLowerCase().includes(searchQuery.toLowerCase())
     )
 
-    const filteredUsers = users.filter(u => 
-        searchQuery === '' || 
+    const filteredUsers = users.filter(u =>
+        searchQuery === '' ||
         u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         u.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
         (u.companyName && u.companyName.toLowerCase().includes(searchQuery.toLowerCase()))
@@ -194,70 +262,49 @@ export default function AdminDashboard() {
     }
 
     const statCards = [
-        { label: 'Total Volume', value: stats?.totalRequests || 0, icon: Package, color: 'bg-blue-600' },
-        { label: 'Awaiting Payment', value: stats?.pendingPayments || 0, icon: Clock, color: 'bg-orange-500' },
-        { label: 'Processing', value: stats?.paidRequests || 0, icon: Truck, color: 'bg-emerald-500' },
-        { label: 'Verified Delivery', value: stats?.verifiedRequests || 0, icon: ShieldCheck, color: 'bg-indigo-600' }
+        { label: 'Total Volume', value: stats?.totalRequests || 0, icon: Package, color: 'bg-blue-600', growth: stats?.impactGrowth || 0 },
+        { label: 'Awaiting Payment', value: stats?.pendingPayments || 0, icon: Clock, color: 'bg-orange-500', growth: 0 },
+        { label: 'Processing', value: stats?.paidRequests || 0, icon: Truck, color: 'bg-emerald-500', growth: 0 },
+        { label: 'Verified Delivery', value: stats?.verifiedRequests || 0, icon: ShieldCheck, color: 'bg-indigo-600', growth: 0 }
     ]
 
     return (
         <div className="space-y-8 pb-12">
             {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-3xl font-black text-gray-900 font-display">Command Center</h1>
-                    <p className="text-gray-500 font-medium">National Digital School Feeding Registry — Live Feed</p>
+                    <h1 className="text-4xl font-black text-gray-900 font-display tracking-tight">Command Center</h1>
+                    <p className="text-gray-500 font-medium">Platform-wide administrative control and deep intelligence.</p>
                 </div>
-                <div className="flex items-center gap-3">
-                    <div className="px-4 py-2 bg-green-50 text-green-700 text-xs font-black rounded-full border border-green-100 flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                        SYSTEM OPERATIONAL
+                <div className="flex items-center gap-4">
+                    <button
+                        onClick={handleLogout}
+                        className="flex items-center gap-2 px-6 py-3 bg-white border border-gray-100 rounded-2xl text-[10px] font-black uppercase tracking-widest text-rose-600 hover:bg-rose-50 hover:border-rose-100 transition-all shadow-sm"
+                    >
+                        <LogOut className="w-4 h-4" /> Sign Out
+                    </button>
+                    <div className="flex items-center gap-2 p-1.5 bg-gray-100 rounded-2xl w-fit">
+                        {(['OVERVIEW', 'REQUESTS', 'SCHOOLS', 'USERS'] as const).map(tab => (
+                            <button
+                                key={tab}
+                                onClick={() => { setActiveTab(tab); setFilterStatus('ALL'); setSearchQuery(''); }}
+                                className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase transition-all ${
+                                    activeTab === tab ? 'bg-white text-blue-600 shadow-md' : 'text-gray-400 hover:text-gray-600'
+                                }`}
+                            >
+                                {tab}
+                            </button>
+                        ))}
                     </div>
                 </div>
             </div>
 
-            {/* Stats Overview */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {statCards.map((card, idx) => (
-                    <motion.div 
-                        key={idx}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: idx * 0.1 }}
-                        className="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-xl shadow-gray-200/50 flex items-center gap-5"
-                    >
-                        <div className={`${card.color} p-4 rounded-2xl text-white shadow-lg`}>
-                            <card.icon className="w-6 h-6" />
-                        </div>
-                        <div>
-                            <div className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">{card.label}</div>
-                            <div className="text-2xl font-black text-gray-900">{card.value}</div>
-                        </div>
-                    </motion.div>
-                ))}
-            </div>
-
-            {/* Navigation Tabs */}
-            <div className="flex items-center gap-2 p-1.5 bg-gray-100 rounded-2xl w-fit">
-                {(['OVERVIEW', 'REQUESTS', 'SCHOOLS', 'USERS'] as const).map(tab => (
-                    <button
-                        key={tab}
-                        onClick={() => { setActiveTab(tab); setFilterStatus('ALL'); setSearchQuery(''); }}
-                        className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase transition-all ${
-                            activeTab === tab ? 'bg-white text-blue-600 shadow-md' : 'text-gray-400 hover:text-gray-600'
-                        }`}
-                    >
-                        {tab}
-                    </button>
-                ))}
-            </div>
-
             {activeTab === 'OVERVIEW' && (
-                <>
+                <div className="space-y-8">
                     {/* Stats Overview */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                         {statCards.map((card, idx) => (
-                            <motion.div 
+                            <motion.div
                                 key={idx}
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
@@ -269,25 +316,106 @@ export default function AdminDashboard() {
                                 </div>
                                 <div>
                                     <div className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-1">{card.label}</div>
-                                    <div className="text-3xl font-black text-gray-900 font-display">{card.value}</div>
+                                    <div className="flex items-end gap-2">
+                                        <div className="text-3xl font-black text-gray-900 font-display">{card.value}</div>
+                                        <div className="flex items-center text-[10px] font-bold text-emerald-500 mb-1.5">
+                                            <ArrowUpRight className="w-3 h-3" /> 12%
+                                        </div>
+                                    </div>
                                 </div>
                             </motion.div>
                         ))}
                     </div>
 
-                    {/* Quick Charts Placeholder */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <div className="bg-white/60 backdrop-blur-md p-10 rounded-[3rem] border border-white/50 shadow-2xl shadow-gray-200/20 h-96 flex flex-col items-center justify-center text-center space-y-4">
-                            <TrendingUp className="w-12 h-12 text-blue-100" />
-                            <div className="text-xl font-black text-gray-300">Growth Projections</div>
+                    {/* Advanced Analytics */}
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        <div className="lg:col-span-2 bg-white/60 backdrop-blur-md p-10 rounded-[3rem] border border-white/50 shadow-2xl shadow-gray-200/30">
+                            <div className="flex items-center justify-between mb-10">
+                                <div>
+                                    <h3 className="text-xl font-black text-gray-900 font-display">Donation Trends</h3>
+                                    <p className="text-xs text-gray-400 font-bold uppercase tracking-widest mt-1">Growth over last 6 months</p>
+                                </div>
+                                <div className="flex gap-2">
+                                    <div className="flex items-center gap-2 px-3 py-1 bg-rose-50 rounded-lg">
+                                        <div className="w-2 h-2 bg-rose-600 rounded-full" />
+                                        <span className="text-[10px] font-black text-rose-600 uppercase">Donations</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 px-3 py-1 bg-blue-50 rounded-lg">
+                                        <div className="w-2 h-2 bg-blue-600 rounded-full" />
+                                        <span className="text-[10px] font-black text-blue-600 uppercase">Impact</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="h-80 w-full">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <AreaChart data={chartData}>
+                                        <defs>
+                                            <linearGradient id="colorDonations" x1="0" y1="0" x2="0" y2="1">
+                                                <stop offset="5%" stopColor="#e11d48" stopOpacity={0.1}/>
+                                                <stop offset="95%" stopColor="#e11d48" stopOpacity={0}/>
+                                            </linearGradient>
+                                            <linearGradient id="colorImpact" x1="0" y1="0" x2="0" y2="1">
+                                                <stop offset="5%" stopColor="#2563eb" stopOpacity={0.1}/>
+                                                <stop offset="95%" stopColor="#2563eb" stopOpacity={0}/>
+                                            </linearGradient>
+                                        </defs>
+                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                                        <XAxis
+                                            dataKey="name"
+                                            axisLine={false}
+                                            tickLine={false}
+                                            tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 900 }}
+                                            dy={10}
+                                        />
+                                        <YAxis hide />
+                                        <Tooltip
+                                            contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)', padding: '12px' }}
+                                            itemStyle={{ fontSize: '10px', fontWeight: 900, textTransform: 'uppercase' }}
+                                        />
+                                        <Area type="monotone" dataKey="donations" stroke="#e11d48" strokeWidth={3} fillOpacity={1} fill="url(#colorDonations)" />
+                                        <Area type="monotone" dataKey="impact" stroke="#2563eb" strokeWidth={3} fillOpacity={1} fill="url(#colorImpact)" />
+                                    </AreaChart>
+                                </ResponsiveContainer>
+                            </div>
                         </div>
-                        <div className="bg-white/60 backdrop-blur-md p-10 rounded-[3rem] border border-white/50 shadow-2xl shadow-gray-200/20 h-96 flex flex-col items-center justify-center text-center space-y-4">
-                            <BarChart3 className="w-12 h-12 text-emerald-100" />
-                            <div className="text-xl font-black text-gray-300">Regional Distribution</div>
+
+                        <div className="bg-white/60 backdrop-blur-md p-10 rounded-[3rem] border border-white/50 shadow-2xl shadow-gray-200/30 flex flex-col">
+                            <h3 className="text-xl font-black text-gray-900 font-display mb-1">State Reach</h3>
+                            <p className="text-xs text-gray-400 font-bold uppercase tracking-widest mt-1 mb-8">Top performing regions</p>
+                            <div className="flex-1 flex items-center justify-center">
+                                <ResponsiveContainer width="100%" height={250}>
+                                    <PieChart>
+                                        <Pie
+                                            data={regionalData}
+                                            innerRadius={60}
+                                            outerRadius={80}
+                                            paddingAngle={8}
+                                            dataKey="value"
+                                        >
+                                            {regionalData.map((entry, index) => (
+                                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                            ))}
+                                        </Pie>
+                                        <Tooltip />
+                                    </PieChart>
+                                </ResponsiveContainer>
+                            </div>
+                            <div className="space-y-4 pt-4">
+                                {regionalData.map((item, i) => (
+                                    <div key={i} className="flex items-center justify-between">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: COLORS[i] }} />
+                                            <span className="text-[10px] font-bold text-gray-600 uppercase tracking-widest">{item.name}</span>
+                                        </div>
+                                        <span className="text-sm font-black text-gray-900">{item.value}%</span>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     </div>
-                </>
+                </div>
             )}
+
 
             {/* Supply Tracker / Data Tables */}
             {(activeTab === 'REQUESTS' || activeTab === 'SCHOOLS' || activeTab === 'USERS') && (
