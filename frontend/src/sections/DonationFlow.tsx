@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useDonation } from '../context/DonationContext'
 import { useAuth } from '../context/AuthContext'
+import { useNavigate } from 'react-router-dom'
 import { Search, MapPin, Calendar, ListChecks, Truck, CheckCircle, ChevronRight, ChevronLeft, Phone, CreditCard } from 'lucide-react'
 
 interface School {
@@ -23,6 +24,7 @@ interface Supplier {
 export default function DonationFlow() {
     const { apiBaseUrl } = useDonation()
     const { isAuthenticated, user } = useAuth()
+    const navigate = useNavigate()
     
     // Discovery State
     const [schools, setSchools] = useState<School[]>([])
@@ -162,7 +164,9 @@ export default function DonationFlow() {
 
     const handleSubmit = async () => {
         if (!isAuthenticated) {
-            alert('Please login to finalize your donation request.')
+            // Store current path to redirect back after login? 
+            // For now, simple redirect to login
+            navigate('/login')
             return
         }
 
