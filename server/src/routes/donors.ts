@@ -28,11 +28,15 @@ router.get('/admin/db-diagnostic', async (req, res) => {
         const roles = await prisma.user.groupBy({ by: ['role'], _count: { _all: true } });
         const states = await prisma.user.groupBy({ by: ['state'], _count: { _all: true } });
         const sampleUsers = await prisma.user.findMany({ 
-            take: 10,
+            take: 20,
+            where: { role: Role.SUPPLIER },
             select: { id: true, name: true, role: true, state: true, email: true, nin: true, isActive: true }
         });
         
-        res.json({ roles, states, sampleUsers });
+        const inactiveCount = await prisma.user.count({ where: { role: Role.SUPPLIER, isActive: false } });
+        const activeCount = await prisma.user.count({ where: { role: Role.SUPPLIER, isActive: true } });
+
+        res.json({ roles, states, sampleSuppliers: sampleUsers, stats: { activeSuppliers: activeCount, inactiveSuppliers: inactiveCount } });
     } catch (error) {
         res.status(500).json({ success: false, error: String(error) });
     }
