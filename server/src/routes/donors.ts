@@ -5,6 +5,9 @@ import { PrismaClient, Role } from '@prisma/client'
 const prisma = new PrismaClient()
 const router = Router()
 
+// HELPER: Normalize state string for matching
+const normalizeState = (s: string) => s ? s.toUpperCase().replace(/-/g, ' ').trim() : ''
+
 // TEMPORARY: Reset all supplier passwords to 'password123'
 router.post('/admin/reset-supplier-passwords', async (req, res) => {
     const { secret } = req.body;
@@ -22,11 +25,32 @@ router.post('/admin/reset-supplier-passwords', async (req, res) => {
     }
 });
 
+// TEMPORARY: Reset all donor passwords to 'password123'
+router.post('/admin/reset-donor-passwords', async (req, res) => {
+    const { secret } = req.body;
+    if (secret !== 'snacks-reset-2026') return res.status(403).json({ error: 'Unauthorized' });
+
+    try {
+        const passwordHash = await bcrypt.hash('password123', 10);
+        const result = await prisma.user.updateMany({
+            where: { role: Role.DONOR },
+            data: { passwordHash }
+        });
+        res.json({ success: true, message: `Reset ${result.count} donor passwords to "password123"` });
+    } catch (error) {
+        res.status(500).json({ success: false, error: String(error) });
+    }
+});
+
 // TEMPORARY: Diagnostic endpoint to see DB state
 router.get('/admin/db-diagnostic', async (req, res) => {
     try {
         const roles = await prisma.user.groupBy({ by: ['role'], _count: { _all: true } });
-        const states = await prisma.user.groupBy({ by: ['state'], _count: { _all: true } });
+        
+        // Detailed state list
+        const userStates = await prisma.user.groupBy({ by: ['state'], _count: { _all: true } });
+        const schoolStates = await prisma.school.groupBy({ by: ['state'], _count: { _all: true } });
+        
         const sampleUsers = await prisma.user.findMany({ 
             take: 20,
             where: { role: Role.SUPPLIER },
@@ -36,13 +60,12 @@ router.get('/admin/db-diagnostic', async (req, res) => {
         const inactiveCount = await prisma.user.count({ where: { role: Role.SUPPLIER, isActive: false } });
         const activeCount = await prisma.user.count({ where: { role: Role.SUPPLIER, isActive: true } });
 
-        const schoolStates = await prisma.school.groupBy({ by: ['state'], _count: { _all: true } });
         const sampleSchools = await prisma.school.findMany({ take: 5, select: { id: true, name: true, state: true } });
 
         res.json({ 
             roles, 
-            userStates: states, 
-            schoolStates,
+            userStates: userStates.sort((a, b) => (a.state || '').localeCompare(b.state || '')),
+            schoolStates: schoolStates.sort((a, b) => (a.state || '').localeCompare(b.state || '')),
             sampleSuppliers: sampleUsers, 
             sampleSchools,
             stats: { activeSuppliers: activeCount, inactiveSuppliers: inactiveCount } 
@@ -61,21 +84,11 @@ router.get('/test', (req, res) => {
 router.get('/suppliers/:state', async (req, res) => {
     try {
         const { state } = req.params
-        console.log(`[DIAGNOSTIC] Fetching suppliers for state: "${state}"`)
+        const normState = normalizeState(state)
+        console.log(`[DIAGNOSTIC] Fetching suppliers for state: "${state}" (Normalized: "${normState}")`)
         
-        // Log all roles in the DB for debugging
-        const allRoles = await prisma.user.groupBy({
-            by: ['role'],
-            _count: { _all: true }
-        })
-        console.log(`[DIAGNOSTIC] Current roles in DB:`, JSON.stringify(allRoles))
-
         const users = await prisma.user.findMany({
             where: {
-                state: {
-                    equals: state,
-                    mode: 'insensitive'
-                },
                 isActive: true,
                 role: Role.SUPPLIER
             },
@@ -91,16 +104,13 @@ router.get('/suppliers/:state', async (req, res) => {
             }
         })
         
-        console.log(`[DIAGNOSTIC] Found ${users.length} suppliers matching state "${state}" and role "SUPPLIER"`)
-        if (users.length === 0) {
-            // Check if there are any suppliers in OTHER states
-            const otherSuppliers = await prisma.user.count({
-                where: { role: Role.SUPPLIER, isActive: true }
-            })
-            console.log(`[DIAGNOSTIC] Total active suppliers in entire DB: ${otherSuppliers}`)
-        }
+        // Manual filter to handle DB variations if Prisma 
+        // string normalization isn't sufficient or consistent
+        const filteredUsers = users.filter(u => normalizeState(u.state || '') === normState)
 
-        res.json({ success: true, data: users })
+        console.log(`[DIAGNOSTIC] Found ${filteredUsers.length} suppliers matching state "${normState}" and role "SUPPLIER"`)
+        
+        res.json({ success: true, data: filteredUsers })
     } catch (error) {
         console.error('[DIAGNOSTIC] Error fetching suppliers:', error)
         res.status(500).json({ success: false, error: 'Failed to fetch suppliers' })
