@@ -123,12 +123,10 @@ router.get('/suppliers/:state', async (req, res) => {
     }
 })
 
-// @route   POST /api/donors/request
-// @desc    Initiate a new supply request for a school
-router.post('/request', async (req, res) => {
+router.post('/request', authenticateToken, async (req: any, res) => {
     try {
-        const { donorId, schoolId, supplierId, academicPeriod, supplyDate, items } = req.body
-        const userId = (req as any).user?.id || donorId
+        const { schoolId, supplierId, academicPeriod, supplyDate, items } = req.body
+        const userId = req.user?.id
 
         if (!userId) return res.status(401).json({ error: 'Please log in to confirm your donation.' })
 
