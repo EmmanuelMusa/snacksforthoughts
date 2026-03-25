@@ -10,6 +10,7 @@ export default function HomePage() {
             <Hero />
             <HowItWorks />
             <DonationFlow />
+            <PresidentialSection />
         </>
     )
 }

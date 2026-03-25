@@ -84,13 +84,6 @@ export default function PresidentialSection() {
                                 </div>
                             </div>
                         </div>
-
-                        <div className="mt-12 pt-8 border-t border-gray-100">
-                            <div className="flex items-center gap-12">
-                                <img src="/images/Nigeria Logo.jpeg" alt="Government Seal" className="h-12 w-auto opacity-70" />
-                                <img src="/images/NSIPA Logo.jpeg" alt="NSIPA Seal" className="h-12 w-auto opacity-70" />
-                            </div>
-                        </div>
                     </motion.div>
                 </div>
             </div>

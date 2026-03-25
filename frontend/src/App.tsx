@@ -286,10 +286,10 @@ function Navbar() {
 
 function App() {
   const location = useLocation()
+  const isDashboard = location.pathname.startsWith('/dashboard') || location.pathname.startsWith('/admin');
   const isNavbarHidden = location.pathname === '/' || 
                          ['/login', '/register'].includes(location.pathname) || 
-                         location.pathname.startsWith('/dashboard') || 
-                         location.pathname.startsWith('/admin');
+                         isDashboard;
 
   return (
     <div className="min-h-dvh flex flex-col">
@@ -297,7 +297,7 @@ function App() {
       <main className={`flex-1 ${isNavbarHidden ? '' : 'pt-16'}`}>
         <Outlet />
       </main>
-      <Footer />
+      {!isDashboard && <Footer />}
     </div>
   )
 }

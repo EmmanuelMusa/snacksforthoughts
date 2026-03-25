@@ -57,9 +57,12 @@ const router = createBrowserRouter([
   // Admin routes with separate layout
   {
     path: '/admin',
+    element: <AdminDashboard />,
+  },
+  {
+    path: '/admin-panel',
     element: <AdminLayout />,
     children: [
-      { index: true, element: <AdminDashboard /> },
       { path: 'weeks', element: <WeeksManagement /> },
       { path: 'suppliers', element: <SuppliersManagement /> },
       { path: 'donations', element: <DonationsOverview /> },
