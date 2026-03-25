@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect, JSX } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useDonation } from '../context/DonationContext'
 import { useAuth } from '../context/AuthContext'
@@ -21,11 +21,28 @@ interface Supplier {
     contactInfo: any
 }
 
-export default function DonationFlow() {
+interface DonationItem {
+    name: string
+    price: number
+    selected: boolean
+}
+
+export default function DonationFlow(): JSX.Element {
     const { apiBaseUrl } = useDonation()
     const { isAuthenticated, user } = useAuth()
     const navigate = useNavigate()
-    
+
+    // Load initial data from sessionStorage
+    const savedData = (() => {
+        const saved = sessionStorage.getItem('donation_flow_data')
+        if (!saved) return null
+        try {
+            return JSON.parse(saved)
+        } catch (e) {
+            return null
+        }
+    })()
+
     // Discovery State
     const [schools, setSchools] = useState<School[]>([])
     const [states, setStates] = useState<string[]>([])
@@ -36,25 +53,46 @@ export default function DonationFlow() {
     const [loading, setLoading] = useState(false)
 
     // Wizard State
-    const [selectedSchool, setSelectedSchool] = useState<School | null>(null)
-    const [step, setStep] = useState(0) // 0: School Selection, 1: Period, 2: Items, 3: Supplier, 4: Confirm
+    const [selectedSchool, setSelectedSchool] = useState<School | null>(savedData?.selectedSchool || null)
+    const [step, setStep] = useState(savedData?.step || 0) // 0: School Selection, 1: Period, 2: Items, 3: Supplier, 4: Confirm
     const [suppliers, setSuppliers] = useState<Supplier[]>([])
-    
+
     // Form Data
-    const [academicPeriod, setAcademicPeriod] = useState('Term 3, 2026')
-    const [startDate, setStartDate] = useState('')
-    const [endDate, setEndDate] = useState('')
+    const [academicPeriod, setAcademicPeriod] = useState(savedData?.academicPeriod || 'Term 3, 2026')
+    const [startDate, setStartDate] = useState(savedData?.startDate || '')
+    const [endDate, setEndDate] = useState(savedData?.endDate || '')
     const [totalDays, setTotalDays] = useState(0)
-    
-    const [items, setItems] = useState([
+
+    const [items, setItems] = useState<DonationItem[]>(savedData?.items || [
         { name: 'Biscuit', price: 300, selected: false },
         { name: 'Juice', price: 500, selected: false },
         { name: 'Yogurt', price: 450, selected: false },
         { name: 'Fura', price: 250, selected: false }
     ])
-    const [selectedSupplierId, setSelectedSupplierId] = useState('')
+    const [selectedSupplierId, setSelectedSupplierId] = useState(savedData?.selectedSupplierId || '')
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [isSuccess, setIsSuccess] = useState(false)
+
+    // Save state to sessionStorage on change
+    useEffect(() => {
+        const flowData = {
+            selectedSchool,
+            step,
+            items,
+            academicPeriod,
+            startDate,
+            endDate,
+            selectedSupplierId
+        }
+        sessionStorage.setItem('donation_flow_data', JSON.stringify(flowData))
+    }, [selectedSchool, step, items, academicPeriod, startDate, endDate, selectedSupplierId])
+
+    // Restore suppliers if needed on mount
+    useEffect(() => {
+        if (step >= 3 && selectedSchool) {
+            fetchSuppliers(selectedSchool.state)
+        }
+    }, [])
 
     // Calculate business days between dates
     useEffect(() => {
@@ -136,9 +174,9 @@ export default function DonationFlow() {
 
     const fetchSuppliers = (state: string) => {
         if (!state) return
-        setSuppliers([]) 
+        setSuppliers([])
         setLoading(true)
-        
+
         const stateParam = encodeURIComponent(state)
         fetch(`${apiBaseUrl}/api/donors/suppliers/${stateParam}`)
             .then(res => res.json())
@@ -160,13 +198,15 @@ export default function DonationFlow() {
         }
         setStep(next)
     }
-    const prevStep = () => setStep(s => s - 1)
+    const prevStep = () => setStep((s: number) => s - 1)
 
     const handleSubmit = async () => {
-        console.log('[DEBUG] handleSubmit clicked. isAuthenticated:', isAuthenticated)
-        if (!isAuthenticated) {
-            console.log('[DEBUG] Not authenticated, redirecting to /login')
-            navigate('/login')
+        const currentToken = localStorage.getItem('token')
+        console.log('[DEBUG] handleSubmit clicked. isAuthenticated (context):', isAuthenticated, 'Token (localStorage):', !!currentToken)
+
+        if (!isAuthenticated && !currentToken) {
+            console.log('[DEBUG] No authentication found, redirecting to /login?redirect=donation')
+            navigate('/login?redirect=donation')
             return
         }
 
@@ -184,7 +224,7 @@ export default function DonationFlow() {
                     supplierId: selectedSupplierId,
                     academicPeriod,
                     supplyDate: startDate + (endDate ? ` to ${endDate}` : ''),
-                    items: items.filter(i => i.selected).map(i => ({
+                    items: items.filter((i: { selected: any }) => i.selected).map((i: { name: any; price: number }) => ({
                         name: i.name,
                         price: i.price,
                         totalCost: i.price * (selectedSchool?.studentCount || 1) * totalDays
@@ -194,6 +234,7 @@ export default function DonationFlow() {
 
             if (res.ok) {
                 setIsSuccess(true)
+                sessionStorage.removeItem('donation_flow_data')
             } else {
                 const err = await res.json()
                 alert(err.error || 'Failed to submit request')
@@ -210,11 +251,11 @@ export default function DonationFlow() {
     return (
         <section id="donation-flow" className="relative py-24 bg-gradient-to-b from-gray-50/50 via-white to-gray-50/50 overflow-hidden min-h-screen">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                
+
                 {/* Header Phase */}
                 <AnimatePresence mode="wait">
                     {step === 0 ? (
-                        <motion.div 
+                        <motion.div
                             key="discovery"
                             initial={{ opacity: 0, scale: 0.98 }}
                             animate={{ opacity: 1, scale: 1 }}
@@ -227,8 +268,8 @@ export default function DonationFlow() {
                                 <div className="relative bg-white p-2 rounded-[3rem] shadow-2xl flex flex-col md:flex-row items-center gap-2 border border-gray-100/50 backdrop-blur-xl">
                                     <div className="relative flex-1 w-full">
                                         <Search className="absolute left-8 top-1/2 -translate-y-1/2 text-blue-600/50 w-6 h-6" />
-                                        <input 
-                                            type="text" 
+                                        <input
+                                            type="text"
                                             placeholder="Which school do you want to impact today?"
                                             className="w-full pl-16 pr-8 py-6 rounded-[2.5rem] bg-gray-50/50 border-none focus:bg-white focus:ring-0 transition-all font-semibold text-lg text-gray-900 placeholder:text-gray-400"
                                             value={searchQuery}
@@ -239,7 +280,7 @@ export default function DonationFlow() {
                                     <div className="flex items-center gap-2 p-2 w-full md:w-auto">
                                         <div className="relative flex-1 md:w-40">
                                             <MapPin className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4 pointer-events-none" />
-                                            <select 
+                                            <select
                                                 className="w-full pl-12 pr-6 py-5 rounded-[2rem] bg-gray-50 border-none focus:ring-2 focus:ring-blue-500/20 font-bold text-gray-700 text-sm appearance-none cursor-pointer hover:bg-white transition-colors"
                                                 value={selectedState}
                                                 onChange={(e) => setSelectedState(e.target.value)}
@@ -250,7 +291,7 @@ export default function DonationFlow() {
                                         </div>
                                         <div className="relative flex-1 md:w-40">
                                             <MapPin className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4 pointer-events-none" />
-                                            <select 
+                                            <select
                                                 className="w-full pl-12 pr-6 py-5 rounded-[2rem] bg-gray-50 border-none focus:ring-2 focus:ring-blue-500/20 font-bold text-gray-700 text-sm appearance-none cursor-pointer hover:bg-white transition-colors"
                                                 value={selectedLga}
                                                 onChange={(e) => setSelectedLga(e.target.value)}
@@ -260,7 +301,7 @@ export default function DonationFlow() {
                                                 {lgas.map(l => <option key={l} value={l}>{l}</option>)}
                                             </select>
                                         </div>
-                                        <button 
+                                        <button
                                             onClick={handleSearch}
                                             className="px-10 py-5 bg-blue-600 text-white font-black text-lg rounded-[2rem] hover:bg-blue-700 hover:shadow-xl hover:shadow-blue-600/20 transition-all transform hover:scale-[1.02] active:scale-95 flex items-center gap-3"
                                         >
@@ -297,7 +338,7 @@ export default function DonationFlow() {
                                 ) : (
                                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
                                         {schools.map((school) => (
-                                            <motion.div 
+                                            <motion.div
                                                 key={school.id}
                                                 whileHover={{ y: -15, scale: 1.02 }}
                                                 className="group relative bg-white rounded-[3rem] border border-gray-100 overflow-hidden shadow-2xl shadow-gray-200/50 transition-all duration-500"
@@ -312,13 +353,13 @@ export default function DonationFlow() {
 
                                                 {/* Image Container */}
                                                 <div className="h-64 relative overflow-hidden">
-                                                    <img 
-                                                        src={school.image || '/images/a_school_in_nigeria.jpeg'} 
+                                                    <img
+                                                        src={school.image || '/images/a_school_in_nigeria.jpeg'}
                                                         alt={school.name}
                                                         className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
                                                     />
                                                     <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/20 to-transparent opacity-80" />
-                                                    
+
                                                     {/* Location Overlay */}
                                                     <div className="absolute bottom-6 left-8 right-8">
                                                         <div className="flex items-center gap-2 text-blue-300 text-[10px] font-black uppercase tracking-[0.2em] mb-2">
@@ -343,7 +384,7 @@ export default function DonationFlow() {
                                                         </div>
                                                     </div>
 
-                                                    <button 
+                                                    <button
                                                         onClick={() => selectSchool(school)}
                                                         className="w-full relative group/btn py-4 px-6 bg-gradient-to-r from-gray-900 to-gray-800 rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-gray-200 hover:-translate-y-1"
                                                     >
@@ -373,7 +414,7 @@ export default function DonationFlow() {
                             </div>
                         </motion.div>
                     ) : (
-                        <motion.div 
+                        <motion.div
                             key="wizard"
                             initial={{ opacity: 0, x: 50 }}
                             animate={{ opacity: 1, x: 0 }}
@@ -384,11 +425,10 @@ export default function DonationFlow() {
                             <div className="flex items-center justify-between mb-12 relative">
                                 <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-gray-100 -z-10" />
                                 {[1, 2, 3, 4].map((i) => (
-                                    <div 
+                                    <div
                                         key={i}
-                                        className={`w-12 h-12 rounded-full flex items-center justify-center font-black transition-all ${
-                                            step >= i ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'bg-white border-2 border-gray-100 text-gray-300'
-                                        }`}
+                                        className={`w-12 h-12 rounded-full flex items-center justify-center font-black transition-all ${step >= i ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'bg-white border-2 border-gray-100 text-gray-300'
+                                            }`}
                                     >
                                         {step > i ? <CheckCircle className="w-6 h-6" /> : i}
                                     </div>
@@ -397,7 +437,7 @@ export default function DonationFlow() {
 
                             {/* Wizard Steps */}
                             <div className="bg-white p-8 md:p-12 rounded-[3rem] border border-gray-100 shadow-2xl shadow-blue-900/5 min-h-[500px] flex flex-col">
-                                
+
                                 {isSuccess ? (
                                     <div className="flex-1 flex flex-col items-center justify-center text-center space-y-6">
                                         <div className="w-24 h-24 bg-green-100 text-green-600 rounded-full flex items-center justify-center">
@@ -407,7 +447,7 @@ export default function DonationFlow() {
                                         <p className="text-gray-500 font-medium max-w-sm">
                                             Thank you! Please ensure you complete the payment to the supplier directly using the details provided. Track your status in your dashboard.
                                         </p>
-                                        <button 
+                                        <button
                                             onClick={() => window.location.href = '/dashboard/donor'}
                                             className="px-10 py-4 bg-gray-900 text-white font-bold rounded-2xl hover:bg-gray-800 transition-all"
                                         >
@@ -426,12 +466,11 @@ export default function DonationFlow() {
                                                 <p className="text-gray-500 font-medium">When do you want this supply to be delivered to {selectedSchool?.name}?</p>
                                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                                     {['Term 3, 2026', 'Term 1, 2026', 'Term 2, 2027'].map(p => (
-                                                        <button 
+                                                        <button
                                                             key={p}
                                                             onClick={() => setAcademicPeriod(p)}
-                                                            className={`p-6 rounded-2xl border-2 text-left transition-all ${
-                                                                academicPeriod === p ? 'border-[#00A859] bg-green-50/50 shadow-lg shadow-green-600/10' : 'border-gray-50 bg-gray-50 hover:border-gray-200'
-                                                            }`}
+                                                            className={`p-6 rounded-2xl border-2 text-left transition-all ${academicPeriod === p ? 'border-[#00A859] bg-green-50/50 shadow-lg shadow-green-600/10' : 'border-gray-50 bg-gray-50 hover:border-gray-200'
+                                                                }`}
                                                         >
                                                             <div className={`text-lg font-bold ${academicPeriod === p ? 'text-green-700' : 'text-gray-700'}`}>{p}</div>
                                                             <div className="text-xs text-gray-400 mt-1 uppercase font-black tracking-widest">Active Academic Period</div>
@@ -445,8 +484,8 @@ export default function DonationFlow() {
                                                             <Calendar className="w-5 h-5 text-blue-600" />
                                                             <span className="font-bold text-gray-900 text-sm italic">Start Date</span>
                                                         </div>
-                                                        <input 
-                                                            type="date" 
+                                                        <input
+                                                            type="date"
                                                             value={startDate}
                                                             onChange={(e) => setStartDate(e.target.value)}
                                                             className="w-full px-6 py-4 rounded-2xl border-none focus:ring-2 focus:ring-blue-500 font-bold text-gray-700"
@@ -457,8 +496,8 @@ export default function DonationFlow() {
                                                             <Calendar className="w-5 h-5 text-blue-600" />
                                                             <span className="font-bold text-gray-900 text-sm italic">End Date (Optional for Range)</span>
                                                         </div>
-                                                        <input 
-                                                            type="date" 
+                                                        <input
+                                                            type="date"
                                                             value={endDate}
                                                             onChange={(e) => setEndDate(e.target.value)}
                                                             className="w-full px-6 py-4 rounded-2xl border-none focus:ring-2 focus:ring-blue-500 font-bold text-gray-700"
@@ -468,7 +507,7 @@ export default function DonationFlow() {
                                                 </div>
 
                                                 {totalDays > 0 && (
-                                                    <motion.div 
+                                                    <motion.div
                                                         initial={{ opacity: 0, scale: 0.95 }}
                                                         animate={{ opacity: 1, scale: 1 }}
                                                         className="p-4 bg-green-600 text-white rounded-2xl text-center font-black uppercase tracking-widest text-xs"
@@ -491,18 +530,17 @@ export default function DonationFlow() {
                                                     {items.map((item, idx) => {
                                                         const itemTotal = item.price * (selectedSchool?.studentCount || 200) * totalDays
                                                         return (
-                                                            <button 
-                                                                key={item.name} 
+                                                            <button
+                                                                key={item.name}
                                                                 onClick={() => {
                                                                     const newItems = [...items]
                                                                     newItems[idx].selected = !newItems[idx].selected
                                                                     setItems(newItems)
                                                                 }}
-                                                                className={`w-full flex items-center justify-between p-6 rounded-[2rem] border-2 transition-all ${
-                                                                    item.selected 
-                                                                        ? 'bg-blue-600 border-blue-600 text-white shadow-xl shadow-blue-600/20' 
+                                                                className={`w-full flex items-center justify-between p-6 rounded-[2rem] border-2 transition-all ${item.selected
+                                                                        ? 'bg-blue-600 border-blue-600 text-white shadow-xl shadow-blue-600/20'
                                                                         : 'bg-white border-gray-100 text-gray-900 hover:border-blue-200'
-                                                                }`}
+                                                                    }`}
                                                             >
                                                                 <div className="flex items-center gap-4">
                                                                     <div className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-colors ${item.selected ? 'bg-white border-white text-blue-600' : 'border-gray-200 text-transparent'}`}>
@@ -539,12 +577,11 @@ export default function DonationFlow() {
                                                         </div>
                                                     ) : (
                                                         suppliers.map(s => (
-                                                            <button 
+                                                            <button
                                                                 key={s.id}
                                                                 onClick={() => setSelectedSupplierId(s.id)}
-                                                                className={`p-6 rounded-2xl border-2 text-left transition-all flex items-center justify-between ${
-                                                                    selectedSupplierId === s.id ? 'border-emerald-600 bg-emerald-50/50 shadow-lg shadow-emerald-600/10' : 'border-gray-50 bg-gray-50 hover:border-gray-200'
-                                                                }`}
+                                                                className={`p-6 rounded-2xl border-2 text-left transition-all flex items-center justify-between ${selectedSupplierId === s.id ? 'border-emerald-600 bg-emerald-50/50 shadow-lg shadow-emerald-600/10' : 'border-gray-50 bg-gray-50 hover:border-gray-200'
+                                                                    }`}
                                                             >
                                                                 <div>
                                                                     <div className={`text-lg font-bold ${selectedSupplierId === s.id ? 'text-emerald-700' : 'text-gray-700'}`}>{s.companyName}</div>
@@ -567,7 +604,7 @@ export default function DonationFlow() {
                                                     <CreditCard className="w-8 h-8" />
                                                     <h3 className="text-3xl font-black text-gray-900 font-display">Payment & Confirmation</h3>
                                                 </div>
-                                                
+
                                                 <div className="bg-orange-50 p-6 rounded-3xl border border-orange-100">
                                                     <p className="text-orange-900 text-sm font-bold leading-relaxed">
                                                         [!IMPORTANT] All payments are made directly to the supplier. We do not process payments on the site. Please use the verified details below.
@@ -622,20 +659,20 @@ export default function DonationFlow() {
 
                                         {/* Step Controls */}
                                         <div className="mt-auto pt-12 flex items-center justify-between border-t border-gray-100">
-                                            <button 
+                                            <button
                                                 onClick={step === 1 ? () => { setStep(0); setSelectedSchool(null); } : prevStep}
                                                 className="px-8 py-4 bg-gray-50 text-gray-400 font-bold rounded-2xl hover:text-gray-600 transition-all flex items-center gap-2"
                                             >
                                                 <ChevronLeft className="w-5 h-5" />
                                                 Back
                                             </button>
-                                            
+
                                             {step < 4 ? (
-                                                <button 
+                                                <button
                                                     onClick={nextStep}
                                                     disabled={
                                                         (step === 1 && !startDate) ||
-                                                        (step === 2 && items.every(i => !i.selected)) ||
+                                                        (step === 2 && items.every((i: { selected: any }) => !i.selected)) ||
                                                         (step === 3 && !selectedSupplierId)
                                                     }
                                                     className="px-10 py-5 bg-blue-600 text-white font-black rounded-2xl hover:bg-blue-700 transition-all shadow-xl shadow-blue-600/20 disabled:opacity-50 flex items-center gap-2"
@@ -644,7 +681,7 @@ export default function DonationFlow() {
                                                     <ChevronRight className="w-5 h-5" />
                                                 </button>
                                             ) : (
-                                                <button 
+                                                <button
                                                     onClick={handleSubmit}
                                                     disabled={isSubmitting}
                                                     className="px-12 py-5 bg-yellow-400 text-gray-900 font-black rounded-2xl hover:bg-yellow-300 transition-all shadow-xl shadow-yellow-400/30 active:scale-95 flex items-center gap-2"
