@@ -6,7 +6,12 @@ const prisma = new PrismaClient()
 const router = Router()
 
 // HELPER: Normalize state string for matching
-const normalizeState = (s: string) => s ? s.toUpperCase().replace(/-/g, ' ').trim() : ''
+const normalizeState = (s: string) => {
+    if (!s) return '';
+    let norm = s.toUpperCase().replace(/-/g, ' ').trim();
+    if (norm === 'FCT' || norm === 'ABUJA' || norm === 'FCT ABUJA') return 'FCT ABUJA';
+    return norm;
+}
 
 // TEMPORARY: Reset all supplier passwords to 'password123'
 router.post('/admin/reset-supplier-passwords', async (req, res) => {
@@ -142,6 +147,38 @@ router.post('/request', async (req, res) => {
     } catch (error) {
         console.error('Error creating supply request:', error)
         res.status(500).json({ error: 'Failed to create supply request' })
+    }
+})
+
+// @route   GET /api/donors/requests
+// @desc    Get all supply requests for the current donor
+router.get('/requests', async (req, res) => {
+    try {
+        const userId = (req as any).user?.id || req.headers['x-user-id']
+        if (!userId) return res.status(401).json({ error: 'Unauthorized' })
+
+        const requests = await (prisma as any).supplyRequest.findMany({
+            where: { donorId: userId },
+            include: {
+                school: { select: { name: true, state: true } },
+                supplier: { select: { companyName: true, contactInfo: true } }
+            },
+            orderBy: { createdAt: 'desc' }
+        })
+
+        // Format to match frontend expectations if necessary
+        const formatted = requests.map((r: any) => ({
+            ...r,
+            supplier: {
+                companyName: r.supplier?.companyName,
+                phone: r.supplier?.contactInfo?.phone
+            }
+        }))
+
+        res.json(formatted)
+    } catch (error) {
+        console.error('Error fetching donor requests:', error)
+        res.status(500).json({ error: 'Failed to fetch donor requests' })
     }
 })
 
