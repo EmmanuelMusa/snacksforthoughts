@@ -58,7 +58,7 @@ router.get('/admin/overview', authenticateToken, requireRole(['ADMIN']), async (
             prisma.supplyRequest.count({ 
                 where: { 
                     status: { 
-                        in: ['PAYMENT_CONFIRMED', 'ADMIN_APPROVED', 'SUPPLIER_ALLOCATED', 'DISPATCHED'] 
+                        in: ['PAYMENT_CONFIRMED', 'ADMIN_APPROVED', 'SUPPLIER_ALLOCATED', 'DISPATCHED'] as any
                     } 
                 } 
             }),
