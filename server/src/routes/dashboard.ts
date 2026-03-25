@@ -39,8 +39,8 @@ router.get('/admin/overview', authenticateToken, requireRole(['ADMIN']), async (
             verifiedSuppliers,
             totalDonors,
             pupilStats,
-            statesData,
-            lgasData,
+            distinctStates,
+            distinctLGAs,
             deliveredRequests,
             pendingRequests,
             sponsorshipDays,
@@ -52,8 +52,8 @@ router.get('/admin/overview', authenticateToken, requireRole(['ADMIN']), async (
             prisma.user.count({ where: { role: 'SUPPLIER' } }),
             prisma.user.count({ where: { role: 'DONOR' } }),
             prisma.school.aggregate({ _sum: { studentCount: true } }),
-            prisma.school.groupBy({ by: ['state'] }),
-            prisma.school.groupBy({ by: ['lga'] }),
+            prisma.school.findMany({ where: { NOT: [{ state: null }, { state: "" }] }, distinct: ['state'], select: { state: true } }),
+            prisma.school.findMany({ where: { NOT: [{ lga: null }, { lga: "" }] }, distinct: ['lga'], select: { lga: true } }),
             prisma.supplyRequest.count({ where: { status: 'DELIVERED' } }),
             prisma.supplyRequest.count({ 
                 where: { 
@@ -78,18 +78,19 @@ router.get('/admin/overview', authenticateToken, requireRole(['ADMIN']), async (
         // Estimated school days per year (approx 190)
         const schoolDaysPerYear = 190;
         const totalPossibleSchoolDays = totalSchools * schoolDaysPerYear;
-        const unsponsoredDays = Math.max(0, totalPossibleSchoolDays - sponsorshipDays);
+        const sponsorshipDaysCount = sponsorshipDays;
+        const unsponsoredDays = Math.max(0, totalPossibleSchoolDays - sponsorshipDaysCount);
 
         res.json({
             totalRequests,
             completedRequests,
             totalSchools,
             verifiedSuppliers,
-            totalStates: statesData.length,
-            totalLGAs: lgasData.length,
+            totalStates: distinctStates.length,
+            totalLGAs: distinctLGAs.length,
             totalPupils: pupilStats._sum.studentCount || 0,
             totalDonors,
-            sponsoredDays: sponsorshipDays,
+            sponsoredDays: sponsorshipDaysCount,
             unsponsoredDays: unsponsoredDays,
             suppliesDelivered: deliveredRequests,
             pendingDeliveries: pendingRequests,
