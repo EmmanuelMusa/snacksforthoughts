@@ -408,4 +408,27 @@ router.get('/:id', async (req, res) => {
     }
 })
 
+// PATCH /api/schools/:id - Update school
+router.patch('/:id', async (req, res) => {
+    try {
+        const updated = await prisma.school.update({
+            where: { id: req.params.id },
+            data: req.body
+        })
+        res.json({ success: true, data: updated })
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to update school' })
+    }
+})
+
+// DELETE /api/schools/:id - Delete school
+router.delete('/:id', async (req, res) => {
+    try {
+        await prisma.school.delete({ where: { id: req.params.id } })
+        res.json({ success: true, message: 'School deleted' })
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to delete school' })
+    }
+})
+
 export default router

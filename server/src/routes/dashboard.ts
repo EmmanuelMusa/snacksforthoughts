@@ -66,6 +66,55 @@ router.get('/admin/supplies', authenticateToken, requireRole(['ADMIN']), async (
     }
 });
 
+// Admin Status Override
+router.patch('/admin/request/:id/status', authenticateToken, requireRole(['ADMIN']), async (req, res) => {
+    try {
+        const { status } = req.body;
+        const updated = await prisma.supplyRequest.update({
+            where: { id: req.params.id },
+            data: { status }
+        });
+        res.json(updated);
+    } catch (error) {
+        res.status(500).json({ error: "Failed to update request status" });
+    }
+});
+
+// Admin User Management
+router.get('/admin/users', authenticateToken, requireRole(['ADMIN']), async (req, res) => {
+    try {
+        const users = await prisma.user.findMany({
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                role: true,
+                state: true,
+                isActive: true,
+                companyName: true,
+                createdAt: true
+            },
+            orderBy: { createdAt: 'desc' }
+        });
+        res.json(users);
+    } catch (error) {
+        res.status(500).json({ error: "Failed to fetch users" });
+    }
+});
+
+router.patch('/admin/user/:id', authenticateToken, requireRole(['ADMIN']), async (req, res) => {
+    try {
+        const { isActive, role, state } = req.body;
+        const updated = await prisma.user.update({
+            where: { id: req.params.id },
+            data: { isActive, role, state }
+        });
+        res.json(updated);
+    } catch (error) {
+        res.status(500).json({ error: "Failed to update user" });
+    }
+});
+
 // ==========================================
 // SUPPLIER ENDPOINTS
 // ==========================================
