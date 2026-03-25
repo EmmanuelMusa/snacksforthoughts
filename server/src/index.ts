@@ -62,7 +62,11 @@ app.get('/', (_req, res) => {
 });
 
 app.get('/api/health', (_req, res) => {
-    res.json({ ok: true, version: "1.0.1" })
+    res.json({ ok: true, version: "1.0.1", routes: ['/api/donors', '/api/donor'] })
+})
+
+app.get('/api/donors-test', (_req, res) => {
+    res.json({ success: true, message: "Direct /api/donors-test works" })
 })
 
 app.use('/api/schools', schoolsRouter)

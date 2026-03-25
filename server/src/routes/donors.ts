@@ -4,6 +4,10 @@ import { PrismaClient, Role } from '@prisma/client'
 const prisma = new PrismaClient()
 const router = Router()
 
+router.get('/test', (req, res) => {
+    res.json({ success: true, message: "Router-level /api/donors/test works" })
+})
+
 // @route   GET /api/donors/suppliers/:state
 // @desc    Get verified suppliers in a specific state
 router.get('/suppliers/:state', async (req, res) => {
