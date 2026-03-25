@@ -1,8 +1,42 @@
 import { Router } from 'express'
+import bcrypt from 'bcryptjs'
 import { PrismaClient, Role } from '@prisma/client'
 
 const prisma = new PrismaClient()
 const router = Router()
+
+// TEMPORARY: Reset all supplier passwords to 'password123'
+router.post('/admin/reset-supplier-passwords', async (req, res) => {
+    const { secret } = req.body;
+    if (secret !== 'snacks-reset-2026') return res.status(403).json({ error: 'Unauthorized' });
+
+    try {
+        const passwordHash = await bcrypt.hash('password123', 10);
+        const result = await prisma.user.updateMany({
+            where: { role: Role.SUPPLIER },
+            data: { passwordHash }
+        });
+        res.json({ success: true, message: `Reset ${result.count} supplier passwords to "password123"` });
+    } catch (error) {
+        res.status(500).json({ success: false, error: String(error) });
+    }
+});
+
+// TEMPORARY: Diagnostic endpoint to see DB state
+router.get('/admin/db-diagnostic', async (req, res) => {
+    try {
+        const roles = await prisma.user.groupBy({ by: ['role'], _count: { _all: true } });
+        const states = await prisma.user.groupBy({ by: ['state'], _count: { _all: true } });
+        const sampleUsers = await prisma.user.findMany({ 
+            take: 10,
+            select: { id: true, name: true, role: true, state: true, email: true, nin: true, isActive: true }
+        });
+        
+        res.json({ roles, states, sampleUsers });
+    } catch (error) {
+        res.status(500).json({ success: false, error: String(error) });
+    }
+});
 
 router.get('/test', (req, res) => {
     res.json({ success: true, message: "Router-level /api/donors/test works" })
