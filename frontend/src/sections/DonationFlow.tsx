@@ -665,10 +665,16 @@ export default function DonationFlow(): JSX.Element {
                                                     <h3 className="text-3xl font-black text-gray-900 font-display">Payment & Confirmation</h3>
                                                 </div>
 
-                                                <div className="bg-orange-50 p-6 rounded-3xl border border-orange-100">
-                                                    <p className="text-orange-900 text-sm font-bold leading-relaxed">
+                                                <div className="bg-orange-50 p-6 rounded-3xl border border-orange-100 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                                                    <p className="text-orange-900 text-sm font-bold leading-relaxed max-w-md">
                                                         [IMPORTANT] All payments are made directly to the supplier. We do not process payments on the site. Please use the verified details below.
                                                     </p>
+                                                    <div className="bg-white px-8 py-4 rounded-[2rem] border border-orange-200 shadow-sm flex flex-col items-center justify-center">
+                                                        <div className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Total Amount Due</div>
+                                                        <div className="text-3xl font-black text-blue-600 font-display">
+                                                            ₦{(items.filter(i => i.selected).reduce((acc, curr) => acc + (curr.price * (selectedSchool?.studentCount || 200) * totalDays), 0)).toLocaleString()}
+                                                        </div>
+                                                    </div>
                                                 </div>
 
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

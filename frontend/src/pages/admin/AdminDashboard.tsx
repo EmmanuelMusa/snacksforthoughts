@@ -113,6 +113,7 @@ export default function AdminDashboard() {
     const [editingEntity, setEditingEntity] = useState<any>(null)
     const [isEditModalOpen, setIsEditModalOpen] = useState(false)
     const [isAddSchoolModalOpen, setIsAddSchoolModalOpen] = useState(false)
+    const [selectedSchoolId, setSelectedSchoolId] = useState<string | null>(null)
 
     // Pagination State
     const [schoolsPage, setSchoolsPage] = useState(1)
@@ -427,10 +428,14 @@ export default function AdminDashboard() {
                                     <div className="space-y-2 overflow-y-auto pr-2 custom-scrollbar border-l border-gray-50 pl-8">
                                         <label className="sticky top-0 bg-white text-[9px] font-black text-gray-400 uppercase tracking-widest mb-4 block">Schools</label>
                                         {selectedLga ? geoView.data.map((s: any) => (
-                                            <div key={s.id} className="w-full text-left px-5 py-3 rounded-xl border border-gray-50 text-[11px] font-bold text-gray-600 shadow-sm">
-                                                <div className="truncate">{s.name}</div>
+                                            <button 
+                                                key={s.id} 
+                                                onClick={() => setSelectedSchoolId(s.id)}
+                                                className={`w-full text-left px-5 py-3 rounded-xl border transition-all ${selectedSchoolId === s.id ? 'border-emerald-500 bg-emerald-50 shadow-md ring-2 ring-emerald-500/10' : 'border-gray-50 text-gray-600 hover:border-emerald-200'}`}
+                                            >
+                                                <div className={`truncate font-bold ${selectedSchoolId === s.id ? 'text-emerald-700' : ''}`}>{s.name}</div>
                                                 <div className="text-[9px] text-emerald-500 font-black uppercase mt-1">{s.studentCount} Pupils</div>
-                                            </div>
+                                            </button>
                                         )) : <div className="text-[10px] font-bold text-gray-300 italic pt-10 text-center uppercase tracking-widest">Select LGA</div>}
                                     </div>
                                 </div>
@@ -447,6 +452,62 @@ export default function AdminDashboard() {
                                             </Pie>
                                             <Tooltip />
                                         </PieChart>
+                                    </ResponsiveContainer>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <div className="bg-white p-10 rounded-[3rem] border border-gray-100 shadow-sm">
+                                <div className="flex items-center justify-between mb-8">
+                                    <div>
+                                        <h3 className="text-xl font-black text-gray-900 font-display">Feeding Trends</h3>
+                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Daily feeding volume (Est.)</p>
+                                    </div>
+                                    <TrendingUp className="w-6 h-6 text-emerald-500" />
+                                </div>
+                                <div className="h-64">
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <AreaChart data={[
+                                            { day: 'Mon', count: 4200 }, { day: 'Tue', count: 4800 },
+                                            { day: 'Wed', count: 4500 }, { day: 'Thu', count: 5100 },
+                                            { day: 'Fri', count: 5800 }, { day: 'Sat', count: 2000 },
+                                            { day: 'Sun', count: 1500 }
+                                        ]}>
+                                            <defs>
+                                                <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
+                                                    <stop offset="5%" stopColor="#059669" stopOpacity={0.1}/>
+                                                    <stop offset="95%" stopColor="#059669" stopOpacity={0}/>
+                                                </linearGradient>
+                                            </defs>
+                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9" />
+                                            <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700, fill: '#94A3B8' }} />
+                                            <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700, fill: '#94A3B8' }} />
+                                            <Tooltip />
+                                            <Area type="monotone" dataKey="count" stroke="#059669" strokeWidth={3} fillOpacity={1} fill="url(#colorCount)" />
+                                        </AreaChart>
+                                    </ResponsiveContainer>
+                                </div>
+                            </div>
+
+                            <div className="bg-white p-10 rounded-[3rem] border border-gray-100 shadow-sm">
+                                <div className="flex items-center justify-between mb-8">
+                                    <div>
+                                        <h3 className="text-xl font-black text-gray-900 font-display">Regional Impact</h3>
+                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Pupils reached per State</p>
+                                    </div>
+                                    <BarChart3 className="w-6 h-6 text-blue-500" />
+                                </div>
+                                <div className="h-64">
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <BarChart data={geoView.type === 'country' ? geoView.data.slice(0, 6).map((s: any) => ({ name: s.state, pupils: s._sum.studentCount })) : 
+                                            geoView.data.slice(0, 6).map((l: any) => ({ name: l.lga, pupils: l._sum.studentCount }))}>
+                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9" />
+                                            <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 9, fontWeight: 700, fill: '#94A3B8' }} />
+                                            <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700, fill: '#94A3B8' }} />
+                                            <Tooltip />
+                                            <Bar dataKey="pupils" fill="#2563eb" radius={[6, 6, 0, 0]} barSize={24} />
+                                        </BarChart>
                                     </ResponsiveContainer>
                                 </div>
                             </div>
